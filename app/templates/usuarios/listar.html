@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Usuários</h1>
+    <a href="{{ url_for('main.criar_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ativo</th>
+                <th>Administrador</th>
+                <th>Data Criação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.id_usuario }}</td>
+                <td>{{ usuario.nome_usuario }}</td>
+                <td>{{ usuario.email_usuario }}</td>
+                <td>{{ 'Sim' if usuario.is_ativo else 'Não' }}</td>
+                <td>{{ 'Sim' if usuario.is_administrador else 'Não' }}</td>
+                <td>{{ usuario.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('main.excluir_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

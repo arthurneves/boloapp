@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Editar Usuário</h1>
+    <form method="POST" action="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}">
+        <div class="mb-3">
+            <label for="nome_usuario" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome_usuario" name="nome_usuario" value="{{ usuario.nome_usuario }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email_usuario" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email_usuario" name="email_usuario" value="{{ usuario.email_usuario }}" required>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="is_ativo" name="is_ativo" {% if usuario.is_ativo %}checked{% endif %}>
+            <label class="form-check-label" for="is_ativo">Usuário Ativo</label>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="is_administrador" name="is_administrador" {% if usuario.is_administrador %}checked{% endif %}>
+            <label class="form-check-label" for="is_administrador">Administrador</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Atualizar Usuário</button>
+        <a href="{{ url_for('main.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
