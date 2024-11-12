@@ -3,3 +3,6 @@ mysqlclient
 flask-sqlalchemy
 python-dotenv
 pymysql
+flask-wtf
+flask-login
+email-validator
