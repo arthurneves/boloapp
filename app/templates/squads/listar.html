@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Squads</h1>
+    <a href="{{ url_for('main.criar_squad') }}" class="btn btn-primary mb-3">Novo Squad</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Status</th>
+                <th>Data Criação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for squad in squads %}
+            <tr>
+                <td>{{ squad.id_squad }}</td>
+                <td>{{ squad.titulo_squad }}</td>
+                <td>{{ 'Ativo' if squad.is_ativo else 'Inativo' }}</td>
+                <td>{{ squad.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('main.editar_squad', id_squad=squad.id_squad) }}" class="btn btn-sm btn-warning">Editar</a>
+                    {% if squad.is_ativo %}
+                    <a href="{{ url_for('main.desativar_squad', id_squad=squad.id_squad) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar este squad?')">Desativar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

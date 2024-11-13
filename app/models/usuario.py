@@ -14,6 +14,10 @@ class Usuario(UserMixin, db.Model):
     is_administrador = db.Column(db.Boolean, default=False)
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
     data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relacionamento com Squad
+    id_squad = db.Column(db.Integer, db.ForeignKey('squad.id_squad'), nullable=True)
+    squad = db.relationship('Squad', back_populates='usuarios')
 
     def set_senha(self, senha):
         self.senha_hash = generate_password_hash(senha)
@@ -31,6 +35,8 @@ class Usuario(UserMixin, db.Model):
             'email_usuario': self.email_usuario,
             'is_ativo': self.is_ativo,
             'is_administrador': self.is_administrador,
+            'id_squad': self.id_squad,
+            'squad': self.squad.titulo_squad if self.squad else None,
             'data_criacao': self.data_criacao.isoformat(),
             'data_edicao': self.data_edicao.isoformat()
         }

@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from . import main_bp
 from app.models.usuario import Usuario
+from app.models.squad import Squad
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app import db
 
@@ -24,11 +25,15 @@ def criar_usuario():
     
     form = RegistroUsuarioForm()
     if form.validate_on_submit():
+        # Busca o squad selecionado
+        squad = Squad.query.get(form.id_squad.data)
+        
         novo_usuario = Usuario(
             nome_usuario=form.nome_usuario.data,
             email_usuario=form.email_usuario.data,
             is_ativo=form.is_ativo.data,
-            is_administrador=form.is_administrador.data
+            is_administrador=form.is_administrador.data,
+            squad=squad
         )
         novo_usuario.set_senha(form.senha.data)
         
@@ -51,10 +56,14 @@ def editar_usuario(id_usuario):
     form = EdicaoUsuarioForm(usuario_id=id_usuario)
     
     if form.validate_on_submit():
+        # Busca o squad selecionado
+        squad = Squad.query.get(form.id_squad.data)
+        
         usuario.nome_usuario = form.nome_usuario.data
         usuario.email_usuario = form.email_usuario.data
         usuario.is_ativo = form.is_ativo.data
         usuario.is_administrador = form.is_administrador.data
+        usuario.squad = squad
         
         db.session.commit()
         
@@ -66,6 +75,7 @@ def editar_usuario(id_usuario):
     form.email_usuario.data = usuario.email_usuario
     form.is_ativo.data = usuario.is_ativo
     form.is_administrador.data = usuario.is_administrador
+    form.id_squad.data = usuario.id_squad if usuario.squad else 0
     
     return render_template('usuarios/editar.html', form=form, usuario=usuario)
 

@@ -60,6 +60,18 @@
                             {% endif %}
                         </div>
                         
+                        <div class="mb-3">
+                            {{ form.id_squad.label(class="form-label") }}
+                            {{ form.id_squad(class="form-select") }}
+                            {% if form.id_squad.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.id_squad.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
                         <div class="mb-3 form-check">
                             {{ form.is_ativo(class="form-check-input") }}
                             {{ form.is_ativo.label(class="form-check-label") }}
@@ -72,6 +84,7 @@
                         
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('main.listar_usuarios') }}" class="btn btn-secondary mt-2">Cancelar</a>
                         </div>
                     </form>
                 </div>
