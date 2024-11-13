@@ -19,22 +19,6 @@ def create_database():
         
         # Conectar ao banco de dados
         connection.database = 'boloapp'
-        
-        # Criar tabela de usuários
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS usuario (
-            id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-            nome_usuario VARCHAR(100) NOT NULL,
-            email_usuario VARCHAR(100) UNIQUE NOT NULL,
-            senha_hash VARCHAR(255) NOT NULL,
-            is_ativo BOOLEAN DEFAULT TRUE,
-            is_administrador BOOLEAN DEFAULT FALSE,
-            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )
-        """)
-        print("Tabela 'usuario' criada com sucesso.")
-
 
         # Criar tabela de squads
         cursor.execute("""
@@ -47,14 +31,37 @@ def create_database():
         )
         """)
         print("Tabela 'squad' criada com sucesso.")
-
-        # Alterar tabela de usuários para adicionar relacionamento com squad
+        
+        # Criar tabela de usuários
         cursor.execute("""
-        ALTER TABLE usuario 
-        ADD COLUMN id_squad INT,
-        ADD FOREIGN KEY (id_squad) REFERENCES squad(id_squad)
+        CREATE TABLE IF NOT EXISTS usuario (
+            id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+            nome_usuario VARCHAR(100) NOT NULL,
+            email_usuario VARCHAR(100) UNIQUE NOT NULL,
+            senha_hash VARCHAR(255) NOT NULL,
+            id_squad INT,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            is_administrador BOOLEAN DEFAULT FALSE,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_squad) REFERENCES squad(id_squad)
+        );
         """)
-        print("Coluna id_squad adicionada à tabela de usuários.")
+        print("Tabela 'usuario' criada com sucesso.")
+
+
+        # Criar tabela de categorias
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS categoria (
+            id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+            titulo_categoria VARCHAR(100) NOT NULL,
+            descricao_categoria VARCHAR(255) NOT NULL,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+        """)
+        print("Tabela 'categoria' criada com sucesso.")
 
         
         # Criar usuário administrador padrão
