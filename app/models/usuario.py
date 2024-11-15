@@ -10,6 +10,7 @@ class Usuario(UserMixin, db.Model):
     nome_usuario = db.Column(db.String(100), nullable=False)
     email_usuario = db.Column(db.String(100), unique=True, nullable=False)
     senha_hash = db.Column(db.String(255), nullable=False)
+    saldo_pontos_usuario = db.Column(db.Integer)
     is_ativo = db.Column(db.Boolean, default=True)
     is_administrador = db.Column(db.Boolean, default=False)
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
@@ -33,6 +34,7 @@ class Usuario(UserMixin, db.Model):
             'id_usuario': self.id_usuario,
             'nome_usuario': self.nome_usuario,
             'email_usuario': self.email_usuario,
+            'saldo_pontos_usuario': self.saldo_pontos_usuario,
             'is_ativo': self.is_ativo,
             'is_administrador': self.is_administrador,
             'id_squad': self.id_squad,

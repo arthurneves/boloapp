@@ -10,6 +10,7 @@
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Email</th>
+                <th>Saldo Bolos</th>
                 <th>Squad</th>
                 <th>Ativo</th>
                 <th>Administrador</th>
@@ -23,6 +24,7 @@
                 <td>{{ usuario.id_usuario }}</td>
                 <td>{{ usuario.nome_usuario }}</td>
                 <td>{{ usuario.email_usuario }}</td>
+                <td>{{ usuario.saldo_pontos_usuario }}</td>
                 <td>{{ usuario.squad.titulo_squad if usuario.squad else 'Sem Squad' }}</td>
                 <td>{{ 'Sim' if usuario.is_ativo else 'Não' }}</td>
                 <td>{{ 'Sim' if usuario.is_administrador else 'Não' }}</td>

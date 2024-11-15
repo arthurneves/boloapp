@@ -39,6 +39,7 @@ def create_database():
             nome_usuario VARCHAR(100) NOT NULL,
             email_usuario VARCHAR(100) UNIQUE NOT NULL,
             senha_hash VARCHAR(255) NOT NULL,
+            saldo_pontos_usuario INT,
             id_squad INT,
             is_ativo BOOLEAN DEFAULT TRUE,
             is_administrador BOOLEAN DEFAULT FALSE,
