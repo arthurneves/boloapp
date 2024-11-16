@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Transações de Pontos</h1>
+    <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary mb-3">Nova Transação</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>Categoria</th>
+                <th>Pontos</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Data Criação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transacao in transacoes %}
+            <tr>
+                <td>{{ transacao.id_transacao }}</td>
+                <td>{{ transacao.usuario.nome_usuario }}</td>
+                <td>{{ transacao.categoria.titulo_categoria }}</td>
+                <td>{{ transacao.pontos_transacao }}</td>
+                <td>{{ transacao.descricao_transacao or 'Sem descrição' }}</td>
+                <td>{{ 'Ativo' if transacao.is_ativo else 'Inativo' }}</td>
+                <td>{{ transacao.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if transacao.is_ativo %}
+                        <a href="{{ url_for('main.editar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('main.desativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta transação?')">Desativar</a>
+                    {% else %}
+                        <a href="{{ url_for('main.reativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esta transação?')">Reativar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

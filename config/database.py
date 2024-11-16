@@ -39,7 +39,7 @@ def create_database():
             nome_usuario VARCHAR(100) NOT NULL,
             email_usuario VARCHAR(100) UNIQUE NOT NULL,
             senha_hash VARCHAR(255) NOT NULL,
-            saldo_pontos_usuario INT,
+            saldo_pontos_usuario INT NOT NULL DEFAULT '0',
             id_squad INT,
             is_ativo BOOLEAN DEFAULT TRUE,
             is_administrador BOOLEAN DEFAULT FALSE,
@@ -63,6 +63,23 @@ def create_database():
         )
         """)
         print("Tabela 'categoria' criada com sucesso.")
+
+
+        # Criar tabela de transacao de pontos
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS transacao_pontos (
+            id_transacao INT AUTO_INCREMENT PRIMARY KEY,
+            id_usuario INT,
+            id_categoria INT,
+            pontos_transacao INT,
+            descricao_transacao VARCHAR(255) NOT NULL,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
+        )
+        """)
+        print("Tabela 'transacao_pontos' criada com sucesso.")
 
         
         # Criar usuário administrador padrão
