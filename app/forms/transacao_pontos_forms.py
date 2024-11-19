@@ -11,7 +11,7 @@ class TransacaoPontosForm(FlaskForm):
     id_categoria = SelectField('Categoria', coerce=int, validators=[
         DataRequired(message='Selecione uma categoria')
     ])
-    pontos_transacao = IntegerField('Pontos', validators=[
+    pontos_transacao = IntegerField('Pontos', default=1, validators=[
         DataRequired(message='Pontos são obrigatórios')
     ])
     descricao_transacao = TextAreaField('Descrição', validators=[

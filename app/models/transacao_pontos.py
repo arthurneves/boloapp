@@ -12,26 +12,11 @@ class TransacaoPontos(db.Model):
     is_ativo = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     aux_saldo = None
-    aux_ativo = None
+    aux_evento = None
     
     # Relacionamentos
     usuario = db.relationship('Usuario', back_populates='transacoes_pontos')
     categoria = db.relationship('Categoria')
-
-    def atualizar_saldo_usuario(self):
-            
-        if self.usuario is None:
-            from app.models.usuario import Usuario
-
-            # Busca o usuário diretamente pelo ID
-            self.usuario = Usuario.query.get(self.id_usuario)
-
-        if self.aux_saldo:
-            self.usuario.saldo_pontos_usuario += self.aux_saldo
-        else:
-            self.usuario.saldo_pontos_usuario += self.pontos_transacao
-
-
 
     def to_dict(self):
         return {
@@ -52,7 +37,7 @@ def update_usuario_pontos(mapper, connection, target):
     """
     from app.models.usuario import Usuario
 
-    if target.aux_evento == 'edicao':
+    if target.aux_evento and target.aux_evento == 'edicao':
         pontos = target.aux_saldo
 
     elif target.is_ativo is False: #desativacao

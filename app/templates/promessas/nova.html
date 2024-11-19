@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">Nova Promessa</h1>
+            
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.titulo_promessa.label(class="form-label") }}
+                    {{ form.titulo_promessa(class="form-control " + ("is-invalid" if form.titulo_promessa.errors else "")) }}
+                    {% if form.titulo_promessa.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.titulo_promessa.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        O título deve ter entre 3 e 255 caracteres, contendo apenas letras, números e espaços.
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.descricao_promessa.label(class="form-label") }}
+                    {{ form.descricao_promessa(class="form-control " + ("is-invalid" if form.descricao_promessa.errors else ""), rows=4) }}
+                    {% if form.descricao_promessa.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.descricao_promessa.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        Descrição opcional, máximo de 1000 caracteres.
+                    </small>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.is_ativo(class="form-check-input") }}
+                    {{ form.is_ativo.label(class="form-check-label") }}
+                    <small class="form-text text-muted d-block">
+                        Promessas ativas são visíveis e podem ser gerenciadas.
+                    </small>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('main.listar_promessas') }}" class="btn btn-secondary">Cancelar</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona validação do lado do cliente
+        const form = document.querySelector('form');
+        const tituloInput = document.getElementById('titulo_promessa');
+        const descricaoInput = document.getElementById('descricao_promessa');
+        
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validação do título
+            if (tituloInput.value.trim().length < 3) {
+                tituloInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                tituloInput.classList.remove('is-invalid');
+            }
+            
+            // Validação da descrição (opcional)
+            if (descricaoInput.value.trim().length > 1000) {
+                descricaoInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                descricaoInput.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

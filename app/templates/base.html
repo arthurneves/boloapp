@@ -22,6 +22,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.home') }}">Início</a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.listar_promessas') }}">Promessas</a>
+                    </li>
+                    {% endif %}
                     {% if current_user.is_authenticated and current_user.is_administrador %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.listar_usuarios') }}">Usuários</a>

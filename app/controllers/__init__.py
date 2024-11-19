@@ -7,3 +7,4 @@ from . import usuario_routes
 from . import squad_routes
 from . import categoria_routes
 from . import transacao_pontos_routes
+from . import promessa_routes

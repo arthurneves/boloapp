@@ -50,7 +50,6 @@ def create_database():
         """)
         print("Tabela 'usuario' criada com sucesso.")
 
-
         # Criar tabela de categorias
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS categoria (
@@ -63,7 +62,6 @@ def create_database():
         )
         """)
         print("Tabela 'categoria' criada com sucesso.")
-
 
         # Criar tabela de transacao de pontos
         cursor.execute("""
@@ -81,6 +79,20 @@ def create_database():
         """)
         print("Tabela 'transacao_pontos' criada com sucesso.")
 
+        # Criar tabela de promessas
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS promessa (
+            id_promessa INT AUTO_INCREMENT PRIMARY KEY,
+            id_usuario INT NOT NULL,
+            titulo_promessa VARCHAR(255) NOT NULL,
+            descricao_promessa TEXT,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'promessa' criada com sucesso.")
         
         # Criar usuário administrador padrão
         admin_email = 'admin@email.com'
