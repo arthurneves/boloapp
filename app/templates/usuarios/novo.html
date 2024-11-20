@@ -36,28 +36,30 @@
                             {% endif %}
                         </div>
                         
-                        <div class="mb-3">
-                            {{ form.senha.label(class="form-label") }}
-                            {{ form.senha(class="form-control") }}
-                            {% if form.senha.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.senha.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.confirmar_senha.label(class="form-label") }}
-                            {{ form.confirmar_senha(class="form-control") }}
-                            {% if form.confirmar_senha.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.confirmar_senha.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.senha.label(class="form-label") }}
+                                {{ form.senha(class="form-control") }}
+                                {% if form.senha.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.senha.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.confirmar_senha.label(class="form-label") }}
+                                {{ form.confirmar_senha(class="form-control") }}
+                                {% if form.confirmar_senha.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.confirmar_senha.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <div class="mb-3">

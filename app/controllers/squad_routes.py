@@ -15,7 +15,7 @@ def listar_squads():
     squads = Squad.query.all()
     return render_template('squads/listar.html', squads=squads)
 
-@main_bp.route('/squads/novo', methods=['GET', 'POST'])
+@main_bp.route('/squads/nova', methods=['GET', 'POST'])
 @login_required
 def criar_squad():
     if not current_user.is_administrador:
@@ -24,18 +24,18 @@ def criar_squad():
     
     form = SquadForm()
     if form.validate_on_submit():
-        novo_squad = Squad(
+        nova_squad = Squad(
             titulo_squad=form.titulo_squad.data,
             is_ativo=form.is_ativo.data
         )
         
-        db.session.add(novo_squad)
+        db.session.add(nova_squad)
         db.session.commit()
         
         flash('Squad criado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
     
-    return render_template('squads/novo.html', form=form)
+    return render_template('squads/nova.html', form=form)
 
 @main_bp.route('/squads/editar/<int:id_squad>', methods=['GET', 'POST'])
 @login_required
@@ -55,6 +55,9 @@ def editar_squad(id_squad):
         
         flash('Squad atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
+    
+    if form.errors:
+        return render_template('squads/editar.html', form=form, squad=squad)
     
     # Preenche o formulário com os dados atuais do squad
     form.titulo_squad.data = squad.titulo_squad

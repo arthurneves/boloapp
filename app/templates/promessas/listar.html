@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Promessas</h1>
+    <a href="{{ url_for('main.criar_promessa') }}" class="btn btn-primary mb-3">Nova Promessa</a>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Data de Criação</th>
+                <th>Data de Edição</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for promessa in promessas %}
+            <tr>
+                <td>{{ promessa.id_promessa }}</td>
+                <td>{{ promessa.usuario.nome_usuario }}</td>
+                <td>{{ promessa.titulo_promessa }}</td>
+                <td>{{ promessa.descricao_promessa or 'Sem descrição' }}</td>
+                <td>{{ 'Ativo' if promessa.is_ativo else 'Inativo' }}</td>
+                <td>{{ promessa.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ promessa.data_edicao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-warning">Editar</a>
+                    {% if promessa.is_ativo %}
+                    <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">Desativar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Adiciona ícones do Font Awesome (opcional, requer inclusão da biblioteca)
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    });
+</script>
+{% endblock %}

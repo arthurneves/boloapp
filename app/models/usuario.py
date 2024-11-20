@@ -20,6 +20,7 @@ class Usuario(UserMixin, db.Model):
     # Relacionamentos
     squad = db.relationship('Squad', back_populates='usuarios')
     transacoes_pontos = db.relationship('TransacaoPontos', back_populates='usuario', lazy='dynamic', cascade='all, delete-orphan')
+    promessas = db.relationship('Promessa', back_populates='usuario')
 
     def set_senha(self, senha):
         self.senha_hash = generate_password_hash(senha)

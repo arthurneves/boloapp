@@ -1,7 +1,6 @@
 from app import db
 from datetime import datetime
 from sqlalchemy.orm import validates
-import re
 
 class Promessa(db.Model):
     __tablename__ = 'promessa'
@@ -15,7 +14,7 @@ class Promessa(db.Model):
     data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relacionamento com Usuário
-    usuario = db.relationship('Usuario', backref='promessas')
+    usuario = db.relationship('Usuario')
 
     @validates('titulo_promessa')
     def validate_titulo_promessa(self, key, titulo):
@@ -29,10 +28,6 @@ class Promessa(db.Model):
         # Verifica comprimento
         if len(titulo) < 3:
             raise ValueError("Título da promessa deve ter pelo menos 3 caracteres")
-        
-        # Verifica caracteres especiais (opcional)
-        if not re.match(r'^[a-zA-Z0-9\s]+$', titulo):
-            raise ValueError("Título contém caracteres inválidos")
         
         return titulo
 

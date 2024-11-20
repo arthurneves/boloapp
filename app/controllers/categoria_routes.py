@@ -11,7 +11,7 @@ def listar_categorias():
     categorias = Categoria.query.all()
     return render_template('categorias/listar.html', categorias=categorias)
 
-@main_bp.route('/categorias/novo', methods=['GET', 'POST'])
+@main_bp.route('/categorias/nova', methods=['GET', 'POST'])
 @login_required
 def criar_categoria():
     form = CategoriaForm()
@@ -28,7 +28,7 @@ def criar_categoria():
         flash('Categoria criada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
     
-    return render_template('categorias/novo.html', form=form)
+    return render_template('categorias/nova.html', form=form)
 
 @main_bp.route('/categorias/editar/<int:id_categoria>', methods=['GET', 'POST'])
 @login_required
@@ -45,6 +45,9 @@ def editar_categoria(id_categoria):
         
         flash('Categoria atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
+    
+    if form.errors:
+        return render_template('categorias/editar.html', form=form, categoria=categoria)
     
     # Preenche o formulário com os dados atuais da categoria
     form.titulo_categoria.data = categoria.titulo_categoria

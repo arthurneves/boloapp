@@ -16,7 +16,7 @@ def listar_usuarios():
     usuarios = Usuario.query.all()
     return render_template('usuarios/listar.html', usuarios=usuarios)
 
-@main_bp.route('/usuarios/novo', methods=['GET', 'POST'])
+@main_bp.route('/usuarios/nova', methods=['GET', 'POST'])
 @login_required
 def criar_usuario():
     if not current_user.is_administrador:
@@ -64,11 +64,17 @@ def editar_usuario(id_usuario):
         usuario.is_ativo = form.is_ativo.data
         usuario.is_administrador = form.is_administrador.data
         usuario.squad = squad
+
+        if form.senha:
+            usuario.set_senha(form.senha.data)
         
         db.session.commit()
         
         flash('Usuário atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_usuarios'))
+    
+    if form.errors:
+        return render_template('usuarios/editar.html', form=form, usuario=usuario)
     
     # Preenche o formulário com os dados atuais do usuário
     form.nome_usuario.data = usuario.nome_usuario

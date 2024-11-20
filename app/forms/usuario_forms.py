@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from app.models.usuario import Usuario
 from app.models.squad import Squad
 
@@ -9,18 +9,22 @@ class RegistroUsuarioForm(FlaskForm):
         DataRequired(message='Nome é obrigatório'),
         Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
+
     email_usuario = StringField('Email', validators=[
         DataRequired(message='Email é obrigatório'),
         Email(message='Email inválido')
     ])
+
     senha = PasswordField('Senha', validators=[
         DataRequired(message='Senha é obrigatória'),
         Length(min=6, message='Senha deve ter no mínimo 6 caracteres')
     ])
+
     confirmar_senha = PasswordField('Confirmar Senha', validators=[
         DataRequired(message='Confirmação de senha é obrigatória'),
         EqualTo('senha', message='Senhas não conferem')
     ])
+
     id_squad = SelectField('Squad', coerce=int, validators=[DataRequired(message='Selecione um Squad')])
     is_ativo = BooleanField('Usuário Ativo', default=True)
     is_administrador = BooleanField('Administrador')
@@ -58,10 +62,23 @@ class EdicaoUsuarioForm(FlaskForm):
         DataRequired(message='Nome é obrigatório'),
         Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
+
     email_usuario = StringField('Email', validators=[
         DataRequired(message='Email é obrigatório'),
         Email(message='Email inválido')
     ])
+
+    senha = PasswordField('Senha', validators=[
+        Optional(),
+        Length(min=6, message='Senha deve ter no mínimo 6 caracteres')
+    ])
+
+    confirmar_senha = PasswordField('Confirmar Senha', validators=[
+        Optional(),
+        EqualTo('senha', message='Senhas não conferem')
+    ])
+
+
     id_squad = SelectField('Squad', coerce=int, validators=[DataRequired(message='Selecione um Squad')])
     is_ativo = BooleanField('Usuário Ativo')
     is_administrador = BooleanField('Administrador')
@@ -84,3 +101,10 @@ class EdicaoUsuarioForm(FlaskForm):
     def validate_id_squad(self, id_squad):
         if id_squad.data == 0:
             raise ValidationError('Selecione um Squad válido')
+        
+
+    def validate_edicao_senha(self, senha, confirmar_senha):
+        if senha:
+            if senha != confirmar_senha:
+                raise ValidationError('Senha deve ser igual a confirmação')
+

@@ -84,8 +84,8 @@ def create_database():
         CREATE TABLE IF NOT EXISTS promessa (
             id_promessa INT AUTO_INCREMENT PRIMARY KEY,
             id_usuario INT NOT NULL,
-            titulo_promessa VARCHAR(255) NOT NULL,
-            descricao_promessa TEXT,
+            titulo_promessa VARCHAR(100) NOT NULL,
+            descricao_promessa VARCHAR(255),
             is_ativo BOOLEAN DEFAULT TRUE,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
