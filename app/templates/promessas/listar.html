@@ -30,9 +30,11 @@
                 <td>{{ promessa.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>{{ promessa.data_edicao.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
-                    <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-warning">Editar</a>
                     {% if promessa.is_ativo %}
-                    <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">Desativar</a>
+                        <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">Desativar</a>
+                    {% else %}
+                        <a href="{{ url_for('main.reativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esta promessa?')">Reativar</a>
                     {% endif %}
                 </td>
             </tr>

@@ -24,10 +24,17 @@ def create_app(config_class=Config):
     # Create tables
     with app.app_context():
         from .models.usuario import Usuario
+        from .models.log import Log  # Import Log model
+        from .models.squad import Squad  # Ensure Squad is imported
         db.create_all()
 
     # Import and register blueprints
     from .controllers import main_bp
+    from .controllers.usuario_routes import usuario_bp
+    from .controllers.log_routes import log_bp  # Import Log blueprint
+
     app.register_blueprint(main_bp)
+    app.register_blueprint(usuario_bp, url_prefix='/usuarios')
+    app.register_blueprint(log_bp, url_prefix='/logs')  # Register Log blueprint
 
     return app

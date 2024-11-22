@@ -29,7 +29,7 @@
                     {% endif %}
                     {% if current_user.is_authenticated and current_user.is_administrador %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.listar_usuarios') }}">Usuários</a>
+                        <a class="nav-link" href="{{ url_for('usuario.listar_usuarios') }}">Usuários</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.listar_squads') }}">Squads</a>
@@ -49,12 +49,12 @@
                             {{ current_user.nome_usuario }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sair</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('usuario.logout') }}">Sair</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                        <a class="nav-link" href="{{ url_for('usuario.login') }}">Login</a>
                     </li>
                     {% endif %}
                 </ul>

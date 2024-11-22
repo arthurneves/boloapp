@@ -75,3 +75,14 @@ def desativar_promessa(id_promessa):
     
     flash('Promessa desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
+
+@main_bp.route('/promessas/reativar/<int:id_promessa>', methods=['GET'])
+@login_required
+def reativar_promessa(id_promessa):
+    promessa = Promessa.query.get_or_404(id_promessa)
+
+    promessa.is_ativo = True
+    db.session.commit()
+    
+    flash('Promessa reativada com sucesso!', 'success')
+    return redirect(url_for('main.listar_promessas'))

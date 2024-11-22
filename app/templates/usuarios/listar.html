@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">Usuários</h1>
-    <a href="{{ url_for('main.criar_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
+    <a href="{{ url_for('usuario.novo_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -30,8 +30,12 @@
                 <td>{{ 'Sim' if usuario.is_administrador else 'Não' }}</td>
                 <td>{{ usuario.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
-                    <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
-                    <a href="{{ url_for('main.excluir_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</a>
+                    {% if usuario.is_ativo %}
+                        <a href="{{ url_for('usuario.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('usuario.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</a>
+                    {% else %}
+                        <a href="{{ url_for('usuario.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">Reativar</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from sqlalchemy import func
 
 class Squad(db.Model):
     __tablename__ = 'squad'
@@ -7,8 +7,8 @@ class Squad(db.Model):
     id_squad = db.Column(db.Integer, primary_key=True, autoincrement=True)
     titulo_squad = db.Column(db.String(100), nullable=False)
     is_ativo = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    data_criacao = db.Column(db.DateTime, default=func.now())
+    data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
     
     # Relacionamento com usuários
     usuarios = db.relationship('Usuario', back_populates='squad', lazy='dynamic')

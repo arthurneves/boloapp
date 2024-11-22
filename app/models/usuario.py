@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from sqlalchemy import func
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -14,13 +14,18 @@ class Usuario(UserMixin, db.Model):
     id_squad = db.Column(db.Integer, db.ForeignKey('squad.id_squad'), nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
     is_administrador = db.Column(db.Boolean, default=False)
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    data_criacao = db.Column(db.DateTime, default=func.now())
+    data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
     
     # Relacionamentos
     squad = db.relationship('Squad', back_populates='usuarios')
     transacoes_pontos = db.relationship('TransacaoPontos', back_populates='usuario', lazy='dynamic', cascade='all, delete-orphan')
     promessas = db.relationship('Promessa', back_populates='usuario')
+
+    logs_criados = db.relationship('Log', foreign_keys='Log.id_usuario_autor', back_populates='usuario_autor')
+    logs_recebidos = db.relationship('Log', foreign_keys='Log.id_usuario_afetado', back_populates='usuario_afetado')
+
+
 
     def set_senha(self, senha):
         self.senha_hash = generate_password_hash(senha)

@@ -1,33 +1,26 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from . import main_bp
+from app import db
 from app.models.usuario import Usuario
 from app.models.squad import Squad
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
-from app import db
+from app.models.log import Log  # Import Log model
 
-@main_bp.route('/usuarios', methods=['GET'])
+usuario_bp = Blueprint('usuario', __name__)
+
+@usuario_bp.route('/usuarios', methods=['GET'])
 @login_required
 def listar_usuarios():
-    if not current_user.is_administrador:
-        flash('Acesso não autorizado', 'danger')
-        return redirect(url_for('main.home'))
-    
     usuarios = Usuario.query.all()
     return render_template('usuarios/listar.html', usuarios=usuarios)
 
-@main_bp.route('/usuarios/nova', methods=['GET', 'POST'])
+@usuario_bp.route('/usuarios/novo', methods=['GET', 'POST'])
 @login_required
-def criar_usuario():
-    if not current_user.is_administrador:
-        flash('Acesso não autorizado', 'danger')
-        return redirect(url_for('main.home'))
-    
+def novo_usuario():
     form = RegistroUsuarioForm()
     if form.validate_on_submit():
         # Busca o squad selecionado
         squad = Squad.query.get(form.id_squad.data)
-        
         novo_usuario = Usuario(
             nome_usuario=form.nome_usuario.data,
             email_usuario=form.email_usuario.data,
@@ -39,13 +32,18 @@ def criar_usuario():
         
         db.session.add(novo_usuario)
         db.session.commit()
-        
+
+        Log.criar_log(
+            usuario_autor=current_user, 
+            usuario_afetado=novo_usuario, 
+            acao='novo_usuario'
+        )
+
         flash('Usuário criado com sucesso!', 'success')
-        return redirect(url_for('main.listar_usuarios'))
-    
+        return redirect(url_for('usuario.listar_usuarios'))
     return render_template('usuarios/novo.html', form=form)
 
-@main_bp.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
+@usuario_bp.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
 @login_required
 def editar_usuario(id_usuario):
     if not current_user.is_administrador:
@@ -65,13 +63,20 @@ def editar_usuario(id_usuario):
         usuario.is_administrador = form.is_administrador.data
         usuario.squad = squad
 
-        if form.senha:
+        if form.senha.data:
             usuario.set_senha(form.senha.data)
-        
+
         db.session.commit()
-        
+
+        # Criar log de edição de usuário
+        Log.criar_log(
+            usuario_autor=current_user, 
+            usuario_afetado=usuario, 
+            acao='editar_usuario'
+        )
+
         flash('Usuário atualizado com sucesso!', 'success')
-        return redirect(url_for('main.listar_usuarios'))
+        return redirect(url_for('usuario.listar_usuarios'))
     
     if form.errors:
         return render_template('usuarios/editar.html', form=form, usuario=usuario)
@@ -85,9 +90,9 @@ def editar_usuario(id_usuario):
     
     return render_template('usuarios/editar.html', form=form, usuario=usuario)
 
-@main_bp.route('/usuarios/excluir/<int:id_usuario>', methods=['GET'])
+@usuario_bp.route('/usuarios/desativar/<int:id_usuario>', methods=['GET'])
 @login_required
-def excluir_usuario(id_usuario):
+def desativar_usuario(id_usuario):
     if not current_user.is_administrador:
         flash('Acesso não autorizado', 'danger')
         return redirect(url_for('main.home'))
@@ -97,15 +102,38 @@ def excluir_usuario(id_usuario):
     # Impede exclusão do próprio usuário
     if usuario.id_usuario == current_user.id_usuario:
         flash('Você não pode excluir seu próprio usuário', 'danger')
-        return redirect(url_for('main.listar_usuarios'))
+        return redirect(url_for('usuario.listar_usuarios'))
     
-    db.session.delete(usuario)
+    usuario.is_ativo = False
     db.session.commit()
-    
-    flash('Usuário excluído com sucesso!', 'success')
-    return redirect(url_for('main.listar_usuarios'))
 
-@main_bp.route('/login', methods=['GET', 'POST'])
+    Log.criar_log(
+        usuario_autor=current_user, 
+        usuario_afetado=usuario, 
+        acao='desativar_usuario'
+    )
+
+    flash('Usuário desativado com sucesso!', 'success')
+    return redirect(url_for('usuario.listar_usuarios'))
+
+@usuario_bp.route('/usuarios/reativar/<int:id_usuario>', methods=['GET'])
+@login_required
+def reativar_usuario(id_usuario):
+    usuario = Usuario.query.get_or_404(id_usuario)
+    
+    usuario.is_ativo = True
+    db.session.commit()
+
+    Log.criar_log(
+        usuario_autor=current_user, 
+        usuario_afetado=usuario, 
+        acao='reativar_usuario'
+    )
+    
+    flash('Usuário reativado com sucesso!', 'success')
+    return redirect(url_for('usuario.listar_usuarios'))
+
+@usuario_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
@@ -127,7 +155,7 @@ def login():
     
     return render_template('usuarios/login.html', form=form)
 
-@main_bp.route('/logout')
+@usuario_bp.route('/logout')
 @login_required
 def logout():
     logout_user()

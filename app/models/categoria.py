@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from sqlalchemy import func
 
 class Categoria(db.Model):
     __tablename__ = 'categoria'
@@ -8,8 +8,8 @@ class Categoria(db.Model):
     titulo_categoria = db.Column(db.String(100), nullable=False)
     descricao_categoria = db.Column(db.Text, nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    data_criacao = db.Column(db.DateTime, default=func.now())
+    data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         return {

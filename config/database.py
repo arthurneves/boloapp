@@ -93,6 +93,21 @@ def create_database():
         )
         """)
         print("Tabela 'promessa' criada com sucesso.")
+
+        # Criar tabela de logs
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS log (
+            id_log INT AUTO_INCREMENT PRIMARY KEY,
+            id_usuario_autor INT NOT NULL,
+            id_usuario_afetado INT NOT NULL,
+            acao_log VARCHAR(50) NOT NULL,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_usuario_autor) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_usuario_afetado) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'log' criada com sucesso.")
+
         
         # Criar usuário administrador padrão
         admin_email = 'admin@email.com'

@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from sqlalchemy import func
 from sqlalchemy.orm import validates
 
 class Promessa(db.Model):
@@ -10,8 +10,8 @@ class Promessa(db.Model):
     titulo_promessa = db.Column(db.String(255), nullable=False)
     descricao_promessa = db.Column(db.Text, nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_edicao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    data_criacao = db.Column(db.DateTime, default=func.now())
+    data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
     
     # Relacionamento com Usuário
     usuario = db.relationship('Usuario')
