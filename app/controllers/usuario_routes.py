@@ -33,11 +33,7 @@ def novo_usuario():
         db.session.add(novo_usuario)
         db.session.commit()
 
-        Log.criar_log(
-            usuario_autor=current_user, 
-            usuario_afetado=novo_usuario, 
-            acao='novo_usuario'
-        )
+        Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar')
 
         flash('Usuário criado com sucesso!', 'success')
         return redirect(url_for('usuario.listar_usuarios'))
@@ -68,12 +64,7 @@ def editar_usuario(id_usuario):
 
         db.session.commit()
 
-        # Criar log de edição de usuário
-        Log.criar_log(
-            usuario_autor=current_user, 
-            usuario_afetado=usuario, 
-            acao='editar_usuario'
-        )
+        Log.criar_log(id_usuario, 'usuario', 'editar')
 
         flash('Usuário atualizado com sucesso!', 'success')
         return redirect(url_for('usuario.listar_usuarios'))
@@ -107,11 +98,7 @@ def desativar_usuario(id_usuario):
     usuario.is_ativo = False
     db.session.commit()
 
-    Log.criar_log(
-        usuario_autor=current_user, 
-        usuario_afetado=usuario, 
-        acao='desativar_usuario'
-    )
+    Log.criar_log(id_usuario, 'usuario', 'desativar')
 
     flash('Usuário desativado com sucesso!', 'success')
     return redirect(url_for('usuario.listar_usuarios'))
@@ -124,11 +111,7 @@ def reativar_usuario(id_usuario):
     usuario.is_ativo = True
     db.session.commit()
 
-    Log.criar_log(
-        usuario_autor=current_user, 
-        usuario_afetado=usuario, 
-        acao='reativar_usuario'
-    )
+    Log.criar_log(id_usuario, 'usuario', 'reativar')
     
     flash('Usuário reativado com sucesso!', 'success')
     return redirect(url_for('usuario.listar_usuarios'))

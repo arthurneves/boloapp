@@ -21,9 +21,7 @@ class Usuario(UserMixin, db.Model):
     squad = db.relationship('Squad', back_populates='usuarios')
     transacoes_pontos = db.relationship('TransacaoPontos', back_populates='usuario', lazy='dynamic', cascade='all, delete-orphan')
     promessas = db.relationship('Promessa', back_populates='usuario')
-
     logs_criados = db.relationship('Log', foreign_keys='Log.id_usuario_autor', back_populates='usuario_autor')
-    logs_recebidos = db.relationship('Log', foreign_keys='Log.id_usuario_afetado', back_populates='usuario_afetado')
 
 
 
