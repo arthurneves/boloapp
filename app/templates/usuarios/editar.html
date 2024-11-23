@@ -49,8 +49,15 @@
                                             {% endfor %}
                                         </div>
                                     {% endif %}
+
+                                    {% if usuario.foto_perfil %}
+                                        {% set foto_preview = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
+                                    {% else %}
+                                        {% set foto_preview = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                                    {% endif %}
+
                                     <img id="foto-preview" 
-                                         src="{{ url_for('static', filename='uploads/profile_photos/' + usuario.foto_perfil) }}" 
+                                         src="{{ foto_preview }}" 
                                          class="img-fluid rounded-circle mt-2" 
                                          style="max-width: 150px; max-height: 150px; object-fit: cover;">
                                 </div>
