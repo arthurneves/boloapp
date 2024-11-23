@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "logs/macros.html" import ordenar_coluna, link_paginacao %}
 
 {% block content %}
 <div class="container mt-4">
@@ -7,26 +8,12 @@
     <!-- Formulário de Filtro -->
     <form method="GET" action="{{ url_for('main.listar_logs') }}" class="mb-4">
         <div class="row">
-            <div class="col-md-3">
-                {{ form.usuario_autor.label(class="form-label") }}
-                {{ form.usuario_autor(class="form-select") }}
+            {% for field in [form.usuario_autor, form.tipo_entidade, form.acao, form.data_inicio, form.data_fim] %}
+            <div class="col-md-{{ 12 // loop.length }}">
+                {{ field.label(class="form-label") }}
+                {{ field(class="form-control" if field.type != "SelectField" else "form-select") }}
             </div>
-            <div class="col-md-2">
-                {{ form.tipo_entidade.label(class="form-label") }}
-                {{ form.tipo_entidade(class="form-select") }}
-            </div>
-            <div class="col-md-2">
-                {{ form.acao.label(class="form-label") }}
-                {{ form.acao(class="form-select") }}
-            </div>
-            <div class="col-md-2">
-                {{ form.data_inicio.label(class="form-label") }}
-                {{ form.data_inicio(class="form-control", type="date") }}
-            </div>
-            <div class="col-md-2">
-                {{ form.data_fim.label(class="form-label") }}
-                {{ form.data_fim(class="form-control", type="date") }}
-            </div>
+            {% endfor %}
         </div>
         <div class="row mt-3">
             <div class="col">
@@ -39,66 +26,11 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>
-                    <a href="{{ url_for('main.listar_logs', 
-                        sort='id_log', 
-                        order='desc' if sort_by != 'id_log' or sort_order == 'asc' else 'asc',
-                        usuario_autor=request.args.get('usuario_autor', 0),
-                        tipo_entidade=request.args.get('tipo_entidade', ''),
-                        acao=request.args.get('acao', ''),
-                        data_inicio=request.args.get('data_inicio', ''),
-                        data_fim=request.args.get('data_fim', '')) }}">
-                        ID Log
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ url_for('main.listar_logs', 
-                        sort='id_usuario_autor', 
-                        order='desc' if sort_by != 'id_usuario_autor' or sort_order == 'asc' else 'asc',
-                        usuario_autor=request.args.get('usuario_autor', 0),
-                        tipo_entidade=request.args.get('tipo_entidade', ''),
-                        acao=request.args.get('acao', ''),
-                        data_inicio=request.args.get('data_inicio', ''),
-                        data_fim=request.args.get('data_fim', '')) }}">
-                        Usuário Autor
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ url_for('main.listar_logs', 
-                        sort='tipo_entidade', 
-                        order='desc' if sort_by != 'acao_log' or sort_order == 'asc' else 'asc',
-                        usuario_autor=request.args.get('usuario_autor', 0),
-                        tipo_entidade=request.args.get('tipo_entidade', ''),
-                        acao=request.args.get('acao', ''),
-                        data_inicio=request.args.get('data_inicio', ''),
-                        data_fim=request.args.get('data_fim', '')) }}">
-                        Tipo Entidade
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ url_for('main.listar_logs', 
-                        sort='acao_log', 
-                        order='desc' if sort_by != 'acao_log' or sort_order == 'asc' else 'asc',
-                        usuario_autor=request.args.get('usuario_autor', 0),
-                        tipo_entidade=request.args.get('tipo_entidade', ''),
-                        acao=request.args.get('acao', ''),
-                        data_inicio=request.args.get('data_inicio', ''),
-                        data_fim=request.args.get('data_fim', '')) }}">
-                        Ação
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ url_for('main.listar_logs', 
-                        sort='data_criacao', 
-                        order='desc' if sort_by != 'data_criacao' or sort_order == 'asc' else 'asc',
-                        usuario_autor=request.args.get('usuario_autor', 0),
-                        tipo_entidade=request.args.get('tipo_entidade', ''),
-                        acao=request.args.get('acao', ''),
-                        data_inicio=request.args.get('data_inicio', ''),
-                        data_fim=request.args.get('data_fim', '')) }}">
-                        Data Criação
-                    </a>
-                </th>
+                <th>{{ ordenar_coluna("ID Log", "id_log") }}</th>
+                <th>{{ ordenar_coluna("Usuário Autor", "id_usuario_autor") }}</th>
+                <th>{{ ordenar_coluna("Tipo Entidade", "tipo_entidade") }}</th>
+                <th>{{ ordenar_coluna("Ação", "acao_log") }}</th>
+                <th>{{ ordenar_coluna("Data Criação", "data_criacao") }}</th>
             </tr>
         </thead>
         <tbody>
@@ -118,61 +50,25 @@
     <nav aria-label="Navegação de logs">
         <ul class="pagination">
             {% if pagination.has_prev %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('main.listar_logs', 
-                    page=pagination.prev_num, 
-                    sort=sort_by, 
-                    order=sort_order,
-                    usuario_autor=request.args.get('usuario_autor', 0),
-                    tipo_entidade=request.args.get('tipo_entidade', ''),
-                    acao=request.args.get('acao', ''),
-                    data_inicio=request.args.get('data_inicio', ''),
-                    data_fim=request.args.get('data_fim', '')) }}">
-                    Anterior
-                </a>
-            </li>
+            <li class="page-item">{{ link_paginacao("Anterior", pagination.prev_num) }}</li>
             {% endif %}
 
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if page_num %}
-                    {% if page_num == pagination.page %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('main.listar_logs', 
-                                page=page_num, 
-                                sort=sort_by, 
-                                order=sort_order,
-                                usuario_autor=request.args.get('usuario_autor', 0),
-                                tipo_entidade=request.args.get('tipo_entidade', ''),
-                                acao=request.args.get('acao', ''),
-                                data_inicio=request.args.get('data_inicio', ''),
-                                data_fim=request.args.get('data_fim', '')) }}">
-                                {{ page_num }}
-                            </a>
-                        </li>
-                    {% endif %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        {% if page_num == pagination.page %}
+                        <span class="page-link">{{ page_num }}</span>
+                        {% else %}
+                        {{ link_paginacao(page_num, page_num) }}
+                        {% endif %}
+                    </li>
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">...</span></li>
                 {% endif %}
             {% endfor %}
 
             {% if pagination.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('main.listar_logs', 
-                    page=pagination.next_num, 
-                    sort=sort_by, 
-                    order=sort_order,
-                    usuario_autor=request.args.get('usuario_autor', 0),
-                    tipo_entidade=request.args.get('tipo_entidade', ''),
-                    acao=request.args.get('acao', ''),
-                    data_inicio=request.args.get('data_inicio', ''),
-                    data_fim=request.args.get('data_fim', '')) }}">
-                    Próximo
-                </a>
-            </li>
+            <li class="page-item">{{ link_paginacao("Próximo", pagination.next_num) }}</li>
             {% endif %}
         </ul>
     </nav>

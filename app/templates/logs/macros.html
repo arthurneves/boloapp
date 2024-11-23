@@ -1,0 +1,14 @@
+{% macro ordenar_coluna(nome, coluna) %}
+<a href="{{ url_for('main.listar_logs', sort=coluna, 
+                     order='desc' if sort_by != coluna or sort_order == 'asc' else 'asc', 
+                     **request.args) }}">
+    {{ nome }}
+</a>
+{% endmacro %}
+
+{% macro link_paginacao(texto, pagina) %}
+<a class="page-link" href="{{ url_for('main.listar_logs', page=pagina, 
+                     sort=sort_by, order=sort_order, **request.args) }}">
+    {{ texto }}
+</a>
+{% endmacro %}

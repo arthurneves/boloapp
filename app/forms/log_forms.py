@@ -7,17 +7,21 @@ class LogFiltroForm(FlaskForm):
     usuario_autor = SelectField('Usuário Autor', coerce=int, validators=[Optional()])
     id_registro_afetado = SelectField('ID Registro Afetado', coerce=int, validators=[Optional()])
     tipo_entidade = SelectField('Tipo Entidade', choices=[
-        ('', 'Todas'),
-        ('Usuario', 'Usuario'),
-        ('Transacao Pontos', 'TransacaoPontos'),
-        ('Categoria', 'Categoria')
-    ], validators=[Optional()])
+                                                    ('', 'Todas'),
+                                                    ('Usuario', 'usuario'),
+                                                    ('Transação de Pontos', 'transacao_pontos'),
+                                                    ('Promessa', 'promessa'),
+                                                    ('Votação', 'votacao'),
+                                                    ('Categoria', 'categoria'),
+                                                    ('Squad', 'squad')
+                                                ], validators=[Optional()])
     acao = SelectField('Ação', choices=[
-        ('', 'Todas'),
-        ('Criação', 'Criação'),
-        ('Edição', 'Edição'),
-        ('Desativação', 'Desativação')
-    ], validators=[Optional()])
+                                    ('', 'Todas'),
+                                    ('Criação', 'criar'),
+                                    ('Edição', 'editar'),
+                                    ('Desativação', 'desativar'),
+                                    ('Reativação', 'reativar')
+                                ], validators=[Optional()])
     data_inicio = DateField('Data Início', format='%d-%m-%Y', validators=[Optional()])
     data_fim = DateField('Data Fim', format='%d-%m-%Y', validators=[Optional()])
     submit = SubmitField('Filtrar')
