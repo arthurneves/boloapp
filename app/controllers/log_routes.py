@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
+from . import main_bp
 from app import db
 from app.models.log import Log
 from app.models.usuario import Usuario
 from app.forms.log_forms import LogFiltroForm
 from sqlalchemy import desc
 
-log_bp = Blueprint('log', __name__)
 
-@log_bp.route('/logs', methods=['GET'])
+@main_bp.route('/logs', methods=['GET'])
 @login_required
 def listar_logs():
     form = LogFiltroForm()
@@ -32,10 +32,15 @@ def listar_logs():
             query = query.filter(Log.id_usuario_autor == usuario_autor_id)
         
         # Filtro por usuário afetado
-        usuario_afetado_id = request.args.get('usuario_afetado', type=int, default=0)
-        if usuario_afetado_id and usuario_afetado_id != 0:
-            query = query.filter(Log.id_usuario_afetado == usuario_afetado_id)
+        registro_afetado_id = request.args.get('registro_afetado', type=int, default=0)
+        if registro_afetado_id and registro_afetado_id != 0:
+            query = query.filter(Log.id_registro_afetado == registro_afetado_id)
         
+        # Filtro por tipo entidade
+        tipo_entidade = request.args.get('tipo_entidade', type=str, default='')
+        if tipo_entidade:
+            query = query.filter(Log.tipo_entidade == tipo_entidade)
+
         # Filtro por ação
         acao = request.args.get('acao', type=str, default='')
         if acao:
@@ -57,6 +62,9 @@ def listar_logs():
 
     # Paginação
     logs_paginados = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Preencher o formulário com os valores dos filtros
+    form.process(request.args)
 
     # Preparar dados para o template
     return render_template('logs/listar.html', 

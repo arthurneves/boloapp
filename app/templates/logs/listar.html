@@ -5,15 +5,15 @@
     <h1>Logs de Atividade</h1>
 
     <!-- Formulário de Filtro -->
-    <form method="GET" action="{{ url_for('log.listar_logs') }}" class="mb-4">
+    <form method="GET" action="{{ url_for('main.listar_logs') }}" class="mb-4">
         <div class="row">
             <div class="col-md-3">
                 {{ form.usuario_autor.label(class="form-label") }}
                 {{ form.usuario_autor(class="form-select") }}
             </div>
-            <div class="col-md-3">
-                {{ form.usuario_afetado.label(class="form-label") }}
-                {{ form.usuario_afetado(class="form-select") }}
+            <div class="col-md-2">
+                {{ form.tipo_entidade.label(class="form-label") }}
+                {{ form.tipo_entidade(class="form-select") }}
             </div>
             <div class="col-md-2">
                 {{ form.acao.label(class="form-label") }}
@@ -40,11 +40,11 @@
         <thead>
             <tr>
                 <th>
-                    <a href="{{ url_for('log.listar_logs', 
+                    <a href="{{ url_for('main.listar_logs', 
                         sort='id_log', 
                         order='desc' if sort_by != 'id_log' or sort_order == 'asc' else 'asc',
                         usuario_autor=request.args.get('usuario_autor', 0),
-                        usuario_afetado=request.args.get('usuario_afetado', 0),
+                        tipo_entidade=request.args.get('tipo_entidade', ''),
                         acao=request.args.get('acao', ''),
                         data_inicio=request.args.get('data_inicio', ''),
                         data_fim=request.args.get('data_fim', '')) }}">
@@ -52,11 +52,11 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ url_for('log.listar_logs', 
+                    <a href="{{ url_for('main.listar_logs', 
                         sort='id_usuario_autor', 
                         order='desc' if sort_by != 'id_usuario_autor' or sort_order == 'asc' else 'asc',
                         usuario_autor=request.args.get('usuario_autor', 0),
-                        usuario_afetado=request.args.get('usuario_afetado', 0),
+                        tipo_entidade=request.args.get('tipo_entidade', ''),
                         acao=request.args.get('acao', ''),
                         data_inicio=request.args.get('data_inicio', ''),
                         data_fim=request.args.get('data_fim', '')) }}">
@@ -64,23 +64,23 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ url_for('log.listar_logs', 
-                        sort='id_usuario_afetado', 
-                        order='desc' if sort_by != 'id_usuario_afetado' or sort_order == 'asc' else 'asc',
+                    <a href="{{ url_for('main.listar_logs', 
+                        sort='tipo_entidade', 
+                        order='desc' if sort_by != 'acao_log' or sort_order == 'asc' else 'asc',
                         usuario_autor=request.args.get('usuario_autor', 0),
-                        usuario_afetado=request.args.get('usuario_afetado', 0),
+                        tipo_entidade=request.args.get('tipo_entidade', ''),
                         acao=request.args.get('acao', ''),
                         data_inicio=request.args.get('data_inicio', ''),
                         data_fim=request.args.get('data_fim', '')) }}">
-                        Usuário Afetado
+                        Tipo Entidade
                     </a>
                 </th>
                 <th>
-                    <a href="{{ url_for('log.listar_logs', 
+                    <a href="{{ url_for('main.listar_logs', 
                         sort='acao_log', 
                         order='desc' if sort_by != 'acao_log' or sort_order == 'asc' else 'asc',
                         usuario_autor=request.args.get('usuario_autor', 0),
-                        usuario_afetado=request.args.get('usuario_afetado', 0),
+                        tipo_entidade=request.args.get('tipo_entidade', ''),
                         acao=request.args.get('acao', ''),
                         data_inicio=request.args.get('data_inicio', ''),
                         data_fim=request.args.get('data_fim', '')) }}">
@@ -88,11 +88,11 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ url_for('log.listar_logs', 
+                    <a href="{{ url_for('main.listar_logs', 
                         sort='data_criacao', 
                         order='desc' if sort_by != 'data_criacao' or sort_order == 'asc' else 'asc',
                         usuario_autor=request.args.get('usuario_autor', 0),
-                        usuario_afetado=request.args.get('usuario_afetado', 0),
+                        tipo_entidade=request.args.get('tipo_entidade', ''),
                         acao=request.args.get('acao', ''),
                         data_inicio=request.args.get('data_inicio', ''),
                         data_fim=request.args.get('data_fim', '')) }}">
@@ -105,8 +105,8 @@
             {% for log in logs %}
             <tr>
                 <td>{{ log.id_log }}</td>
-                <td>{{ log.usuario_autor.nome }}</td>
-                <td>{{ log.usuario_afetado.nome }}</td>
+                <td>{{ log.usuario_autor.nome_usuario }}</td>
+                <td>{{ log.tipo_entidade }}</td>
                 <td>{{ log.acao_log }}</td>
                 <td>{{ log.data_criacao.strftime('%d/%m/%Y %H:%M:%S') }}</td>
             </tr>
@@ -119,12 +119,12 @@
         <ul class="pagination">
             {% if pagination.has_prev %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('log.listar_logs', 
+                <a class="page-link" href="{{ url_for('main.listar_logs', 
                     page=pagination.prev_num, 
                     sort=sort_by, 
                     order=sort_order,
                     usuario_autor=request.args.get('usuario_autor', 0),
-                    usuario_afetado=request.args.get('usuario_afetado', 0),
+                    tipo_entidade=request.args.get('tipo_entidade', ''),
                     acao=request.args.get('acao', ''),
                     data_inicio=request.args.get('data_inicio', ''),
                     data_fim=request.args.get('data_fim', '')) }}">
@@ -141,12 +141,12 @@
                         </li>
                     {% else %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('log.listar_logs', 
+                            <a class="page-link" href="{{ url_for('main.listar_logs', 
                                 page=page_num, 
                                 sort=sort_by, 
                                 order=sort_order,
                                 usuario_autor=request.args.get('usuario_autor', 0),
-                                usuario_afetado=request.args.get('usuario_afetado', 0),
+                                tipo_entidade=request.args.get('tipo_entidade', ''),
                                 acao=request.args.get('acao', ''),
                                 data_inicio=request.args.get('data_inicio', ''),
                                 data_fim=request.args.get('data_fim', '')) }}">
@@ -161,12 +161,12 @@
 
             {% if pagination.has_next %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('log.listar_logs', 
+                <a class="page-link" href="{{ url_for('main.listar_logs', 
                     page=pagination.next_num, 
                     sort=sort_by, 
                     order=sort_order,
                     usuario_autor=request.args.get('usuario_autor', 0),
-                    usuario_afetado=request.args.get('usuario_afetado', 0),
+                    tipo_entidade=request.args.get('tipo_entidade', ''),
                     acao=request.args.get('acao', ''),
                     data_inicio=request.args.get('data_inicio', ''),
                     data_fim=request.args.get('data_fim', '')) }}">

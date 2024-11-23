@@ -31,10 +31,8 @@ def create_app(config_class=Config):
     # Import and register blueprints
     from .controllers import main_bp
     from .controllers.usuario_routes import usuario_bp
-    from .controllers.log_routes import log_bp  # Import Log blueprint
 
     app.register_blueprint(main_bp)
     app.register_blueprint(usuario_bp, url_prefix='/usuarios')
-    app.register_blueprint(log_bp, url_prefix='/logs')  # Register Log blueprint
 
     return app
