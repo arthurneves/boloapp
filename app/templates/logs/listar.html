@@ -8,7 +8,7 @@
     <!-- Formulário de Filtro -->
     <form method="GET" action="{{ url_for('main.listar_logs') }}" class="mb-4">
         <div class="row">
-            {% for field in [form.usuario_autor, form.tipo_entidade, form.acao, form.data_inicio, form.data_fim] %}
+            {% for field in [form.usuario_autor, form.usuario_afetado, form.tipo_entidade, form.acao, form.data_inicio, form.data_fim] %}
             <div class="col-md-{{ 12 // loop.length }}">
                 {{ field.label(class="form-label") }}
                 {{ field(class="form-control" if field.type != "SelectField" else "form-select") }}
@@ -24,20 +24,26 @@
 
     <!-- Tabela de Logs -->
     <table class="table table-striped">
+
         <thead>
             <tr>
-                <th>{{ ordenar_coluna("ID Log", "id_log") }}</th>
-                <th>{{ ordenar_coluna("Usuário Autor", "id_usuario_autor") }}</th>
-                <th>{{ ordenar_coluna("Tipo Entidade", "tipo_entidade") }}</th>
-                <th>{{ ordenar_coluna("Ação", "acao_log") }}</th>
-                <th>{{ ordenar_coluna("Data Criação", "data_criacao") }}</th>
+                <th>{{ ordenar_coluna("ID Log", "id_log", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("Usuário Autor", "id_usuario_autor", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("Usuário Afetado", "id_usuario_afetado", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("ID Registro Afetado", "id_registro_afetado", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("Tipo Entidade", "tipo_entidade", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("Ação", "acao_log", sort_by, sort_order) }}</th>
+                <th>{{ ordenar_coluna("Data Criação", "data_criacao", sort_by, sort_order) }}</th>
             </tr>
         </thead>
+
         <tbody>
             {% for log in logs %}
             <tr>
                 <td>{{ log.id_log }}</td>
                 <td>{{ log.usuario_autor.nome_usuario }}</td>
+                <td>{{ log.usuario_afetado.nome_usuario }}</td>
+                <td>{{ log.id_registro_afetado }}</td>
                 <td>{{ log.tipo_entidade }}</td>
                 <td>{{ log.acao_log }}</td>
                 <td>{{ log.data_criacao.strftime('%d/%m/%Y %H:%M:%S') }}</td>
@@ -49,8 +55,9 @@
     <!-- Paginação -->
     <nav aria-label="Navegação de logs">
         <ul class="pagination">
+
             {% if pagination.has_prev %}
-            <li class="page-item">{{ link_paginacao("Anterior", pagination.prev_num) }}</li>
+                <li class="page-item">{{ link_paginacao("Anterior", pagination.prev_num) }}</li>
             {% endif %}
 
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
@@ -68,8 +75,9 @@
             {% endfor %}
 
             {% if pagination.has_next %}
-            <li class="page-item">{{ link_paginacao("Próximo", pagination.next_num) }}</li>
+                <li class="page-item">{{ link_paginacao("Próximo", pagination.next_num) }}</li>
             {% endif %}
+
         </ul>
     </nav>
 </div>
