@@ -1,9 +1,10 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from . import main_bp
+from app import db
+from app.models.log import Log
 from app.models.categoria import Categoria
 from app.forms.categoria_forms import CategoriaForm
-from app import db
+from . import main_bp
 
 @main_bp.route('/categorias', methods=['GET'])
 @login_required
@@ -24,6 +25,8 @@ def criar_categoria():
         
         db.session.add(nova_categoria)
         db.session.commit()
+
+        Log.criar_log(nova_categoria.id_categoria, 'categoria', 'criar')
         
         flash('Categoria criada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
@@ -42,6 +45,8 @@ def editar_categoria(id_categoria):
         categoria.is_ativo = form.is_ativo.data
         
         db.session.commit()
+
+        Log.criar_log(id_categoria, 'categoria', 'editar')
         
         flash('Categoria atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
@@ -61,9 +66,10 @@ def editar_categoria(id_categoria):
 def desativar_categoria(id_categoria):
     categoria = Categoria.query.get_or_404(id_categoria)
     
-    # Desativa a categoria
     categoria.is_ativo = False
     db.session.commit()
+
+    Log.criar_log(id_categoria, 'categoria', 'desativar')
     
     flash('Categoria desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_categorias'))

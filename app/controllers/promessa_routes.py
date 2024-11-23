@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from . import main_bp
+from app.models.log import Log
 from app.models.promessa import Promessa
 from app.models.usuario import Usuario
 from app.forms.promessa_forms import PromessaForm
@@ -30,6 +31,8 @@ def criar_promessa():
         
         db.session.add(nova_promessa)
         db.session.commit()
+
+        Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar')
         
         flash('Promessa criada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -53,6 +56,8 @@ def editar_promessa(id_promessa):
         promessa.id_usuario = usuario.id_usuario
         
         db.session.commit()
+
+        Log.criar_log(id_promessa, 'promessa', 'editar')
         
         flash('Promessa atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -72,6 +77,8 @@ def desativar_promessa(id_promessa):
     # Desativa a promessa
     promessa.is_ativo = False
     db.session.commit()
+
+    Log.criar_log(id_promessa, 'promessa', 'desativar')
     
     flash('Promessa desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -83,6 +90,8 @@ def reativar_promessa(id_promessa):
 
     promessa.is_ativo = True
     db.session.commit()
+
+    Log.criar_log(id_promessa, 'promessa', 'reativar')
     
     flash('Promessa reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))

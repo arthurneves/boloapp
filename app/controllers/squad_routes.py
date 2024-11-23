@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from . import main_bp
+from app.models.log import Log
 from app.models.squad import Squad
 from app.forms.squad_forms import SquadForm
 from app import db
@@ -31,6 +32,8 @@ def criar_squad():
         
         db.session.add(nova_squad)
         db.session.commit()
+
+        Log.criar_log(nova_squad.id_squad, 'squad', 'criar')
         
         flash('Squad criado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
@@ -52,6 +55,8 @@ def editar_squad(id_squad):
         squad.is_ativo = form.is_ativo.data
         
         db.session.commit()
+
+        Log.criar_log(id_squad, 'squad', 'editar')
         
         flash('Squad atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
@@ -74,9 +79,10 @@ def desativar_squad(id_squad):
     
     squad = Squad.query.get_or_404(id_squad)
     
-    # Desativa o squad
     squad.is_ativo = False
     db.session.commit()
+
+    Log.criar_log(id_squad, 'squad', 'desativar')
     
     flash('Squad desativado com sucesso!', 'success')
     return redirect(url_for('main.listar_squads'))

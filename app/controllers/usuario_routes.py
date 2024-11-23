@@ -4,7 +4,7 @@ from app import db
 from app.models.usuario import Usuario
 from app.models.squad import Squad
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
-from app.models.log import Log  # Import Log model
+from app.models.log import Log
 
 usuario_bp = Blueprint('usuario', __name__)
 

@@ -1,10 +1,11 @@
-from flask import render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
-from . import main_bp
+from flask import render_template, redirect, url_for, flash
+from flask_login import login_required
+from app import db
 from app.models.transacao_pontos import TransacaoPontos
 from app.models.usuario import Usuario
+from app.models.log import Log
 from app.forms.transacao_pontos_forms import TransacaoPontosForm
-from app import db
+from . import main_bp
 
 @main_bp.route('/transacoes-pontos', methods=['GET'])
 @login_required
@@ -26,6 +27,8 @@ def criar_transacao_pontos():
         
         db.session.add(nova_transacao)
         db.session.commit()
+
+        Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar')
         
         flash('Transação de pontos criada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -54,8 +57,9 @@ def editar_transacao_pontos(id_transacao):
         transacao.descricao_transacao = form.descricao_transacao.data
         transacao.is_ativo = True  
      
-        #transacao.atualizar_saldo_usuario()
         db.session.commit()
+
+        Log.criar_log(id_transacao, 'transacao_pontos', 'editar')
         
         flash('Transação de pontos atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -78,6 +82,8 @@ def desativar_transacao_pontos(id_transacao):
     # Desativa a transação
     transacao.is_ativo = False
     db.session.commit()
+
+    Log.criar_log(id_transacao, 'transacao_pontos', 'desativar')
     
     flash('Transação de pontos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
@@ -92,6 +98,8 @@ def reativar_transacao_pontos(id_transacao):
     # Reativa a transação
     transacao.is_ativo = True
     db.session.commit()
+
+    Log.criar_log(id_transacao, 'transacao_pontos', 'reativar')
     
     flash('Transação de pontos reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
