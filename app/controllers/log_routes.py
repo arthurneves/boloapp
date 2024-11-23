@@ -30,8 +30,13 @@ def listar_logs():
         usuario_autor_id = request.args.get('usuario_autor', type=int, default=0)
         if usuario_autor_id and usuario_autor_id != 0:
             query = query.filter(Log.id_usuario_autor == usuario_autor_id)
-        
+
         # Filtro por usuário afetado
+        usuario_afetado_id = request.args.get('usuario_afetado', type=int, default=0)
+        if usuario_afetado_id and usuario_afetado_id != 0:
+            query = query.filter(Log.id_usuario_afetado == usuario_afetado_id)
+        
+        # Filtro por registro afetado
         registro_afetado_id = request.args.get('registro_afetado', type=int, default=0)
         if registro_afetado_id and registro_afetado_id != 0:
             query = query.filter(Log.id_registro_afetado == registro_afetado_id)
@@ -56,9 +61,9 @@ def listar_logs():
 
     # Aplicar ordenação
     if sort_order == 'desc':
-        query = query.order_by(desc(getattr(Log, sort_by)))
+        query = query.order_by(desc(getattr(Log, sort_by))) if sort_by != '' else query
     else:
-        query = query.order_by(getattr(Log, sort_by))
+        query = query.order_by(getattr(Log, sort_by)) if sort_by != '' else query
 
     # Paginação
     logs_paginados = query.paginate(page=page, per_page=per_page, error_out=False)

@@ -99,6 +99,7 @@ def create_database():
         CREATE TABLE IF NOT EXISTS log (
             id_log INT AUTO_INCREMENT PRIMARY KEY,
             id_usuario_autor INT NOT NULL,
+            id_usuario_afetado INT,
             id_registro_afetado INT NOT NULL,
             tipo_entidade VARCHAR(30) NOT NULL,
             acao_log VARCHAR(50) NOT NULL,

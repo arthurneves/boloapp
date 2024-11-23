@@ -5,6 +5,7 @@ from app.models.usuario import Usuario
 
 class LogFiltroForm(FlaskForm):
     usuario_autor = SelectField('Usuário Autor', coerce=int, validators=[Optional()])
+    usuario_afetado = SelectField('Usuário Afetado', coerce=int, validators=[Optional()])
     id_registro_afetado = SelectField('ID Registro Afetado', coerce=int, validators=[Optional()])
     tipo_entidade = SelectField('Tipo Entidade', choices=[
                                                     ('', 'Todas'),
@@ -31,3 +32,4 @@ class LogFiltroForm(FlaskForm):
         # Populate usuario choices dynamically
         usuarios = Usuario.query.all()
         self.usuario_autor.choices = [(0, 'Todos')] + [(u.id_usuario, u.nome_usuario) for u in usuarios]
+        self.usuario_afetado.choices = [(0, 'Todos')] + [(u.id_usuario, u.nome_usuario) for u in usuarios]

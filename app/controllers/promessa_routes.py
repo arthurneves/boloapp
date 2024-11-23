@@ -32,7 +32,7 @@ def criar_promessa():
         db.session.add(nova_promessa)
         db.session.commit()
 
-        Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar')
+        Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar', nova_promessa.id_usuario)
         
         flash('Promessa criada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -57,7 +57,7 @@ def editar_promessa(id_promessa):
         
         db.session.commit()
 
-        Log.criar_log(id_promessa, 'promessa', 'editar')
+        Log.criar_log(id_promessa, 'promessa', 'editar', promessa.id_usuario)
         
         flash('Promessa atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -78,7 +78,7 @@ def desativar_promessa(id_promessa):
     promessa.is_ativo = False
     db.session.commit()
 
-    Log.criar_log(id_promessa, 'promessa', 'desativar')
+    Log.criar_log(id_promessa, 'promessa', 'desativar', promessa.id_usuario)
     
     flash('Promessa desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -91,7 +91,7 @@ def reativar_promessa(id_promessa):
     promessa.is_ativo = True
     db.session.commit()
 
-    Log.criar_log(id_promessa, 'promessa', 'reativar')
+    Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
     
     flash('Promessa reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))

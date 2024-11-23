@@ -28,7 +28,7 @@ def criar_transacao_pontos():
         db.session.add(nova_transacao)
         db.session.commit()
 
-        Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar')
+        Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar', nova_transacao.id_usuario)
         
         flash('Transação de pontos criada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -59,7 +59,7 @@ def editar_transacao_pontos(id_transacao):
      
         db.session.commit()
 
-        Log.criar_log(id_transacao, 'transacao_pontos', 'editar')
+        Log.criar_log(id_transacao, 'transacao_pontos', 'editar', transacao.id_usuario)
         
         flash('Transação de pontos atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -83,7 +83,7 @@ def desativar_transacao_pontos(id_transacao):
     transacao.is_ativo = False
     db.session.commit()
 
-    Log.criar_log(id_transacao, 'transacao_pontos', 'desativar')
+    Log.criar_log(id_transacao, 'transacao_pontos', 'desativar', transacao.id_usuario)
     
     flash('Transação de pontos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
@@ -99,7 +99,7 @@ def reativar_transacao_pontos(id_transacao):
     transacao.is_ativo = True
     db.session.commit()
 
-    Log.criar_log(id_transacao, 'transacao_pontos', 'reativar')
+    Log.criar_log(id_transacao, 'transacao_pontos', 'reativar', transacao.id_usuario)
     
     flash('Transação de pontos reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
