@@ -14,6 +14,7 @@ class Usuario(UserMixin, db.Model):
     id_squad = db.Column(db.Integer, db.ForeignKey('squad.id_squad'), nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
     is_administrador = db.Column(db.Boolean, default=False)
+    foto_perfil = db.Column(db.String(255), nullable=True)
     data_criacao = db.Column(db.DateTime, default=func.now())
     data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
     
@@ -45,6 +46,7 @@ class Usuario(UserMixin, db.Model):
             'squad': self.squad.titulo_squad if self.squad else None,
             'is_ativo': self.is_ativo,
             'is_administrador': self.is_administrador,
+            'foto_perfil': self.foto_perfil,
             'data_criacao': self.data_criacao.isoformat(),
             'data_edicao': self.data_edicao.isoformat()
         }

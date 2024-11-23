@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from app.models.usuario import Usuario
@@ -23,6 +24,10 @@ class RegistroUsuarioForm(FlaskForm):
     confirmar_senha = PasswordField('Confirmar Senha', validators=[
         DataRequired(message='Confirmação de senha é obrigatória'),
         EqualTo('senha', message='Senhas não conferem')
+    ])
+
+    foto_perfil = FileField('Foto de Perfil', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Apenas imagens são permitidas!')
     ])
 
     id_squad = SelectField('Squad', coerce=int, validators=[DataRequired(message='Selecione um Squad')])
@@ -78,6 +83,9 @@ class EdicaoUsuarioForm(FlaskForm):
         EqualTo('senha', message='Senhas não conferem')
     ])
 
+    foto_perfil = FileField('Foto de Perfil', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Apenas imagens são permitidas!')
+    ])
 
     id_squad = SelectField('Squad', coerce=int, validators=[DataRequired(message='Selecione um Squad')])
     is_ativo = BooleanField('Usuário Ativo')

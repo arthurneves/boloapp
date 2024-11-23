@@ -43,6 +43,7 @@ def create_database():
             id_squad INT,
             is_ativo BOOLEAN DEFAULT TRUE,
             is_administrador BOOLEAN DEFAULT FALSE,
+            foto_perfil VARCHAR(255),
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (id_squad) REFERENCES squad(id_squad)

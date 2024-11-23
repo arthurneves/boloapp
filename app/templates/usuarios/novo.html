@@ -9,31 +9,51 @@
                     <h2>Novo Usuário</h2>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         
-                        <div class="mb-3">
-                            {{ form.nome_usuario.label(class="form-label") }}
-                            {{ form.nome_usuario(class="form-control") }}
-                            {% if form.nome_usuario.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.nome_usuario.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nome_usuario.label(class="form-label") }}
+                                    {{ form.nome_usuario(class="form-control") }}
+                                    {% if form.nome_usuario.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.nome_usuario.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.email_usuario.label(class="form-label") }}
-                            {{ form.email_usuario(class="form-control") }}
-                            {% if form.email_usuario.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.email_usuario.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
+                                
+                                <div class="mb-3">
+                                    {{ form.email_usuario.label(class="form-label") }}
+                                    {{ form.email_usuario(class="form-control") }}
+                                    {% if form.email_usuario.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email_usuario.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    {{ form.foto_perfil.label(class="form-label") }}
+                                    {{ form.foto_perfil(class="form-control", onchange="previewImage(event)") }}
+                                    {% if form.foto_perfil.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.foto_perfil.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <img id="foto-preview" src="{{ url_for('static', filename='uploads/profile_photos/default_profile.png') }}" 
+                                         class="img-fluid rounded-circle mt-2" 
+                                         style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="row">
@@ -94,4 +114,19 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+function previewImage(event) {
+    var input = event.target;
+    var reader = new FileReader();
+    reader.onload = function(){
+        var dataURL = reader.result;
+        var output = document.getElementById('foto-preview');
+        output.src = dataURL;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+{% endblock %}
 {% endblock %}
