@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
 
     <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -38,7 +39,7 @@
                         <a class="nav-link" href="{{ url_for('main.listar_categorias') }}">Categorias</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.listar_transacoes_pontos') }}">Transações de Pontos</a>
+                        <a class="nav-link" href="{{ url_for('main.listar_transacoes_pontos') }}">Transações de Bolos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.listar_logs') }}">Logs</a>
@@ -47,8 +48,9 @@
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="{{ url_for('usuario.perfil_usuario', id_usuario=current_user.id_usuario) }}" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                             {{ current_user.nome_usuario }}
                         </a>
                         <ul class="dropdown-menu">

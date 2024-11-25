@@ -1,0 +1,49 @@
+.table-display{
+    display: table;
+    max-width: 100%;
+}
+@media screen and (max-width: 410px) {
+    .table-display{
+        display: grid;
+        max-width: 100%;
+    }
+}
+
+#header-img-user {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* Ensure the button containing the image doesn't have default styling */
+.navbar .nav-item button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-right: 10px;
+}
+
+#perfil-img-principal {
+    width: 200px; 
+    height: 200px; 
+    object-fit: cover;
+
+    border: 1px solid rgba(0,0,0,.125);
+    box-shadow: 2px 2px 5px 0px rgb(92, 92, 92); 
+}
+
+.perfil-usuario-link {
+    text-decoration: none;
+    color: black;
+}
+
+.perfil-usuario-squad {
+    font-weight: bold;
+}
+
+.perfil-usuario-link:hover {
+    color: rgb(99, 99, 99);
+}

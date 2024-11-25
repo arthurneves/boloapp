@@ -4,6 +4,8 @@ from wtforms.validators import ValidationError
 from app import db
 from app.models.usuario import Usuario
 from app.models.squad import Squad
+from app.models.promessa import Promessa
+from app.models.transacao_pontos import TransacaoPontos
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.models.log import Log
 from app.services.image_service import ImageService
@@ -36,7 +38,7 @@ def novo_usuario():
             except ValueError as e:
                 flash(str(e), 'danger')
                 return render_template('usuarios/novo.html', form=form)
-
+        
         novo_usuario = Usuario(
             nome_usuario=form.nome_usuario.data,
             email_usuario=form.email_usuario.data,
@@ -137,7 +139,7 @@ def desativar_usuario(id_usuario):
     
     # Impede exclusão do próprio usuário
     if usuario.id_usuario == current_user.id_usuario:
-        flash('Você não pode excluir seu próprio usuário', 'danger')
+        flash('Você não pode desativar seu próprio usuário', 'danger')
         return redirect(url_for('usuario.listar_usuarios'))
     
     usuario.is_ativo = False
@@ -188,4 +190,30 @@ def login():
 def logout():
     logout_user()
     flash('Logout realizado com sucesso!', 'success')
-    return redirect(url_for('main.login'))
+    return redirect(url_for('usuario.login'))
+
+@usuario_bp.route('/perfil/<int:id_usuario>', methods=['GET'])
+@login_required
+def perfil_usuario(id_usuario):
+    usuario = Usuario.query.get_or_404(id_usuario)
+    
+    # Buscar promessas do usuário
+    promessas = Promessa.query.filter_by(id_usuario=id_usuario).all()
+    
+    # Buscar transações de pontos do usuário
+    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).all()
+    
+    # Buscar outros usuários da mesma squad
+    usuarios_squad = []
+    if usuario.squad:
+        usuarios_squad = Usuario.query.filter(
+            Usuario.id_squad == usuario.squad.id_squad, 
+            Usuario.id_usuario != id_usuario
+        ).all()
+    
+    return render_template('usuarios/perfil.html', 
+                           usuario=usuario, 
+                           promessas=promessas, 
+                           transacoes=transacoes, 
+                           usuarios_squad=usuarios_squad)
+

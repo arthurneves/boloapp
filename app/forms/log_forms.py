@@ -10,7 +10,7 @@ class LogFiltroForm(FlaskForm):
     tipo_entidade = SelectField('Tipo Entidade', choices=[
                                                     ('', 'Todas'),
                                                     ('Usuario', 'usuario'),
-                                                    ('Transação de Pontos', 'transacao_pontos'),
+                                                    ('Transação de Bolos', 'transacao_pontos'),
                                                     ('Promessa', 'promessa'),
                                                     ('Votação', 'votacao'),
                                                     ('Categoria', 'categoria'),
