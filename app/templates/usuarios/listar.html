@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">Usuários</h1>
-    <a href="{{ url_for('usuario.novo_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
+    <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -31,10 +31,10 @@
                 <td>{{ usuario.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
                     {% if usuario.is_ativo %}
-                        <a href="{{ url_for('usuario.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{{ url_for('usuario.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">Desativar</a>
+                        <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">Desativar</a>
                     {% else %}
-                        <a href="{{ url_for('usuario.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">Reativar</a>
+                        <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">Reativar</a>
                     {% endif %}
                 </td>
             </tr>

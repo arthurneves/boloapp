@@ -30,7 +30,7 @@
                     {% endif %}
                     {% if current_user.is_authenticated and current_user.is_administrador %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('usuario.listar_usuarios') }}">Usuários</a>
+                        <a class="nav-link" href="{{ url_for('main.listar_usuarios') }}">Usuários</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.listar_squads') }}">Squads</a>
@@ -50,16 +50,16 @@
                     {% if current_user.is_authenticated %}
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{{ url_for('usuario.perfil_usuario', id_usuario=current_user.id_usuario) }}" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="{{ url_for('main.perfil_usuario', id_usuario=current_user.id_usuario) }}" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                             {{ current_user.nome_usuario }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('usuario.logout') }}">Sair</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sair</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('usuario.login') }}">Login</a>
+                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
                     </li>
                     {% endif %}
                 </ul>

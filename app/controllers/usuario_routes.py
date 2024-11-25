@@ -1,24 +1,24 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, app, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from wtforms.validators import ValidationError
-from app import db
+from . import main_bp
 from app.models.usuario import Usuario
 from app.models.squad import Squad
 from app.models.promessa import Promessa
 from app.models.transacao_pontos import TransacaoPontos
-from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.models.log import Log
+from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.services.image_service import ImageService
+from app import db
 
-usuario_bp = Blueprint('usuario', __name__)
 
-@usuario_bp.route('/usuarios', methods=['GET'])
+@main_bp.route('/usuarios', methods=['GET'])
 @login_required
 def listar_usuarios():
     usuarios = Usuario.query.all()
     return render_template('usuarios/listar.html', usuarios=usuarios)
 
-@usuario_bp.route('/usuarios/novo', methods=['GET', 'POST'])
+@main_bp.route('/usuarios/novo', methods=['GET', 'POST'])
 @login_required
 def novo_usuario():
     form = RegistroUsuarioForm()
@@ -56,10 +56,10 @@ def novo_usuario():
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar', novo_usuario.id_usuario)
 
         flash('Usuário criado com sucesso!', 'success')
-        return redirect(url_for('usuario.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios'))
     return render_template('usuarios/novo.html', form=form)
 
-@usuario_bp.route('/editar/<int:id_usuario>', methods=['GET', 'POST'])
+@main_bp.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
 @login_required
 def editar_usuario(id_usuario):
     if not current_user.is_administrador:
@@ -114,7 +114,7 @@ def editar_usuario(id_usuario):
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
 
         flash('Usuário atualizado com sucesso!', 'success')
-        return redirect(url_for('usuario.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios'))
     
     if form.errors:
         return render_template('usuarios/editar.html', form=form, usuario=usuario)
@@ -128,7 +128,7 @@ def editar_usuario(id_usuario):
     
     return render_template('usuarios/editar.html', form=form, usuario=usuario)
 
-@usuario_bp.route('/usuarios/desativar/<int:id_usuario>', methods=['GET'])
+@main_bp.route('/usuarios/desativar/<int:id_usuario>', methods=['GET'])
 @login_required
 def desativar_usuario(id_usuario):
     if not current_user.is_administrador:
@@ -140,7 +140,7 @@ def desativar_usuario(id_usuario):
     # Impede exclusão do próprio usuário
     if usuario.id_usuario == current_user.id_usuario:
         flash('Você não pode desativar seu próprio usuário', 'danger')
-        return redirect(url_for('usuario.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios'))
     
     usuario.is_ativo = False
     db.session.commit()
@@ -148,9 +148,9 @@ def desativar_usuario(id_usuario):
     Log.criar_log(id_usuario, 'usuario', 'desativar', id_usuario)
 
     flash('Usuário desativado com sucesso!', 'success')
-    return redirect(url_for('usuario.listar_usuarios'))
+    return redirect(url_for('main.listar_usuarios'))
 
-@usuario_bp.route('/usuarios/reativar/<int:id_usuario>', methods=['GET'])
+@main_bp.route('/usuarios/reativar/<int:id_usuario>', methods=['GET'])
 @login_required
 def reativar_usuario(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)
@@ -161,9 +161,9 @@ def reativar_usuario(id_usuario):
     Log.criar_log(id_usuario, 'usuario', 'reativar', id_usuario)
     
     flash('Usuário reativado com sucesso!', 'success')
-    return redirect(url_for('usuario.listar_usuarios'))
+    return redirect(url_for('main.listar_usuarios'))
 
-@usuario_bp.route('/login', methods=['GET', 'POST'])
+@main_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
@@ -185,14 +185,14 @@ def login():
     
     return render_template('usuarios/login.html', form=form)
 
-@usuario_bp.route('/logout')
+@main_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('Logout realizado com sucesso!', 'success')
-    return redirect(url_for('usuario.login'))
+    return redirect(url_for('main.login'))
 
-@usuario_bp.route('/perfil/<int:id_usuario>', methods=['GET'])
+@main_bp.route('/perfil/<int:id_usuario>', methods=['GET'])
 @login_required
 def perfil_usuario(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)

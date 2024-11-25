@@ -1,5 +1,5 @@
 from flask import render_template
-from flask_login import current_user
+from flask_login import login_required, current_user
 from app.models.promessa import Promessa
 from app.models.transacao_pontos import TransacaoPontos
 from app.models.usuario import Usuario

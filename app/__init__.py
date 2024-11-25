@@ -23,16 +23,14 @@ def create_app(config_class=Config):
 
     # Create tables
     with app.app_context():
-        from .models.usuario import Usuario
-        from .models.log import Log  # Import Log model
-        from .models.squad import Squad  # Ensure Squad is imported
         db.create_all()
 
     # Import and register blueprints
     from .controllers import main_bp
-    from .controllers.usuario_routes import usuario_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(usuario_bp, url_prefix='/usuarios')
+
+    for rule in app.url_map.iter_rules():
+        print(rule)
 
     return app

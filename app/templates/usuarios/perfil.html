@@ -14,7 +14,7 @@
                     {% endif %}
 
                     {% if current_user.is_administrador or current_user.id_usuario == usuario.id_usuario %}
-                    <a href="{{ url_for('usuario.editar_usuario', id_usuario=usuario.id_usuario) }}" >
+                    <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" >
                     {% endif %}
 
                         <img src="{{ foto_usuario }}" 
@@ -117,7 +117,7 @@
                             {% endif %}
 
                                 <div class="col-md-3 col-sm-3 col-xs-3 col-6 text-center mb-3">
-                                    <a href="{{ url_for('usuario.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
+                                    <a href="{{ url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
                                         <img src="{{ foto_user_squad }}" 
                                             class="rounded-circle mb-2" 
                                             style="width: 100px; height: 100px; object-fit: cover;">
