@@ -3,43 +3,61 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">Usuários</h1>
-    <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Saldo Bolos</th>
-                <th>Squad</th>
-                <th>Ativo</th>
-                <th>Administrador</th>
-                <th>Data Criação</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
+    <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary btn-block mb-3">Novo Usuário</a>
+    
+    {% if usuarios %}
+        <div class="user-list">
             {% for usuario in usuarios %}
-            <tr>
-                <td>{{ usuario.id_usuario }}</td>
-                <td>{{ usuario.nome_usuario }}</td>
-                <td>{{ usuario.email_usuario }}</td>
-                <td>{{ usuario.saldo_pontos_usuario }}</td>
-                <td>{{ usuario.squad.titulo_squad if usuario.squad else 'Sem Squad' }}</td>
-                <td>{{ 'Sim' if usuario.is_ativo else 'Não' }}</td>
-                <td>{{ 'Sim' if usuario.is_administrador else 'Não' }}</td>
-                <td>{{ usuario.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    {% if usuario.is_ativo %}
-                        <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">Desativar</a>
-                    {% else %}
-                        <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">Reativar</a>
-                    {% endif %}
-                </td>
-            </tr>
+            
+                {% if usuario.foto_perfil %}
+                    {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
+                {% else %}
+                    {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                {% endif %}
+
+
+                <div class="user-card {{ 'user-active' if usuario.is_ativo else 'user-inactive' }}">
+                    <div class="user-header">
+                        <div class="user-main-foto">
+                            <a href="{{ url_for('main.perfil_usuario', id_usuario=usuario.id_usuario) }}" class="user-foto" title="Página perfil">
+                                <img src="{{ foto_usuario }}" class="rounded-circle img-fluid mb-3" />
+                            </a>
+                        </div>
+
+                        <div class="user-main-info">
+                            <h6 class="user-name mb-0">{{ usuario.nome_usuario }}</h6>
+                            <span class="user-login text-muted small">{{ usuario.login_usuario }}</span>
+                        </div>
+                        <div class="user-status-actions">
+                        
+                            squad
+                            is_admin
+
+                            <span class="badge badge-secondary">
+                                {{ usuario.saldo_pontos_usuario }} Bolos
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-actions">
+                        {% if usuario.is_ativo %}
+                            <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-warning btn-sm" title="Editar"><i class="icon icon-edit"></i></a>
+                            <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-danger btn-sm" title="Desativar" onclick="return confirm('Tem certeza que deseja desativar este usuário?')"><i class="icon icon-deletar"></i></a>
+                        {% else %}
+                            <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-primary btn-sm" title="Reativar" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')"><i class="icon icon-reativar"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Nenhum usuário encontrado.
+        </div>
+    {% endif %}
 </div>
+
+<style>
+    
+</style>
 {% endblock %}

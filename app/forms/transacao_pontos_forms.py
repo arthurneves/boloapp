@@ -15,7 +15,7 @@ class TransacaoPontosForm(FlaskForm):
         DataRequired(message='Pontos são obrigatórios')
     ])
     descricao_transacao = TextAreaField('Descrição', validators=[
-        Length(max=500, message='Descrição deve ter no máximo 500 caracteres')
+        Length(max=255, message='Descrição deve ter no máximo 255 caracteres')
     ])
     is_ativo = BooleanField('Transação Ativa', default=True)
     submit = SubmitField('Salvar Transação')

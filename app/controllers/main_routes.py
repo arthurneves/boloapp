@@ -6,6 +6,7 @@ from app.models.usuario import Usuario
 from . import main_bp
 
 @main_bp.route('/')
+@login_required
 def home():
 
     id_usuario = current_user.id_usuario
@@ -13,10 +14,10 @@ def home():
     usuario = Usuario.query.get_or_404(id_usuario)
     
     # Buscar promessas do usuário
-    promessas = Promessa.query.filter_by(id_usuario=id_usuario).all()
+    promessas = Promessa.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(Promessa.data_criacao.desc()).limit(5).all()
     
     # Buscar transações de pontos do usuário
-    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).all()
+    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
     
     # Buscar outros usuários da mesma squad
     usuarios_squad = []

@@ -8,7 +8,7 @@ class Usuario(UserMixin, db.Model):
     
     id_usuario = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome_usuario = db.Column(db.String(100), nullable=False)
-    email_usuario = db.Column(db.String(100), unique=True, nullable=False)
+    login_usuario = db.Column(db.String(100), unique=True, nullable=False)
     senha_hash = db.Column(db.String(255), nullable=False)
     saldo_pontos_usuario = db.Column(db.Integer, default=0)
     id_squad = db.Column(db.Integer, db.ForeignKey('squad.id_squad'), nullable=True)
@@ -40,7 +40,7 @@ class Usuario(UserMixin, db.Model):
         return {
             'id_usuario': self.id_usuario,
             'nome_usuario': self.nome_usuario,
-            'email_usuario': self.email_usuario,
+            'login_usuario': self.login_usuario,
             'saldo_pontos_usuario': self.saldo_pontos_usuario,
             'id_squad': self.id_squad,
             'squad': self.squad.titulo_squad if self.squad else None,

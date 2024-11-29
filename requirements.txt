@@ -5,6 +5,5 @@ python-dotenv
 pymysql
 flask-wtf
 flask-login
-email-validator
 pytz
 Pillow

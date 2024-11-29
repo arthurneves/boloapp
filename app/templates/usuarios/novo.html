@@ -27,11 +27,11 @@
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.email_usuario.label(class="form-label") }}
-                                    {{ form.email_usuario(class="form-control") }}
-                                    {% if form.email_usuario.errors %}
+                                    {{ form.login_usuario.label(class="form-label") }}
+                                    {{ form.login_usuario(class="form-control") }}
+                                    {% if form.login_usuario.errors %}
                                         <div class="text-danger">
-                                            {% for error in form.email_usuario.errors %}
+                                            {% for error in form.login_usuario.errors %}
                                                 <small>{{ error }}</small>
                                             {% endfor %}
                                         </div>

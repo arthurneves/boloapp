@@ -30,7 +30,4 @@ def create_app(config_class=Config):
 
     app.register_blueprint(main_bp)
 
-    for rule in app.url_map.iter_rules():
-        print(rule)
-
     return app

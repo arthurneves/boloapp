@@ -41,7 +41,7 @@ def novo_usuario():
         
         novo_usuario = Usuario(
             nome_usuario=form.nome_usuario.data,
-            email_usuario=form.email_usuario.data,
+            login_usuario=form.login_usuario.data,
             is_ativo=form.is_ativo.data,
             is_administrador=form.is_administrador.data,
             squad=squad,
@@ -101,7 +101,7 @@ def editar_usuario(id_usuario):
                 return render_template('usuarios/editar.html', form=form, usuario=usuario)
 
         usuario.nome_usuario = form.nome_usuario.data
-        usuario.email_usuario = form.email_usuario.data
+        usuario.login_usuario = form.login_usuario.data
         usuario.is_ativo = form.is_ativo.data
         usuario.is_administrador = form.is_administrador.data
         usuario.squad = squad
@@ -121,7 +121,7 @@ def editar_usuario(id_usuario):
     
     # Preenche o formulário com os dados atuais do usuário
     form.nome_usuario.data = usuario.nome_usuario
-    form.email_usuario.data = usuario.email_usuario
+    form.login_usuario.data = usuario.login_usuario
     form.is_ativo.data = usuario.is_ativo
     form.is_administrador.data = usuario.is_administrador
     form.id_squad.data = usuario.id_squad if usuario.squad else 0
@@ -170,7 +170,7 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        usuario = Usuario.query.filter_by(email_usuario=form.email_usuario.data).first()
+        usuario = Usuario.query.filter_by(login_usuario=form.login_usuario.data).first()
         
         if usuario and usuario.check_senha(form.senha.data):
             if not usuario.is_ativo:
@@ -181,7 +181,7 @@ def login():
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('main.home'))
         
-        flash('Email ou senha inválidos', 'danger')
+        flash('Login ou senha inválidos', 'danger')
     
     return render_template('usuarios/login.html', form=form)
 
@@ -198,10 +198,10 @@ def perfil_usuario(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)
     
     # Buscar promessas do usuário
-    promessas = Promessa.query.filter_by(id_usuario=id_usuario).all()
+    promessas = Promessa.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(Promessa.data_criacao.desc()).limit(5).all()
     
     # Buscar transações de pontos do usuário
-    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).all()
+    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
     
     # Buscar outros usuários da mesma squad
     usuarios_squad = []

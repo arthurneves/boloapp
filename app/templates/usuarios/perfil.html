@@ -26,12 +26,12 @@
                     {% endif %}
 
                     <h2>{{ usuario.nome_usuario }}</h2>
-                    <p class="text-muted">{{ usuario.email_usuario }}</p>
+                    <p class="text-muted">{{ usuario.login_usuario }}</p>
                     <p>
                         <strong>Squad:</strong> {{ usuario.squad.titulo_squad if usuario.squad else 'Sem Squad' }}
                     </p>
-                    <p>
-                        <strong>Saldo de Bolos:</strong> {{ usuario.saldo_pontos_usuario }}
+                    <p class="perfil-saldo-bolo">
+                        <i class="icon icon-bolo"></i> <strong>{{ usuario.saldo_pontos_usuario }}</strong>
                     </p>
                     
                 </div>
@@ -46,28 +46,30 @@
                 </div>
                 <div class="card-body">
                     {% if transacoes %}
-                        <table class="table table-display">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Categoria</th>
-                                    <th>Descrição</th>
-                                    <th>Pontos</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transacao in transacoes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-mobile-friendly">
+                                <thead class="thead-light">
                                     <tr>
-                                        <td>{{ transacao.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
-                                        <td>{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
-                                        <td>{{ transacao.descricao_transacao }}</td>
-                                        <td class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
-                                            {{ transacao.pontos_transacao }}
-                                        </td>
+                                        <th>Data</th>
+                                        <th>Categoria</th>
+                                        <th>Descrição</th>
+                                        <th>Bolo</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for transacao in transacoes %}
+                                        <tr>
+                                            <td data-label="Data">{{ transacao.data_criacao.strftime('%d/%m/%Y') }}</td>
+                                            <td data-label="Categoria">{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
+                                            <td data-label="Descrição">{{ transacao.descricao_transacao }}</td>
+                                            <td data-label="Pontos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
+                                                {{ ('+' if transacao.pontos_transacao > 0 else '-') ~ transacao.pontos_transacao }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
                         <p class="text-muted">Nenhuma transação encontrada.</p>
                     {% endif %}
@@ -103,7 +105,7 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h3>Outros Usuários do Squad</h3>
+                    <h3>Squad - {{ usuario.squad.titulo_squad }}</h3>
                 </div>
                 <div class="card-body">
                     {% if usuarios_squad %}

@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
+from wtforms.validators import DataRequired, Length, Login, EqualTo, ValidationError, Optional
 from app.models.usuario import Usuario
 from app.models.squad import Squad
 
@@ -11,9 +11,9 @@ class RegistroUsuarioForm(FlaskForm):
         Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
 
-    email_usuario = StringField('Email', validators=[
-        DataRequired(message='Email é obrigatório'),
-        Email(message='Email inválido')
+    login_usuario = StringField('Login', validators=[
+        DataRequired(message='Login é obrigatório'),
+        Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
 
     senha = PasswordField('Senha', validators=[
@@ -43,19 +43,18 @@ class RegistroUsuarioForm(FlaskForm):
             for squad in Squad.query.filter_by(is_ativo=True).all()
         ]
 
-    def validate_email_usuario(self, email_usuario):
-        usuario = Usuario.query.filter_by(email_usuario=email_usuario.data).first()
+    def validate_login_usuario(self, login_usuario):
+        usuario = Usuario.query.filter_by(login_usuario=login_usuario.data).first()
         if usuario:
-            raise ValidationError('Este email já está cadastrado')
+            raise ValidationError('Este login já está cadastrado')
 
     def validate_id_squad(self, id_squad):
         if id_squad.data == 0:
             raise ValidationError('Selecione um Squad válido')
 
 class LoginForm(FlaskForm):
-    email_usuario = StringField('Email', validators=[
-        DataRequired(message='Email é obrigatório'),
-        Email(message='Email inválido')
+    login_usuario = StringField('Login', validators=[
+        DataRequired(message='Login é obrigatório')
     ])
     senha = PasswordField('Senha', validators=[
         DataRequired(message='Senha é obrigatória')
@@ -68,9 +67,9 @@ class EdicaoUsuarioForm(FlaskForm):
         Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
 
-    email_usuario = StringField('Email', validators=[
-        DataRequired(message='Email é obrigatório'),
-        Email(message='Email inválido')
+    login_usuario = StringField('Login', validators=[
+        DataRequired(message='Login é obrigatório'),
+        Length(min=2, max=100, message='Nome deve ter entre 2 e 100 caracteres')
     ])
 
     senha = PasswordField('Senha', validators=[
@@ -101,10 +100,10 @@ class EdicaoUsuarioForm(FlaskForm):
             for squad in Squad.query.filter_by(is_ativo=True).all()
         ]
 
-    def validate_email_usuario(self, email_usuario):
-        usuario = Usuario.query.filter_by(email_usuario=email_usuario.data).first()
+    def validate_login_usuario(self, login_usuario):
+        usuario = Usuario.query.filter_by(login_usuario=login_usuario.data).first()
         if usuario and usuario.id_usuario != self.usuario_id:
-            raise ValidationError('Este email já está cadastrado')
+            raise ValidationError('Este login já está cadastrado')
 
     def validate_id_squad(self, id_squad):
         if id_squad.data == 0:
