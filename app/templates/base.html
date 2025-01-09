@@ -14,8 +14,16 @@
     <!-- Bootstrap CSS -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/pwa-install-prompt.css') }}" rel="stylesheet">
 </head>
 <body>
+    <div id="install-prompt">
+        <div id="install-prompt-content">
+            Instale a PWA do BoloApp e tenha uma experiência ainda melhor!
+        </div>
+        <button id="install-button">Instalar</button>
+        <button id="install-prompt-close">Fechar</button>
+    </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.home') }}">BoloApp</a>
@@ -87,6 +95,7 @@
     <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     
+    <script src="{{ url_for('static', filename='js/pwa-install-prompt.js') }}"></script>
     {% block scripts %}{% endblock %}
 
     <script>
