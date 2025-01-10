@@ -22,7 +22,8 @@ RUN mkdir -p app/static/uploads/profile_photos
 
 # Make the entrypoint script executable
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY docker-entrypoint.dev.sh /docker-entrypoint.dev.sh
+RUN chmod +x /docker-entrypoint.sh /docker-entrypoint.dev.sh
 
 EXPOSE 8000
 
