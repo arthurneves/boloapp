@@ -1,3 +1,4 @@
+import os
 import mysql.connector
 from mysql.connector import Error
 from werkzeug.security import generate_password_hash
@@ -6,9 +7,9 @@ def create_database():
     try:
         # Conectar sem especificar o banco de dados
         connection = mysql.connector.connect(
-            host='localhost',
-            user='admin',
-            password=''
+            host=os.getenv('DB_HOST'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD')
         )
         
         cursor = connection.cursor()

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8.0
@@ -14,7 +12,7 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    command: 
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -33,7 +31,7 @@ services:
       - DB_USER=${DB_USER:-admin}
       - DB_PASSWORD=${DB_PASSWORD:-admin}
       - DB_NAME=${DB_NAME:-boloapp}
-      - SECRET_KEY=${SECRET_KEY:-desenvolvimento_boloapp_2023}
+      - SECRET_KEY=${SECRET_KEY:-desenvolvimento_boloapp_arthur_neves}
     depends_on:
       - db
 

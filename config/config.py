@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'desenvolvimento_boloapp_2023')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'desenvolvimento_boloapp_arthur_neves')
     
     # MySQL Database Configuration
     SQLALCHEMY_DATABASE_URI = (
