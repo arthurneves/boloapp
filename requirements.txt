@@ -1,4 +1,5 @@
 Flask
+mysql-connector-python
 mysqlclient
 flask-sqlalchemy
 python-dotenv
@@ -7,3 +8,4 @@ flask-wtf
 flask-login
 pytz
 Pillow
+gunicorn
