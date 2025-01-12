@@ -23,7 +23,8 @@ services:
     container_name: boloapp_web
     restart: always
     volumes:
-      - ./:/app/
+      - ./app:/app/app
+      - profile_photos:/app/app/static/uploads/profile_photos
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
