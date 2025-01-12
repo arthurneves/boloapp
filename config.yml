@@ -1,0 +1,7 @@
+tunnel: 2d344f28-911c-445e-8bef-9ca28c00fb5e
+credentials-file: C:\Users\Arthur\.cloudflared\2d344f28-911c-445e-8bef-9ca28c00fb5e.json
+
+ingress:
+  - hostname: boloapp.fun
+    service: http://nginx:80  # http://localhost:80 .Se estiver usando o Docker, mude para http://nginx:80
+  - service: http_status:404  # Regra padrão para qualquer outra requisição

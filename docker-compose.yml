@@ -48,6 +48,15 @@ services:
     depends_on:
       - web
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run 2d344f28-911c-445e-8bef-9ca28c00fb5e
+    volumes:
+      - C:\Users\Arthur\.cloudflared:/etc/cloudflared
+    depends_on:
+      - nginx
+
 volumes:
   mysql_data:
   profile_photos:
