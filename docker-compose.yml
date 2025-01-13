@@ -53,7 +53,7 @@ services:
     restart: unless-stopped
     command: tunnel run 2d344f28-911c-445e-8bef-9ca28c00fb5e
     volumes:
-      - ./cloudflared:/etc/cloudflared
+      - C:/Users/Arthur/.cloudflared:/etc/cloudflared
     depends_on:
       - nginx
 
