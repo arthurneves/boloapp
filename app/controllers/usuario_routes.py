@@ -62,7 +62,7 @@ def novo_usuario():
 @main_bp.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
 @login_required
 def editar_usuario(id_usuario):
-    if not current_user.is_administrador:
+    if (not current_user.is_administrador) and (current_user.id_usuario != id_usuario):
         flash('Acesso não autorizado', 'danger')
         return redirect(url_for('main.home'))
     
@@ -70,9 +70,6 @@ def editar_usuario(id_usuario):
     form = EdicaoUsuarioForm(usuario_id=id_usuario)
     
     if form.validate_on_submit():
-
-        # Guarda nome do arquivo para atualizar
-        foto_perfil_atual = usuario.foto_perfil
 
         # Validate password change if password is provided
         if form.senha.data:

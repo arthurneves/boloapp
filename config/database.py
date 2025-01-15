@@ -111,23 +111,38 @@ def create_database():
         """)
         print("Tabela 'log' criada com sucesso.")
 
-        
+        # Criar tabela de convites
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS convite (
+            id_convite INT AUTO_INCREMENT PRIMARY KEY,
+            hash_convite VARCHAR(10) UNIQUE NOT NULL,
+            id_usuario_responsavel INT NOT NULL,
+            id_usuario_cadastrado INT,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_usuario_cadastrado TIMESTAMP,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            FOREIGN KEY (id_usuario_responsavel) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_usuario_cadastrado) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'convite' criada com sucesso.")
+
         # Criar usuário administrador padrão
         admin_login = 'admin'
         admin_senha = generate_password_hash('admin007006')
-        
+
         # Verifica se o usuário admin já existe
         cursor.execute("SELECT * FROM usuario WHERE login_usuario = %s", (admin_login,))
         existing_admin = cursor.fetchone()
-        
+
         if not existing_admin:
             cursor.execute("""
-            INSERT INTO usuario 
-            (nome_usuario, login_usuario, senha_hash, is_ativo, is_administrador) 
+            INSERT INTO usuario
+            (nome_usuario, login_usuario, senha_hash, is_ativo, is_administrador)
             VALUES (%s, %s, %s, %s, %s)
             """, ('Administrador', admin_login, admin_senha, True, True))
             print("Usuário administrador criado com sucesso.")
-        
+
         connection.commit()
     except Error as e:
         print(f"Erro ao criar banco de dados ou tabela: {e}")

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Convite Criado</h1>
+  <p>URL do convite: <a href="{{ convite_url }}">{{ convite_url }}</a></p>
+  <div>
+    <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code do Convite">
+  </div>
+{% endblock %}

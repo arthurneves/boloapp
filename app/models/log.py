@@ -20,10 +20,10 @@ class Log(db.Model):
         return f'<Log {self.id_log}: {self.acao_log} by {self.id_usuario_autor} on {self.data_criacao}>'
 
     @classmethod
-    def criar_log(cls, id_registro_afetado, tipo_entidade, acao, usuario_afetado=None):
+    def criar_log(cls, id_registro_afetado, tipo_entidade, acao, usuario_afetado=None, id_usuario_autor=None):
 
         novo_log = cls(
-            id_usuario_autor = current_user.id_usuario,
+            id_usuario_autor = id_usuario_autor if id_usuario_autor else current_user.id_usuario,
             id_usuario_afetado=usuario_afetado,
             id_registro_afetado = id_registro_afetado,
             tipo_entidade = tipo_entidade,
