@@ -12,6 +12,47 @@ footer {
     text-align: center;
 }
 
+.div-convite {
+    display: grid; 
+    place-items: center;
+}
+
+.div-convite-info{
+    display: grid; 
+    place-items: center;
+    width: 100%;
+}
+
+.div-convite-info input{
+    width: 30vw;
+    min-width: 350px;
+    max-width: 100%;
+    text-align: center;
+}
+
+.btn-copy-click{
+    background-color: #007bff;
+    color: #fff;
+    margin-top: 15px;
+}
+
+.btn-copy-done{
+    background-color: #f0f0f0 !important;
+    color: #0fb439 !important;
+    border-color: #0fb439 !important;
+    margin-top: 15px;
+}
+
+#icon-copy-click{
+    width: 22px;
+    display: inline-block;
+    fill: #fff;
+}
+
+#icon-copy-done {
+    font-style: normal;
+    display: none;
+}
 
 .table-display{
     display: table;
