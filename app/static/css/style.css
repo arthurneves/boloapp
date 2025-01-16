@@ -175,9 +175,7 @@ footer {
 
 #perfil-img-principal {
     width: 200px; 
-    height: 200px; 
     object-fit: cover;
-
     border: 1px solid rgba(0,0,0,.125);
     box-shadow: 2px 2px 5px 0px rgb(92, 92, 92); 
 }
