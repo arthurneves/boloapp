@@ -8,22 +8,22 @@ class LogFiltroForm(FlaskForm):
     usuario_afetado = SelectField('Usuário Afetado', coerce=int, validators=[Optional()])
     id_registro_afetado = SelectField('ID Registro Afetado', coerce=int, validators=[Optional()])
     tipo_entidade = SelectField('Tipo Entidade', choices=[
-                                                    ('', 'Todas'),
-                                                    ('Usuario', 'usuario'),
-                                                    ('Transação de Bolos', 'transacao_pontos'),
-                                                    ('Promessa', 'promessa'),
-                                                    ('Votação', 'votacao'),
-                                                    ('Categoria', 'categoria'),
-                                                    ('Squad', 'squad'),
-                                                    ('Convite', 'convite')
-                                                ], validators=[Optional()])
+                                                            ('', 'Todas'),
+                                                            ('usuario', 'Usuario'),
+                                                            ('transacao_pontos', 'Transação de Bolos'),
+                                                            ('promessa', 'Promessa'),
+                                                            ('votacao', 'Votação'),
+                                                            ('categoria', 'Categoria'),
+                                                            ('squad', 'Squad'),
+                                                            ('convite', 'Convite')
+                                                        ], validators=[Optional()])
     acao = SelectField('Ação', choices=[
-                                    ('', 'Todas'),
-                                    ('Criação', 'criar'),
-                                    ('Edição', 'editar'),
-                                    ('Desativação', 'desativar'),
-                                    ('Reativação', 'reativar')
-                                ], validators=[Optional()])
+                                            ('', 'Todas'),
+                                            ('criar', 'Criação'),
+                                            ('editar', 'Edição'),
+                                            ('desativar', 'Desativação'),
+                                            ('reativar', 'Reativação')
+                                        ], validators=[Optional()])
     data_inicio = DateField('Data Início', format='%d-%m-%Y', validators=[Optional()])
     data_fim = DateField('Data Fim', format='%d-%m-%Y', validators=[Optional()])
     submit = SubmitField('Filtrar')
