@@ -10,7 +10,7 @@ from . import main_bp
 @main_bp.route('/transacoes-pontos', methods=['GET'])
 @login_required
 def listar_transacoes_pontos():
-    transacoes = TransacaoPontos.query.all()
+    transacoes = TransacaoPontos.query.order_by(TransacaoPontos.id_transacao.desc()).all()
     return render_template('transacoes_pontos/listar.html', transacoes=transacoes)
 
 @main_bp.route('/transacoes-pontos/nova', methods=['GET', 'POST'])
