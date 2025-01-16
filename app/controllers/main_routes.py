@@ -22,7 +22,7 @@ def home():
     promessas = Promessa.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(Promessa.data_criacao.desc()).limit(5).all()
 
     # Buscar transações de pontos do usuário
-    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
+    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
 
     # Buscar outros usuários da mesma squad
     usuarios_squad = []
