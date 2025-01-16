@@ -14,7 +14,8 @@ class LogFiltroForm(FlaskForm):
                                                     ('Promessa', 'promessa'),
                                                     ('Votação', 'votacao'),
                                                     ('Categoria', 'categoria'),
-                                                    ('Squad', 'squad')
+                                                    ('Squad', 'squad'),
+                                                    ('Convite', 'convite')
                                                 ], validators=[Optional()])
     acao = SelectField('Ação', choices=[
                                     ('', 'Todas'),

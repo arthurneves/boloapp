@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Criar Convite</h1>
+
+<div class="container mt-5 div-criar-convite">
+  <h1 class="mb-4">Criar Convite</h1>
+
   <form method="POST">
     {{ form.hidden_tag() }}
     {{ form.submit() }}
   </form>
+
+</div>
 {% endblock %}
