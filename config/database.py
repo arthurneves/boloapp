@@ -127,6 +127,18 @@ def create_database():
         """)
         print("Tabela 'convite' criada com sucesso.")
 
+        # Criar tabela de regras
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS regra (
+            id_regra INT AUTO_INCREMENT PRIMARY KEY,
+            conteudo_regras TEXT,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_edicao TIMESTAMP,
+            is_ativo BOOLEAN DEFAULT TRUE
+        )
+        """)
+        print("Tabela 'regra' criada com sucesso.")
+
         # Criar usuário administrador padrão
         admin_login = 'admin'
         admin_senha = generate_password_hash('admin007006')

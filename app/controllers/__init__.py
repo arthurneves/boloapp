@@ -10,3 +10,4 @@ from . import transacao_pontos_routes
 from . import promessa_routes
 from . import log_routes
 from . import convite_routes
+from . import regra_routes

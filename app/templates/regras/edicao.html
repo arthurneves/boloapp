@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Editar Regra</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.conteudo_regras.label(class="form-label") }}
+      {{ form.conteudo_regras(class="form-control", rows="10") }}
+      {% if form.conteudo_regras.errors %}
+        <ul class="errors">
+          {% for error in form.conteudo_regras.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar Nova Versão</button>
+    <a href="{{ url_for('main.visualizar_regras') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h1>Regras Do Bolo</h1>
+
+  {% if regra %}
+    <pre>{{ regra.conteudo_regras }}</pre>
+    <p>Criado em: {{ regra.data_criacao }}</p>
+  {% else %}
+    <p>Nenhuma regra ativa no momento.</p>
+  {% endif %}
+
+  <a href="{{ url_for('main.editar_regras') }}" class="btn btn-primary">Editar Regra</a>
+  <a href="{{ url_for('main.lista_versoes_regras') }}" class="btn btn-secondary">Visualizar Versões</a>
+
+{% endblock %}

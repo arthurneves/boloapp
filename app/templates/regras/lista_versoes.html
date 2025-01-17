@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Histórico de Versões das Regras</h1>
+
+  <a href="{{ url_for('main.visualizar_regras') }}" class="btn btn-primary">Voltar</a>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Data de Criação</th>
+        <th>Data de Edição</th>
+        <th>Ativo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for regra in regras %}
+        <tr>
+          <td>{{ regra.id_regra }}</td>
+          <td>{{ regra.data_criacao }}</td>
+          <td>{{ regra.data_edicao }}</td>
+          <td>{{ 'Sim' if regra.is_ativo else 'Não' }}</td>
+          <td>
+            <a href="{{ url_for('main.visualizar_versao_regra', id=regra.id_regra) }}" class="btn btn-sm btn-info">Visualizar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
