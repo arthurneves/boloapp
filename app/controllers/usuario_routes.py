@@ -15,12 +15,23 @@ from app import db
 @main_bp.route('/usuarios', methods=['GET'])
 @login_required
 def listar_usuarios():
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
+
     usuarios = Usuario.query.all()
     return render_template('usuarios/listar.html', usuarios=usuarios)
 
 @main_bp.route('/usuarios/novo', methods=['GET', 'POST'])
 @login_required
 def novo_usuario():
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     form = RegistroUsuarioForm()
     if form.validate_on_submit():
 
@@ -145,6 +156,11 @@ def desativar_usuario(id_usuario):
 @main_bp.route('/usuarios/reativar/<int:id_usuario>', methods=['GET'])
 @login_required
 def reativar_usuario(id_usuario):
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     usuario = Usuario.query.get_or_404(id_usuario)
     
     usuario.is_ativo = True

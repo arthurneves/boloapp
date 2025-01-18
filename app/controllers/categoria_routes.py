@@ -9,12 +9,22 @@ from . import main_bp
 @main_bp.route('/categorias', methods=['GET'])
 @login_required
 def listar_categorias():
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     categorias = Categoria.query.all()
     return render_template('categorias/listar.html', categorias=categorias)
 
 @main_bp.route('/categorias/nova', methods=['GET', 'POST'])
 @login_required
 def criar_categoria():
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     form = CategoriaForm()
     if form.validate_on_submit():
         nova_categoria = Categoria(
@@ -36,6 +46,11 @@ def criar_categoria():
 @main_bp.route('/categorias/editar/<int:id_categoria>', methods=['GET', 'POST'])
 @login_required
 def editar_categoria(id_categoria):
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     categoria = Categoria.query.get_or_404(id_categoria)
     form = CategoriaForm(categoria_id=id_categoria)
     
@@ -64,6 +79,11 @@ def editar_categoria(id_categoria):
 @main_bp.route('/categorias/desativar/<int:id_categoria>', methods=['GET'])
 @login_required
 def desativar_categoria(id_categoria):
+
+    if not current_user.is_administrador:
+        flash('Acesso não autorizado', 'danger')
+        return redirect(url_for('main.home'))
+
     categoria = Categoria.query.get_or_404(id_categoria)
     
     categoria.is_ativo = False

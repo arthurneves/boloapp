@@ -48,6 +48,7 @@ def criar_convite():
 def cadastrar_usuario_convite(hash_convite):
     convite = Convite.query.filter_by(hash_convite=hash_convite, id_usuario_cadastrado=None, is_ativo=True).first_or_404()
     form = CadastrarUsuarioConviteForm()
+
     if form.validate_on_submit():
 
         squad = Squad.query.get(form.id_squad.data)
