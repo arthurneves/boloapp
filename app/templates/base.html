@@ -26,68 +26,10 @@
             <button id="install-button">Instalar</button>
             <button id="install-prompt-close">Fechar</button>
         </div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url_for('main.home') }}">BoloApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.home') }}">Início</a>
-                        </li>
-                        {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_promessas') }}">Promessas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_transacoes_pontos') }}">Transações de Bolos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_logs') }}">Logs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.visualizar_regras') }}">RDB</a>
-                        </li>
-                        {% endif %}
-                        {% if current_user.is_authenticated and current_user.is_administrador %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_usuarios') }}">Usuários</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_squads') }}">Squads</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.listar_categorias') }}">Categorias</a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.criar_convite') }}">Criar Convite</a>
-                        </li>
-                        
-                        {% endif %}
-                    </ul>
-                    <ul class="navbar-nav">
-                        {% if current_user.is_authenticated %}
+        
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="{{ url_for('main.perfil_usuario', id_usuario=current_user.id_usuario) }}" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                {{ current_user.nome_usuario }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sair</a></li>
-                            </ul>
-                        </li>
-                        {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        {% include 'includes/_navbar.html' %}
+
 
         <div class="container mt-4">
             {% with messages = get_flashed_messages(with_categories=true) %}
