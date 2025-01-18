@@ -79,9 +79,14 @@
                             {% endif %}
                         </div>   
                         
+                        <div class="d-flex mt-5 mb-3 div-termos">
+                            <input type="checkbox" id="termos" name="ternmos" value="1">
+                            <label for="termos"> Li e aceito os</label> <a href="{{ url_for('main.visualizar_regras') }}" target="_blank">termos do RDB</a>
+                        </div>
+
                         <div class="d-grid">
-                          {{ form.submit(class="btn btn-primary") }}
-                      </div>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
 
                     </form>
                 </div>

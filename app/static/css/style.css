@@ -12,6 +12,13 @@ footer {
     text-align: center;
 }
 
+pre {
+    text-align: justify;
+    white-space: pre-wrap;
+    width: 100%;
+    overflow-x: auto; /* Adiciona barra de rolagem horizontal se o conteúdo for mais largo que o contêiner, mesmo com quebra de linha*/
+}
+
 .div-criar-convite input {
     text-align: center;
     color: #fff;
@@ -120,25 +127,6 @@ footer {
     background-image: url(../icons/bolo-coracao.png);
 }
 
-.btn-danger {
-    color: #fff;
-    background-color: #ff5c6c;
-    border-color: #000;
-}
-
-.btn-danger {
-    color: #000;
-    background-color: #ff5c6c;
-    border-color: #000;
-    border: .124rem solid;
-}
-
-.btn-warning {
-    color: #000;
-    background-color: #ffc107;
-    border-color: #000;
-    border: .124rem solid;
-}
 
 .perfil-saldo-bolo {
     display: flex;
@@ -160,6 +148,10 @@ footer {
     font-size: 24px;
 }
 
+
+.div-termos label{
+    padding: 0 5px;
+}
 
 
 

@@ -6,11 +6,10 @@ from app.models.squad import Squad
 from app.models.convite import Convite
 from app.forms.convite_forms import CriarConviteForm, CadastrarUsuarioConviteForm
 from app.models.usuario import Usuario
+from app.services.qrcode_service import QRcodeService
 import secrets
-import qrcode
-from io import BytesIO
-from base64 import b64encode
 from . import main_bp
+
 
 def gerar_hash_convite():
     hash = secrets.token_urlsafe(4).replace('_', '').replace('-', '')[:6].upper()
@@ -22,10 +21,11 @@ def gerar_hash_convite():
 def criar_convite():
     if not current_user.is_administrador:
         flash('Você não tem permissão para criar convites.', 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
 
     form = CriarConviteForm()
     if form.validate_on_submit():
+
         hash_conv = gerar_hash_convite()
         while Convite.query.filter_by(hash_convite=hash_conv).first():
             hash_conv = gerar_hash_convite()
@@ -36,19 +36,7 @@ def criar_convite():
 
         convite_url = url_for('main.cadastrar_usuario_convite', hash_convite=hash_conv, _external=True)
 
-        qr = qrcode.QRCode(
-            version=1,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(convite_url)
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-        img_io = BytesIO()
-        img.save(img_io, 'PNG')
-        img_io.seek(0)
-        qr_code_base64 = b64encode(img_io.read()).decode('utf-8')
+        qr_code_base64 = QRcodeService.gerar_qrcode(convite_url)
 
         Log.criar_log(convite.id_convite, 'convite', 'criar')
 
@@ -62,7 +50,6 @@ def cadastrar_usuario_convite(hash_convite):
     form = CadastrarUsuarioConviteForm()
     if form.validate_on_submit():
 
-        # Busca o squad selecionado
         squad = Squad.query.get(form.id_squad.data)
 
         novo_usuario = Usuario(

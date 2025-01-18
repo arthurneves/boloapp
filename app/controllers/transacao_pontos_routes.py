@@ -79,7 +79,6 @@ def desativar_transacao_pontos(id_transacao):
 
     transacao.aux_evento = 'desativacao'
     
-    # Desativa a transação
     transacao.is_ativo = False
     db.session.commit()
 
@@ -95,7 +94,6 @@ def reativar_transacao_pontos(id_transacao):
 
     transacao.aux_evento = 'reativacao'
     
-    # Reativa a transação
     transacao.is_ativo = True
     db.session.commit()
 

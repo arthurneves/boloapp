@@ -30,7 +30,7 @@ class LogFiltroForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Populate usuario choices dynamically
+
         usuarios = Usuario.query.all()
         self.usuario_autor.choices = [(0, 'Todos')] + [(u.id_usuario, u.nome_usuario) for u in usuarios]
         self.usuario_afetado.choices = [(0, 'Todos')] + [(u.id_usuario, u.nome_usuario) for u in usuarios]

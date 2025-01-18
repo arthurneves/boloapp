@@ -8,7 +8,6 @@ from app.forms.promessa_forms import PromessaForm
 from app import db
 
 @main_bp.route('/promessas', methods=['GET'])
-@login_required
 def listar_promessas():
     promessas = Promessa.query.all()
     return render_template('promessas/listar.html', promessas=promessas)
@@ -74,7 +73,6 @@ def editar_promessa(id_promessa):
 def desativar_promessa(id_promessa):
     promessa = Promessa.query.get_or_404(id_promessa)
     
-    # Desativa a promessa
     promessa.is_ativo = False
     db.session.commit()
 

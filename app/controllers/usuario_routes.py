@@ -1,4 +1,4 @@
-from flask import Blueprint, app, render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from wtforms.validators import ValidationError
 from . import main_bp
@@ -23,12 +23,10 @@ def listar_usuarios():
 def novo_usuario():
     form = RegistroUsuarioForm()
     if form.validate_on_submit():
-        # Busca o squad selecionado
+
         squad = Squad.query.get(form.id_squad.data)
         
-        # Handle profile photo upload
         foto_perfil = None
-        foto_perfil_thumbnail = None
         if form.foto_perfil.data:
             try:
                 foto_upload = ImageService.save_profile_photo(form.foto_perfil.data)
@@ -46,7 +44,6 @@ def novo_usuario():
             is_administrador=form.is_administrador.data,
             squad=squad,
             foto_perfil=foto_perfil
-            #foto_perfil_thumbnail=foto_perfil_thumbnail
         )
         novo_usuario.set_senha(form.senha.data)
         
@@ -71,7 +68,7 @@ def editar_usuario(id_usuario):
     
     if form.validate_on_submit():
 
-        # Validate password change if password is provided
+        # Validar senha se estiver preenchido
         if form.senha.data:
             try:
                 form.validate_edicao_senha(form.senha.data, form.confirmar_senha.data)
@@ -79,17 +76,15 @@ def editar_usuario(id_usuario):
                 flash(str(e), 'danger')
                 return render_template('usuarios/editar.html', form=form, usuario=usuario)
 
-        # Busca o squad selecionado
         squad = Squad.query.get(form.id_squad.data)
         
-        # Handle profile photo upload
         if form.foto_perfil.data:
             try:
-                # Delete existing photo if exists
+                # Deleta existente
                 if usuario.foto_perfil:
                     ImageService.delete_profile_photo(usuario.foto_perfil)
                 
-                # Save new photo
+                # Salva
                 foto_upload = ImageService.save_profile_photo(form.foto_perfil.data)
                 usuario.foto_perfil = foto_upload['original']
                 #usuario.foto_perfil_thumbnail = foto_upload['thumbnail']
