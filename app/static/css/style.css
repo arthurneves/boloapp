@@ -186,6 +186,14 @@ pre {
 }
 
 
+.table>:not(:first-child) {
+    border-top: none;
+}
+
+.card-body {
+    padding: 0.5rem 0.5rem;
+}
+
 
 @media (max-width: 768px) {
     .table-mobile-friendly {
@@ -202,7 +210,7 @@ pre {
         margin-bottom: 1rem;
         background-color: #fff;
         border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
+        border-radius: 0.25rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
@@ -210,7 +218,7 @@ pre {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        padding: 0.75rem;
+        padding: 0.2rem;
         border-bottom: 1px solid #eee;
         font-size: 0.9rem;
         text-align: left;
