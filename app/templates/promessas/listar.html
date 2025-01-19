@@ -1,47 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Promessas</h1>
-    <a href="{{ url_for('main.criar_promessa') }}" class="btn btn-primary mb-3">Nova Promessa</a>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Promessas</h1>
+        <a href="{{ url_for('main.criar_promessa') }}" class="btn btn-primary">Nova Promessa</a>
+    </div>
     
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuário</th>
-                <th>Título</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>Data de Criação</th>
-                <th>Data de Edição</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for promessa in promessas %}
-            <tr>
-                <td>{{ promessa.id_promessa }}</td>
-                <td>{{ promessa.usuario.nome_usuario }}</td>
-                <td>{{ promessa.titulo_promessa }}</td>
-                <td>{{ promessa.descricao_promessa or 'Sem descrição' }}</td>
-                <td>{{ 'Ativo' if promessa.is_ativo else 'Inativo' }}</td>
-                <td>{{ promessa.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>{{ promessa.data_edicao.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    {% if promessa.is_ativo %}
-                        <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">Desativar</a>
-                    {% else %}
-                        <a href="{{ url_for('main.reativar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esta promessa?')">Reativar</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+    <div class="list-container">
+        {% for promessa in promessas %}
+        <div class="list-card">
+            <div class="list-card-header">
+                <div>
+                    <h2 class="list-card-title">{{ promessa.titulo_promessa }}</h2>
+                    <small class="text-muted">por {{ promessa.usuario.nome_usuario }}</small>
+                </div>
+                <span class="list-card-status {{ 'active' if promessa.is_ativo else 'inactive' }}">
+                    {{ 'Ativo' if promessa.is_ativo else 'Inativo' }}
+                </span>
+            </div>
+            
+            <div class="list-card-content">
+                <div class="list-card-info">
+                    <div>{{ promessa.descricao_promessa or 'Sem descrição' }}</div>
+                    <div><small>ID: {{ promessa.id_promessa }}</small></div>
+                    <div class="d-flex justify-content-between">
+                        <small>Criado: {{ promessa.data_criacao.strftime('%d/%m/%Y %H:%M') }}</small>
+                        <small>Editado: {{ promessa.data_edicao.strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="list-card-actions">
+                {% if promessa.is_ativo %}
+                    <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-warning">Editar</a>
+                    <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" 
+                       class="btn btn-danger" 
+                       onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">
+                        Desativar
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('main.reativar_promessa', id_promessa=promessa.id_promessa) }}" 
+                       class="btn btn-primary" 
+                       onclick="return confirm('Tem certeza que deseja reativar esta promessa?')">
+                        Reativar
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 

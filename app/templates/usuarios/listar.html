@@ -1,50 +1,69 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Usuários</h1>
-    <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary btn-block mb-3">Novo Usuário</a>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Usuários</h1>
+        <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary">Novo Usuário</a>
+    </div>
     
     {% if usuarios %}
-        <div class="user-list">
+        <div class="list-container">
             {% for usuario in usuarios %}
-            
                 {% if usuario.foto_perfil %}
                     {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
                 {% else %}
                     {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
                 {% endif %}
 
-
-                <div class="user-card {{ 'user-active' if usuario.is_ativo else 'user-inactive' }}">
-                    <div class="user-header">
-                        <div class="user-main-foto">
-                            <a href="{{ url_for('main.perfil_usuario', id_usuario=usuario.id_usuario) }}" class="user-foto" title="Página perfil">
-                                <img src="{{ foto_usuario }}" class="rounded-circle img-fluid mb-3" />
+                <div class="list-card {{ 'active' if usuario.is_ativo else 'inactive' }}">
+                    <div class="list-card-header">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ url_for('main.perfil_usuario', id_usuario=usuario.id_usuario) }}" class="me-3">
+                                <img src="{{ foto_usuario }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" />
                             </a>
+                            <div>
+                                <h2 class="list-card-title mb-0">{{ usuario.nome_usuario }}</h2>
+                                <small class="text-muted">{{ usuario.login_usuario }}</small>
+                            </div>
                         </div>
 
-                        <div class="user-main-info">
-                            <h6 class="user-name mb-0">{{ usuario.nome_usuario }}</h6>
-                            <span class="user-login text-muted small">{{ usuario.login_usuario }}</span>
-                        </div>
-                        <div class="user-status-actions">
-                        
-                            squad
-                            is_admin
-
-                            <span class="badge badge-secondary">
-                                {{ usuario.saldo_pontos_usuario }} Bolos
+                        <div class="d-flex">
+                            <span class="list-card-status {{ 'active' if usuario.is_ativo else 'inactive' }}">
+                                {{ 'Ativo' if usuario.is_ativo else 'Inativo' }}
                             </span>
+    
+                            {% if usuario.is_administrador %}
+                                <div class="badge bg-primary">Administrador</div>
+                            {% endif %}
                         </div>
                     </div>
                     
-                    <div class="user-actions">
+                    <div class="list-card-content">
+                        <div class="list-card-info">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Saldo de Bolos: {{ usuario.saldo_pontos_usuario }}</span>
+                                {% if usuario.squad %}
+                                    <small class="text-muted">Squad: {{ usuario.squad.titulo_squad }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-card-actions">
                         {% if usuario.is_ativo %}
-                            <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-warning btn-sm" title="Editar"><i class="icon icon-edit"></i></a>
-                            <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-danger btn-sm" title="Desativar" onclick="return confirm('Tem certeza que deseja desativar este usuário?')"><i class="icon icon-deletar"></i></a>
+                            <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-warning">Editar</a>
+                            <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Tem certeza que deseja desativar este usuário?')">
+                                Desativar
+                            </a>
                         {% else %}
-                            <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-primary btn-sm" title="Reativar" onclick="return confirm('Tem certeza que deseja reativar esse usuário?')"><i class="icon icon-reativar"></i></a>
+                            <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" 
+                               class="btn btn-primary" 
+                               onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">
+                                Reativar
+                            </a>
                         {% endif %}
                     </div>
                 </div>
@@ -55,9 +74,5 @@
             Nenhum usuário encontrado.
         </div>
     {% endif %}
-</div>
 
-<style>
-    
-</style>
 {% endblock %}

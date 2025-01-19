@@ -1,43 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Transações de Bolos</h1>
-    <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary mb-3">Nova Transação</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuário</th>
-                <th>Categoria</th>
-                <th>Bolos</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>Data Criação</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Transações de Bolos</h1>
+        <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary">Nova Transação</a>
+    </div>
+    
+    {% if transacoes %}
+        <div class="list-container">
             {% for transacao in transacoes %}
-            <tr>
-                <td>{{ transacao.id_transacao }}</td>
-                <td>{{ transacao.usuario.nome_usuario }}</td>
-                <td>{{ transacao.categoria.titulo_categoria }}</td>
-                <td>{{ transacao.pontos_transacao }}</td>
-                <td>{{ transacao.descricao_transacao or 'Sem descrição' }}</td>
-                <td>{{ 'Ativo' if transacao.is_ativo else 'Inativo' }}</td>
-                <td>{{ transacao.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    {% if transacao.is_ativo %}
-                        <a href="{{ url_for('main.editar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{{ url_for('main.desativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja desativar esta transação?')">Desativar</a>
-                    {% else %}
-                        <a href="{{ url_for('main.reativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja reativar esta transação?')">Reativar</a>
-                    {% endif %}
-                </td>
-            </tr>
+                <div class="list-card {{ 'active' if transacao.is_ativo else 'inactive' }}">
+                    <div class="list-card-header">
+                        <div>
+                            <h2 class="list-card-title">{{ transacao.categoria.titulo_categoria }}</h2>
+                            <small class="text-muted">{{ transacao.usuario.nome_usuario }}</small>
+                        </div>
+                        <span class="list-card-status {{ 'active' if transacao.is_ativo else 'inactive' }}">
+                            {{ 'Ativo' if transacao.is_ativo else 'Inativo' }}
+                        </span>
+                    </div>
+                    
+                    <div class="list-card-content">
+                        <div class="list-card-info">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>
+                                    <strong>Bolos:</strong> {{ transacao.pontos_transacao }}
+                                </span>
+                                <small class="text-muted">ID: {{ transacao.id_transacao }}</small>
+                            </div>
+                            <div>
+                                <strong>Descrição:</strong> 
+                                {{ transacao.descricao_transacao or 'Sem descrição' }}
+                            </div>
+                            <div class="text-muted">
+                                <small>Criado em: {{ transacao.data_criacao.strftime('%d/%m/%Y %H:%M') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-card-actions">
+                        {% if transacao.is_ativo %}
+                            <a href="{{ url_for('main.editar_transacao_pontos', id_transacao=transacao.id_transacao) }}" class="btn btn-warning">Editar</a>
+                            <a href="{{ url_for('main.desativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Tem certeza que deseja desativar esta transação?')">
+                                Desativar
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('main.reativar_transacao_pontos', id_transacao=transacao.id_transacao) }}" 
+                               class="btn btn-primary" 
+                               onclick="return confirm('Tem certeza que deseja reativar esta transação?')">
+                                Reativar
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Nenhuma transação encontrada.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
