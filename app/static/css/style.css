@@ -148,6 +148,33 @@ pre {
     font-size: 24px;
 }
 
+.perfil-usuario-squad-img {
+    min-width: 30px;
+    max-width: 60px;
+    height: auto;
+    object-fit: cover;
+}
+
+.table-perfil-usuarios {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.table-perfil-usuarios td{
+    vertical-align: middle;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.table-perfil-usuarios td:first-child {
+    width: 80px;
+    word-wrap: break-word; 
+}
+
+.table-perfil-usuarios td:last-child {
+    text-align: right;
+}
+
 .card-add-bolo,  .card-add-bolo .card-body{
     border: none;
     margin: 0;
