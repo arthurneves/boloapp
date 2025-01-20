@@ -21,13 +21,21 @@ class TransacaoPontosForm(FlaskForm):
     submit = SubmitField('Salvar Transação')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Carrega usuários ativos para seleção
-        self.id_usuario.choices = [(0, 'Selecione um Usuário')] + [
-            (usuario.id_usuario, usuario.nome_usuario) 
-            for usuario in Usuario.query.filter_by(is_ativo=True).all()
-        ]
+
+        usuario = kwargs.pop('id_usuario', None)  # Remove 'id_usuario' de kwargs
+        super(TransacaoPontosForm, self).__init__(*args, **kwargs)
+
+        if usuario is None:
+            # Carrega usuários ativos para seleção
+            self.id_usuario.choices = [(0, 'Selecione um Usuário')] + [
+                (usuario.id_usuario, usuario.nome_usuario) 
+                for usuario in Usuario.query.filter_by(is_ativo=True).all()
+            ]
+        else:
+            self.id_usuario.choices = [
+                (usuario.id_usuario, usuario.nome_usuario) 
+                for usuario in Usuario.query.filter_by(id_usuario=usuario, is_ativo=True).all()
+            ]
         
         # Carrega categorias ativas para seleção
         self.id_categoria.choices = [(0, 'Selecione uma Categoria')] + [

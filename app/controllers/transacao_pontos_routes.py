@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_required
 from app import db
 from app.models.transacao_pontos import TransacaoPontos
@@ -16,7 +16,11 @@ def listar_transacoes_pontos():
 @main_bp.route('/transacoes-pontos/nova', methods=['GET', 'POST'])
 @login_required
 def criar_transacao_pontos():
-    form = TransacaoPontosForm()
+
+    id_usuario = request.args.get('id_usuario', default=None, type=int)
+
+    form = TransacaoPontosForm(id_usuario=id_usuario)
+
     if form.validate_on_submit():
         nova_transacao = TransacaoPontos(
             id_usuario=form.id_usuario.data,
@@ -30,7 +34,11 @@ def criar_transacao_pontos():
 
         Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar', nova_transacao.id_usuario)
         
-        flash('Transação de pontos criada com sucesso!', 'success')
+        flash('Transação de bolos criada com sucesso!', 'success')
+
+        if id_usuario:
+            return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+
         return redirect(url_for('main.listar_transacoes_pontos'))
     
     return render_template('transacoes_pontos/nova.html', form=form)
@@ -61,7 +69,7 @@ def editar_transacao_pontos(id_transacao):
 
         Log.criar_log(id_transacao, 'transacao_pontos', 'editar', transacao.id_usuario)
         
-        flash('Transação de pontos atualizada com sucesso!', 'success')
+        flash('Transação de bolos atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
     
     # Preenche o formulário com os dados atuais da transação
@@ -84,7 +92,7 @@ def desativar_transacao_pontos(id_transacao):
 
     Log.criar_log(id_transacao, 'transacao_pontos', 'desativar', transacao.id_usuario)
     
-    flash('Transação de pontos desativada com sucesso!', 'success')
+    flash('Transação de bolos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
 
 @main_bp.route('/transacoes-pontos/reativar/<int:id_transacao>', methods=['GET'])
@@ -99,5 +107,5 @@ def reativar_transacao_pontos(id_transacao):
 
     Log.criar_log(id_transacao, 'transacao_pontos', 'reativar', transacao.id_usuario)
     
-    flash('Transação de pontos reativada com sucesso!', 'success')
+    flash('Transação de bolos reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
