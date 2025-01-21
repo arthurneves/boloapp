@@ -28,8 +28,7 @@ def home():
     usuarios_squad = []
     if usuario.squad:
         usuarios_squad = Usuario.query.filter(
-            Usuario.id_squad == usuario.squad.id_squad,
-            Usuario.id_usuario != id_usuario
+            Usuario.id_squad == usuario.squad.id_squad
         ).all()
 
     return render_template('usuarios/perfil.html',
