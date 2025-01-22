@@ -1,15 +1,18 @@
 from flask import render_template, redirect, url_for, flash
-from flask_login import login_required, current_user
+from flask_login import login_required
+from app import cache
 from . import main_bp
 from app.models.log import Log
 from app.models.promessa import Promessa
 from app.models.usuario import Usuario
 from app.forms.promessa_forms import PromessaForm
+from app.services.cache_service import invalidar_cache_perfil_usuario
 from app import db
 
 @main_bp.route('/promessas', methods=['GET'])
+@cache.cached()
 def listar_promessas():
-    promessas = Promessa.query.all()
+    promessas = Promessa.query.order_by(Promessa.id_promessa.desc()).all()
     return render_template('promessas/listar.html', promessas=promessas)
 
 @main_bp.route('/promessas/nova', methods=['GET', 'POST'])
@@ -30,6 +33,9 @@ def criar_promessa():
         
         db.session.add(nova_promessa)
         db.session.commit()
+
+        cache.delete('view//promessas')
+        invalidar_cache_perfil_usuario(usuario.id_usuario)
 
         Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar', nova_promessa.id_usuario)
         
@@ -56,6 +62,9 @@ def editar_promessa(id_promessa):
         
         db.session.commit()
 
+        cache.delete('view//promessas')
+        invalidar_cache_perfil_usuario(usuario.id_usuario)
+
         Log.criar_log(id_promessa, 'promessa', 'editar', promessa.id_usuario)
         
         flash('Promessa atualizada com sucesso!', 'success')
@@ -76,6 +85,9 @@ def desativar_promessa(id_promessa):
     promessa.is_ativo = False
     db.session.commit()
 
+    cache.delete('view//promessas')
+    invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
+
     Log.criar_log(id_promessa, 'promessa', 'desativar', promessa.id_usuario)
     
     flash('Promessa desativada com sucesso!', 'success')
@@ -88,6 +100,9 @@ def reativar_promessa(id_promessa):
 
     promessa.is_ativo = True
     db.session.commit()
+
+    cache.delete('view//promessas')
+    invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
     

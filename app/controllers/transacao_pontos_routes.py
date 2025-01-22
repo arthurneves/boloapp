@@ -2,9 +2,9 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_required
 from app import db
 from app.models.transacao_pontos import TransacaoPontos
-from app.models.usuario import Usuario
 from app.models.log import Log
 from app.forms.transacao_pontos_forms import TransacaoPontosForm
+from app.services.cache_service import invalidar_cache_geral
 from . import main_bp
 
 @main_bp.route('/transacoes-pontos', methods=['GET'])
@@ -31,6 +31,8 @@ def criar_transacao_pontos():
         
         db.session.add(nova_transacao)
         db.session.commit()
+
+        invalidar_cache_geral()
 
         Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar', nova_transacao.id_usuario)
         
@@ -67,6 +69,8 @@ def editar_transacao_pontos(id_transacao):
      
         db.session.commit()
 
+        invalidar_cache_geral()
+
         Log.criar_log(id_transacao, 'transacao_pontos', 'editar', transacao.id_usuario)
         
         flash('Transação de bolos atualizada com sucesso!', 'success')
@@ -90,6 +94,8 @@ def desativar_transacao_pontos(id_transacao):
     transacao.is_ativo = False
     db.session.commit()
 
+    invalidar_cache_geral()
+
     Log.criar_log(id_transacao, 'transacao_pontos', 'desativar', transacao.id_usuario)
     
     flash('Transação de bolos desativada com sucesso!', 'success')
@@ -104,6 +110,8 @@ def reativar_transacao_pontos(id_transacao):
     
     transacao.is_ativo = True
     db.session.commit()
+
+    invalidar_cache_geral()
 
     Log.criar_log(id_transacao, 'transacao_pontos', 'reativar', transacao.id_usuario)
     

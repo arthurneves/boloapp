@@ -10,6 +10,8 @@ from app.models.log import Log
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.services.image_service import ImageService
 from app import db
+from app.services.cache_service import cache_perfil_usuario, invalidar_cache_perfil
+
 
 
 @main_bp.route('/usuarios', methods=['GET'])
@@ -60,6 +62,8 @@ def novo_usuario():
         
         db.session.add(novo_usuario)
         db.session.commit()
+
+        invalidar_cache_perfil()
 
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar', novo_usuario.id_usuario)
 
@@ -113,6 +117,8 @@ def editar_usuario(id_usuario):
             usuario.set_senha(form.senha.data)
 
         db.session.commit()
+
+        invalidar_cache_perfil()
 
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
 
@@ -202,14 +208,21 @@ def logout():
 
 @main_bp.route('/perfil/<int:id_usuario>', methods=['GET'])
 @login_required
+@cache_perfil_usuario()
 def perfil_usuario(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)
     
     # Buscar promessas do usuário
-    promessas = Promessa.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(Promessa.data_criacao.desc()).limit(5).all()
+    promessas = Promessa.query.filter_by(
+        id_usuario=id_usuario, 
+        is_ativo=1
+    ).order_by(Promessa.data_criacao.desc()).limit(5).all()
     
     # Buscar transações de pontos do usuário
-    transacoes = TransacaoPontos.query.filter_by(id_usuario=id_usuario, is_ativo=1).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
+    transacoes = TransacaoPontos.query.filter_by(
+        id_usuario=id_usuario, 
+        is_ativo=1
+    ).order_by(TransacaoPontos.data_criacao.desc()).limit(5).all()
     
     # Buscar outros usuários da mesma squad
     usuarios_squad = []
@@ -218,9 +231,8 @@ def perfil_usuario(id_usuario):
             Usuario.id_squad == usuario.squad.id_squad
         ).all()
     
-    return render_template('usuarios/perfil.html', 
-                           usuario=usuario, 
-                           promessas=promessas, 
-                           transacoes=transacoes, 
-                           usuarios_squad=usuarios_squad)
-
+    return render_template('usuarios/perfil.html',
+                         usuario=usuario,
+                         promessas=promessas,
+                         transacoes=transacoes,
+                         usuarios_squad=usuarios_squad)

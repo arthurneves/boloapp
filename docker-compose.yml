@@ -19,6 +19,12 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:latest
+    container_name: boloapp_redis
+    ports:
+      - "6379:6379"
+
   web:
     build: .
     container_name: boloapp_web
