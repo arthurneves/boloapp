@@ -16,7 +16,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Cache Configuration
-    CACHE_TYPE = 'SimpleCache'
+    CACHE_TYPE = 'RedisCache'
+    #CACHE_TYPE = 'SimpleCache'
     CACHE_REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
     CACHE_REDIS_PORT = os.getenv('REDIS_PORT', 6379)
     CACHE_REDIS_DB = os.getenv('CACHE_REDIS_DB', 0)
