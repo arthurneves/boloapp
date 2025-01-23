@@ -56,9 +56,10 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    command: tunnel run 2d344f28-911c-445e-8bef-9ca28c00fb5e
+    command: tunnel run ${CLOUDFLARED_TUNNEL_ID}
     volumes:
-      - C:/Users/Arthur/.cloudflared:/etc/cloudflared
+      #- C:/Users/Arthur/.cloudflared:/etc/cloudflared
+      - ${CLOUDFLARE_CONFIG_PATH}
     depends_on:
       - nginx
 
