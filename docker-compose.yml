@@ -52,6 +52,12 @@ services:
       - profile_photos:/app/app/static/uploads/profile_photos:ro
     depends_on:
       - web
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -61,7 +67,8 @@ services:
       #- C:/Users/Arthur/.cloudflared:/etc/cloudflared
       - ${CLOUDFLARE_CONFIG_PATH}
     depends_on:
-      - nginx
+      - nginx:
+        condition: service_healthy
 
 volumes:
   mysql_data:
