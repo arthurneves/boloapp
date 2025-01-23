@@ -1,0 +1,15 @@
+{% macro ordenar_coluna(nome, coluna, sort_by, sort_order) %}
+    {% set args = request.args.to_dict() %}
+    {% set args = dict(args, sort=coluna, order='desc' if sort_by != coluna or sort_order == 'asc' else 'asc') %}
+    <a href="{{ url_for('main.listar_logs', **args) }}">
+        {{ nome }}
+    </a>
+{% endmacro %}
+
+{% macro link_paginacao(texto, pagina) %}
+    {% set args = request.args.to_dict() %}
+    {% set args = dict(args, page=pagina) %}
+    <a class="page-link" href="{{ url_for('main.listar_logs', **args) }}">
+        {{ texto }}
+    </a>
+{% endmacro %}

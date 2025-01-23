@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Novo Usuário</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.nome_usuario.label(class="form-label") }}
+                                    {{ form.nome_usuario(class="form-control") }}
+                                    {% if form.nome_usuario.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.nome_usuario.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.login_usuario.label(class="form-label") }}
+                                    {{ form.login_usuario(class="form-control") }}
+                                    {% if form.login_usuario.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.login_usuario.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    {{ form.foto_perfil.label(class="form-label") }}
+                                    {{ form.foto_perfil(class="form-control", onchange="previewImage(event)") }}
+                                    {% if form.foto_perfil.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.foto_perfil.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <img id="foto-preview" src="{{ url_for('static', filename='uploads/profile_photos/picareta_03.jpg') }}" 
+                                         class="img-fluid rounded-circle mt-2" 
+                                         style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.senha.label(class="form-label") }}
+                                {{ form.senha(class="form-control") }}
+                                {% if form.senha.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.senha.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.confirmar_senha.label(class="form-label") }}
+                                {{ form.confirmar_senha(class="form-control") }}
+                                {% if form.confirmar_senha.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.confirmar_senha.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.id_squad.label(class="form-label") }}
+                            {{ form.id_squad(class="form-select") }}
+                            {% if form.id_squad.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.id_squad.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.is_ativo(class="form-check-input") }}
+                            {{ form.is_ativo.label(class="form-check-label") }}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.is_administrador(class="form-check-input") }}
+                            {{ form.is_administrador.label(class="form-check-label") }}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('main.listar_usuarios') }}" class="btn btn-secondary mt-2">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function previewImage(event) {
+    var input = event.target;
+    var reader = new FileReader();
+    reader.onload = function(){
+        var dataURL = reader.result;
+        var output = document.getElementById('foto-preview');
+        output.src = dataURL;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+{% endblock %}
+
+{% endblock %}

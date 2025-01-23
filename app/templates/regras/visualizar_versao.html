@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h1>Visualizar Regra</h1>
+
+  <pre>{{ regra.conteudo_regras }}</pre>
+  <p>Criado em: {{ regra.data_criacao }}</p>
+  <p>Editado em: {{ regra.data_edicao }}</p>
+
+  <a href="{{ url_for('main.lista_versoes_regras') }}" class="btn btn-secondary">Voltar</a>
+  <a href="{{ url_for('main.ativar_regra', id=regra.id_regra) }}" class="btn btn-success">Ativar Regra</a>
+
+{% endblock %}

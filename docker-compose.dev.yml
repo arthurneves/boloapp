@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: boloapp_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-boloapp}
+      MYSQL_USER: ${DB_USER:-admin}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-admin}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: boloapp_redis
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    container_name: boloapp_web
+    restart: always
+    volumes:
+      - ./app:/app/app
+      - profile_photos:/app/app/static/uploads/profile_photos
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DB_HOST=db
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASSWORD=${DB_PASSWORD:-admin}
+      - DB_NAME=${DB_NAME:-boloapp}
+      - SECRET_KEY=${SECRET_KEY:-desenvolvimento_boloapp_arthur_neves}
+    ports:
+      - "5000:5000"
+    entrypoint: ["/docker-entrypoint.dev.sh"]
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
+  profile_photos:

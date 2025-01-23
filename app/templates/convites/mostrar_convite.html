@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h1 class="mb-4">Convite Criado</h1>
+
+  <div class="div-convite">
+    
+    <div>
+      <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code do Convite">
+    </div>
+    
+    <div class="div-convite-info">
+      <p>URL do convite: </p>
+      <input type="text" class="convite-hash" id="url_convite" value="{{ convite_url }}">
+  
+      <button id="button-copy" class="btn btn-primary mb-3 btn-copy-click" onclick="copiarTexto()">
+        <img id="icon-copy-click" src="{{ url_for('static', filename='icons/copy.svg') }}" />
+        <i id="icon-copy-done" class="copy-done">&#x2705;</i>
+        <span id="copy-text">Copiar</span>
+      </button>
+    </div>
+
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copiarTexto() {
+  // Obtém o elemento de input
+  var input = document.getElementById("url_convite");
+
+  // Seleciona o texto dentro do input
+  input.select();
+  input.setSelectionRange(0, 99999); // Para dispositivos móveis
+
+  // Copia o texto para a área de transferência usando a API Clipboard
+  navigator.clipboard.writeText(input.value)
+    .then(() => {
+      modificarBotao()
+    })
+    .catch(err => {
+      console.error('Falha ao copiar: ', err);
+      // Fallback para o método antigo (veja abaixo) caso a API Clipboard falhe
+      copiarTextoAntigo(input);
+    });
+}
+
+// Função de fallback para navegadores antigos (veja explicação abaixo)
+function copiarTextoAntigo(input) {
+  input.focus();
+  try {
+    var sucesso = document.execCommand('copy');
+    if (sucesso === true) {
+      modificarBotao()
+    }
+  } catch (err) {
+    console.error('Falha ao copiar: ', err);
+  }
+}
+
+function modificarBotao() {
+  var copy_text = document.getElementById("copy-text");
+  copy_text.innerHTML = "Copiado!";
+
+  var icon_copy_click = document.getElementById("icon-copy-click");
+  icon_copy_click.style.display = "none";
+
+  var icon_copy_done = document.getElementById("icon-copy-done");
+  icon_copy_done.style.display = "inline-block";
+
+  var button_copy = document.getElementById("button-copy");
+  button_copy.classList.remove('btn-copy-click');
+  button_copy.classList.add('btn-copy-done');
+
+  setTimeout(function() {
+    copy_text.innerHTML = "Copiar";
+    icon_copy_click.style.display = "inline-block";
+    icon_copy_done.style.display = "none";
+    button_copy.classList.remove('btn-copy-done');
+    button_copy.classList.add('btn-copy-click');
+  }, 3000);
+}
+</script>
+{% endblock %}

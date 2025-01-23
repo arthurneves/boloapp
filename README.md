@@ -22,6 +22,25 @@ pip install -r requirements.txt
 python run.py
 ```
 
+## Executando com Docker e Redis (Cache)
+
+1. **Certifique-se de ter o Docker e Docker Compose instalados.**
+
+2. **Inicie os containers Docker:**
+   ```bash
+   docker-compose up -d
+   ```
+   Este comando irá iniciar os containers do banco de dados MySQL, Redis e a aplicação Flask.
+
+3. **Acesse a aplicação:**
+   A aplicação estará disponível em `http://localhost:5000`. O Redis caching estará habilitado, utilizando o Redis container para armazenar os caches.
+
+**Observações:**
+
+- O arquivo `docker-compose.yml` define os serviços Docker, incluindo a aplicação Flask, MySQL e Redis.
+- As configurações de cache Redis são definidas no arquivo `config/config.py` e utilizadas na inicialização do Flask-Caching em `app/__init__.py`.
+- Para desenvolvimento, utilize `docker-compose.dev.yml` e `docker-entrypoint.dev.sh` para hot-reloading e outras facilidades de desenvolvimento.
+
 ## Estrutura do Projeto
 - `run.py`: Ponto de entrada da aplicação
 - `app/`: Pacote principal da aplicação

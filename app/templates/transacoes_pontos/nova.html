@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Nova Transação de Bolos</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.id_usuario.label(class="form-label") }}
+                            {{ form.id_usuario(class="form-select") }}
+                            {% if form.id_usuario.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.id_usuario.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.id_categoria.label(class="form-label") }}
+                            {{ form.id_categoria(class="form-select") }}
+                            {% if form.id_categoria.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.id_categoria.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-2 mb-3">
+                            {{ form.pontos_transacao.label(class="form-label") }}
+                            {{ form.pontos_transacao(class="form-control") }}
+                            {% if form.pontos_transacao.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.pontos_transacao.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.descricao_transacao.label(class="form-label") }}
+                            {{ form.descricao_transacao(class="form-control", rows=3) }}
+                            {% if form.descricao_transacao.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.descricao_transacao.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>   
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('main.listar_transacoes_pontos') }}" class="btn btn-secondary mt-2">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

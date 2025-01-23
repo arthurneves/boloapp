@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+
+                <div class="card-header text-center">
+                    <h2>Editar Promessa</h2>
+                </div>
+            
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.id_usuario.label(class="form-label") }}
+                            {{ form.id_usuario(class="form-select") }}
+                            {% if form.id_usuario.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.id_usuario.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.titulo_promessa.label(class="form-label") }}
+                            {{ form.titulo_promessa(class="form-control") }}
+                            {% if form.titulo_promessa.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.titulo_promessa.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.descricao_promessa.label(class="form-label") }}
+                            {{ form.descricao_promessa(class="form-control", rows=3) }}
+                            {% if form.descricao_promessa.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.descricao_promessa.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('main.listar_promessas') }}" class="btn btn-secondary mt-2">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona validação do lado do cliente
+        const form = document.querySelector('form');
+        const tituloInput = document.getElementById('titulo_promessa');
+        const descricaoInput = document.getElementById('descricao_promessa');
+        
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validação do título
+            if (tituloInput.value.trim().length < 3) {
+                tituloInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                tituloInput.classList.remove('is-invalid');
+            }
+            
+            // Validação da descrição (opcional)
+            if (descricaoInput.value.trim().length > 1000) {
+                descricaoInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                descricaoInput.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

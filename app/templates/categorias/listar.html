@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Categorias</h1>
+        <a href="{{ url_for('main.criar_categoria') }}" class="btn btn-primary">Nova Categoria</a>
+    </div>
+    
+    <div class="list-container">
+        {% for categoria in categorias %}
+        <div class="list-card">
+            <div class="list-card-header">
+                <h2 class="list-card-title">{{ categoria.titulo_categoria }}</h2>
+                <span class="list-card-status {{ 'active' if categoria.is_ativo else 'inactive' }}">
+                    {{ 'Ativo' if categoria.is_ativo else 'Inativo' }}
+                </span>
+            </div>
+            
+            <div class="list-card-content">
+                <div class="list-card-info">
+                    <div>{{ categoria.descricao_categoria or 'Sem descrição' }}</div>
+                    <div><small>ID: {{ categoria.id_categoria }}</small></div>
+                    <div><small>Criado em: {{ categoria.data_criacao.strftime('%d/%m/%Y %H:%M') }}</small></div>
+                </div>
+            </div>
+            
+            <div class="list-card-actions">
+                <a href="{{ url_for('main.editar_categoria', id_categoria=categoria.id_categoria) }}" class="btn btn-warning">Editar</a>
+                {% if categoria.is_ativo %}
+                <a href="{{ url_for('main.desativar_categoria', id_categoria=categoria.id_categoria) }}" 
+                   class="btn btn-danger" 
+                   onclick="return confirm('Tem certeza que deseja desativar esta categoria?')">
+                    Desativar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

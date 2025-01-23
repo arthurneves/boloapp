@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+
+                    {% if usuario.foto_perfil %}
+                        {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
+                    {% else %}
+                        {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                    {% endif %}
+
+                    {% if current_user.is_administrador or current_user.id_usuario == usuario.id_usuario %}
+                    <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" >
+                    {% endif %}
+
+                        <img src="{{ foto_usuario }}" 
+                            class="rounded-circle img-fluid mb-3" 
+                            id="perfil-img-principal">
+
+                    {% if current_user.is_administrador or current_user.id_usuario == usuario.id_usuario %}
+                    </a>
+                    {% endif %}
+
+                    <h2>{{ usuario.nome_usuario }}</h2>
+                    <p class="text-muted">{{ usuario.login_usuario }}</p>
+                    <p>
+                        <strong>Squad:</strong> {{ usuario.squad.titulo_squad if usuario.squad else 'Sem Squad' }}
+                    </p>
+                    <p class="perfil-saldo-bolo">
+                        <i class="icon icon-bolo"></i> <strong>{{ usuario.saldo_pontos_usuario }}</strong>
+                    </p>
+                    
+                </div>
+            </div>
+
+            <div class="card mb-4 card-add-bolo">
+                <div class="card-body text-center">
+                    <a href="{{ url_for('main.criar_transacao_pontos', id_usuario=usuario.id_usuario) }}" class="btn btn-primary">+ Bolo</a>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="col-md-8">
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Transações de Bolos</h3>
+                </div>
+                <div class="card-body">
+                    {% if transacoes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-mobile-friendly">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Categoria</th>
+                                        <th>Descrição</th>
+                                        <th>Bolo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transacao in transacoes %}
+                                        <tr>
+                                            <td data-label="Data">{{ transacao.data_criacao.strftime('%d/%m/%Y') }}</td>
+                                            <td data-label="Categoria">{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
+                                            <td data-label="Descrição">{{ transacao.descricao_transacao }}</td>
+                                            <td data-label="Pontos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
+                                                {{ ('+' if transacao.pontos_transacao > 0 else '-') ~ transacao.pontos_transacao }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Nenhuma transação encontrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">    
+                <div class="card-header">
+                    <h3>Promessas</h3>
+                </div>
+                <div class="card-body">
+                    {% if promessas %}
+                        <div class="list-group">
+                            {% for promessa in promessas %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ promessa.titulo_promessa }}</h5>
+                                        <small class="text-muted">{{ promessa.data_criacao.strftime('%d/%m/%Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ promessa.descricao_promessa }}</p>
+                                    <small class="text-muted">
+                                        Status: {{ 'Ativo' if promessa.is_ativo else 'Inativo' }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Nenhuma promessa encontrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Squad - {{ usuario.squad.titulo_squad }}</h3>
+                </div>
+                <div class="card-body">
+                    
+                    {% if usuarios_squad %}
+
+                        <div class="table-responsive">
+                            <table class="table table-perfil-usuarios">
+
+                                {% for outro_usuario in usuarios_squad %}
+
+                                    {% if outro_usuario.foto_perfil %}
+                                        {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/' ~ outro_usuario.foto_perfil) %}
+                                    {% else %}
+                                        {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                                    {% endif %}
+
+
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
+                                                <img src="{{ foto_user_squad }}" 
+                                                    class="rounded-circle perfil-usuario-squad-img" >
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
+                                                {{ outro_usuario.nome_usuario }}
+                                            </a>        
+                                        </td>
+
+                                        <td class="{{ 'text-success' if outro_usuario.saldo_pontos_usuario > 0 else 'text-danger' }}">
+                                            {{ ('+' if outro_usuario.saldo_pontos_usuario > 0 else '-') ~ outro_usuario.saldo_pontos_usuario }}
+                                        </td>
+                                    </tr>
+                                
+                            {% endfor %}
+
+                            </table>
+                        </div>
+
+                    {% else %}
+                        <p class="text-muted">Nenhum outro usuário no squad.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

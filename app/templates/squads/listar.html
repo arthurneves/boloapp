@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Squads</h1>
+        <a href="{{ url_for('main.criar_squad') }}" class="btn btn-primary">Nova Squad</a>
+    </div>
+    
+    {% if squads %}
+        <div class="list-container">
+            {% for squad in squads %}
+                <div class="list-card {{ 'active' if squad.is_ativo else 'inactive' }}">
+                    <div class="list-card-header">
+                        <h2 class="list-card-title">{{ squad.titulo_squad }}</h2>
+                        <span class="list-card-status {{ 'active' if squad.is_ativo else 'inactive' }}">
+                            {{ 'Ativo' if squad.is_ativo else 'Inativo' }}
+                        </span>
+                    </div>
+                    
+                    <div class="list-card-content">
+                        <div class="list-card-info">
+                            <div class="d-flex justify-content-between">
+                                <small>ID: {{ squad.id_squad }}</small>
+                                <small>Criado em: {{ squad.data_criacao.strftime('%d/%m/%Y %H:%M') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-card-actions">
+                        <a href="{{ url_for('main.editar_squad', id_squad=squad.id_squad) }}" class="btn btn-warning">Editar</a>
+                        {% if squad.is_ativo %}
+                            <a href="{{ url_for('main.desativar_squad', id_squad=squad.id_squad) }}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Tem certeza que deseja desativar este squad?')">
+                                Desativar
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Nenhuma squad encontrada.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

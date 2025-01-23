@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <div class="container mt-5">
+    <h1 class="mb-4">Regras Do Bolo</h1>
+
+    <div class="text-center">
+    
+      {% if regra %}
+        <p class="d-flex flex-row-reverse">v.{{ regra.id_regra }} - {{ regra.data_criacao.strftime('%d de %B de %Y às %H:%M') }}</p>
+        <pre class="d-flex justify-content-start">{{ regra.conteudo_regras }}</pre>
+      {% else %}
+        <p>Nenhuma regra ativa no momento.</p>
+      {% endif %}
+
+    </div>
+  
+  
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.editar_regras') }}" class="btn btn-primary">Editar Regra</a>
+      <a href="{{ url_for('main.lista_versoes_regras') }}" class="btn btn-secondary">Visualizar Versões</a>
+    
+    {% else %}
+      <a href="#" onclick="fecharJanela()" class="btn btn-danger">Fechar janela</a>
+  
+      <script>
+        function fecharJanela() {window.close();}
+      </script>
+    {% endif %}
+
+  </div>
+
+
+
+{% endblock %}
