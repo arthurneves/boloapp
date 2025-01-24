@@ -22,7 +22,6 @@ def listar_usuarios():
         flash('Acesso não autorizado', 'danger')
         return redirect(url_for('main.home'))
 
-
     usuarios = Usuario.query.all()
     return render_template('usuarios/listar.html', usuarios=usuarios)
 
@@ -192,7 +191,6 @@ def login():
                 return redirect(url_for('main.login'))
             
             login_user(usuario)
-            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('main.home'))
         
         flash('Login ou senha inválidos', 'danger')

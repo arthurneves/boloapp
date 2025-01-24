@@ -34,13 +34,13 @@ def criar_transacao_pontos():
 
         invalidar_cache_geral()
 
-        Log.criar_log(nova_transacao.id_transacao, 'transacao_pontos', 'criar', nova_transacao.id_usuario)
-        
-        flash('Transação de bolos criada com sucesso!', 'success')
+        Log.criar_log(nova_transacao.id_transacao, 'transacao_bolos', 'criar', nova_transacao.id_usuario)
 
         if id_usuario:
             return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+        
 
+        flash('Transação de bolos criada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
     
     return render_template('transacoes_pontos/nova.html', form=form)
@@ -71,7 +71,7 @@ def editar_transacao_pontos(id_transacao):
 
         invalidar_cache_geral()
 
-        Log.criar_log(id_transacao, 'transacao_pontos', 'editar', transacao.id_usuario)
+        Log.criar_log(id_transacao, 'transacao_bolos', 'editar', transacao.id_usuario)
         
         flash('Transação de bolos atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -96,7 +96,7 @@ def desativar_transacao_pontos(id_transacao):
 
     invalidar_cache_geral()
 
-    Log.criar_log(id_transacao, 'transacao_pontos', 'desativar', transacao.id_usuario)
+    Log.criar_log(id_transacao, 'transacao_bolos', 'desativar', transacao.id_usuario)
     
     flash('Transação de bolos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
@@ -113,7 +113,7 @@ def reativar_transacao_pontos(id_transacao):
 
     invalidar_cache_geral()
 
-    Log.criar_log(id_transacao, 'transacao_pontos', 'reativar', transacao.id_usuario)
+    Log.criar_log(id_transacao, 'transacao_bolos', 'reativar', transacao.id_usuario)
     
     flash('Transação de bolos reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
