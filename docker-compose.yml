@@ -67,7 +67,7 @@ services:
       #- C:/Users/Arthur/.cloudflared:/etc/cloudflared
       - ${CLOUDFLARE_CONFIG_PATH}
     depends_on:
-      - nginx:
+      nginx:
         condition: service_healthy
 
 volumes:
