@@ -70,7 +70,7 @@
                                             <td data-label="Categoria">{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
                                             <td data-label="Descrição">{{ transacao.descricao_transacao }}</td>
                                             <td data-label="Pontos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
-                                                {{ ('+' if transacao.pontos_transacao > 0 else '-') ~ transacao.pontos_transacao }}
+                                                {{ ('+' if transacao.pontos_transacao > 0 else '') ~ transacao.pontos_transacao }}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -144,7 +144,7 @@
                                         </td>
 
                                         <td class="{{ 'text-success' if outro_usuario.saldo_pontos_usuario > 0 else 'text-danger' }}">
-                                            {{ ('+' if outro_usuario.saldo_pontos_usuario > 0 else '-') ~ outro_usuario.saldo_pontos_usuario }}
+                                            {{ ('+' if outro_usuario.saldo_pontos_usuario > 0 else '') ~ outro_usuario.saldo_pontos_usuario }}
                                         </td>
                                     </tr>
                                 
