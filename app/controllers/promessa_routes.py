@@ -6,7 +6,7 @@ from app.models.log import Log
 from app.models.promessa import Promessa
 from app.models.usuario import Usuario
 from app.forms.promessa_forms import PromessaForm
-from app.services.cache_service import invalidar_cache_perfil_usuario
+from app.services.cache_service import invalidar_cache_perfil_usuario, invalidar_cache_home
 from app import db
 
 @main_bp.route('/promessas', methods=['GET'])
@@ -36,6 +36,7 @@ def criar_promessa():
 
         cache.delete('view//promessas')
         invalidar_cache_perfil_usuario(usuario.id_usuario)
+        invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar', nova_promessa.id_usuario)
         
@@ -64,6 +65,7 @@ def editar_promessa(id_promessa):
 
         cache.delete('view//promessas')
         invalidar_cache_perfil_usuario(usuario.id_usuario)
+        invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(id_promessa, 'promessa', 'editar', promessa.id_usuario)
         
@@ -87,6 +89,7 @@ def desativar_promessa(id_promessa):
 
     cache.delete('view//promessas')
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
+    invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'desativar', promessa.id_usuario)
     
@@ -103,6 +106,7 @@ def reativar_promessa(id_promessa):
 
     cache.delete('view//promessas')
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
+    invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
     
