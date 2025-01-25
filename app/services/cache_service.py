@@ -63,9 +63,10 @@ def invalidar_cache_perfil_usuario(id_usuario):
     Args:
         id_usuario (int): ID do usuário cujo cache será invalidado
     """
-    # Como o cache pode existir para diferentes usuários visualizando,
-    # podemos usar um padrão para limpar todas as chaves relacionadas
-    global_cache.delete_many('perfil_usuario_' + str(id_usuario))
+    global_cache.delete('perfil_usuario_' + str(id_usuario))
+
+def invalidar_cache_home(id_usuario):
+    global_cache.delete('home_current_user_' + str(id_usuario))
 
 
 def invalidar_cache_perfil():
