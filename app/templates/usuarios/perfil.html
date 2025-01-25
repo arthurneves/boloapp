@@ -129,18 +129,14 @@
                                         {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
                                     {% endif %}
 
+                                    {% set url = url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) %}
 
-                                    <tr>
+                                    <tr onclick="window.location='{{ url }}';">
                                         <td>
-                                            <a href="{{ url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
-                                                <img src="{{ foto_user_squad }}" 
-                                                    class="rounded-circle perfil-usuario-squad-img" >
-                                            </a>
+                                            <img src="{{ foto_user_squad }}" class="rounded-circle perfil-usuario-squad-img" >
                                         </td>
                                         <td>
-                                            <a href="{{ url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) }}" class="perfil-usuario-link">
-                                                {{ outro_usuario.nome_usuario }}
-                                            </a>        
+                                            {{ outro_usuario.nome_usuario }}
                                         </td>
 
                                         <td class="{{ 'text-success' if outro_usuario.saldo_pontos_usuario > 0 else 'text-danger' }}">
