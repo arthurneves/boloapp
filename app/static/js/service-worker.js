@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boloapp-v3';
+const CACHE_NAME = 'boloapp-v4';
 const urlsToCache = [
   '/',
   '/static/css/bootstrap.min.css',
@@ -26,21 +26,34 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Primeiro tenta o cache
         if (response) {
+          // Faz uma busca em background para atualizar
+          fetch(event.request).then(networkResponse => {
+            if (networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, networkResponse.clone());
+              });
+            }
+          });
           return response;
         }
-        return fetch(event.request)
-          .then(response => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
+        
+        // Se não estiver no cache, busca na rede
+        return fetch(event.request).then(response => {
+          // Só faz cache de respostas bem-sucedidas
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
-          });
+          }
+
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+
+          return response;
+        });
       })
   );
 });
@@ -56,6 +69,8 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      return self.clients.claim(); // Garante que o novo Service Worker tome controle imediatamente
     })
   );
 });
