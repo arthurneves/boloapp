@@ -4,6 +4,7 @@ services:
     container_name: boloapp_db
     restart: always
     environment:
+      TZ: America/Sao_Paulo
       MYSQL_DATABASE: ${DB_NAME:-boloapp}
       MYSQL_USER: ${DB_USER:-admin}
       MYSQL_PASSWORD: ${DB_PASSWORD:-admin}
@@ -46,6 +47,8 @@ services:
     restart: always
     ports:
       - "80:80"
+    environment:
+      - TZ=America/Sao_Paulo
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./app/static:/app/app/static:ro
