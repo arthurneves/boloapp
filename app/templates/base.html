@@ -15,6 +15,7 @@
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style-v2.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/pwa-install-prompt.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/navbar.css') }}" rel="stylesheet">
 </head>
 <body>
     <main>
@@ -48,10 +49,9 @@
     <footer>BoloApp - Criado por Arthur Neves - 2025</footer>
 
     {% block scripts %}{% endblock %}
-    <!-- jQuery and Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/pwa-install-prompt.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
 
     <script>
         if ('serviceWorker' in navigator) {

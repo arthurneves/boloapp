@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.home') }}">BoloApp</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -29,7 +29,7 @@
                 {% if current_user.is_authenticated and current_user.is_administrador %}
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdmin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" role="button">
                             Administração
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownAdmin">
@@ -47,7 +47,7 @@
                 {% if current_user.is_authenticated %}
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{{ url_for('main.perfil_usuario', id_usuario=current_user.id_usuario) }}" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button">
                         {{ current_user.nome_usuario }}
                     </a>
                     <ul class="dropdown-menu">
