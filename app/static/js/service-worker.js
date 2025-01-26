@@ -1,18 +1,11 @@
-const CACHE_NAME = 'boloapp-v4';
+const CACHE_NAME = 'boloapp-v6';
 const urlsToCache = [
   '/',
   '/static/css/bootstrap.min.css',
   '/static/css/style.css',
   '/static/js/jquery-3.6.0.min.js',
   '/static/js/bootstrap.bundle.min.js',
-  '/static/icons/bolo.png',
-  '/static/icons/bolo2.png',
-  '/static/icons/bolo-coracao.png',
-  '/static/icons/bolo-coracao2.png',
-  '/static/icons/deletar.png',
-  '/static/icons/editar.png',
-  '/static/icons/reativar.png',
-  '/static/icons/reativar2.png'
+  '/static/icons/bolo-coracao.png'
 ];
 
 self.addEventListener('install', event => {
@@ -23,20 +16,27 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
+  console.log('Interceptando requisição para:', event.request.url);
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         // Primeiro tenta o cache
         if (response) {
-          // Faz uma busca em background para atualizar
-          fetch(event.request).then(networkResponse => {
-            if (networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-              });
-            }
-          });
-          return response;
+          // Check if the cached version matches the current cache name
+          if (response.headers.get('cache-name') !== CACHE_NAME) {
+
+            // Faz uma busca em background para atualizar
+            fetch(event.request).then(networkResponse => {
+              if (networkResponse.status === 200) {
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(event.request, networkResponse.clone());
+                });
+              }
+            });
+            return response;
+
+          }
         }
         
         // Se não estiver no cache, busca na rede
