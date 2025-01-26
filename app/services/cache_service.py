@@ -3,8 +3,8 @@ from app import cache as global_cache
 
 TIMEOUT = 36000
 
-def cache_perfil_home(timeout=TIMEOUT):
 
+def cache_perfil_home(timeout=TIMEOUT):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -21,17 +21,12 @@ def cache_perfil_home(timeout=TIMEOUT):
             rv = f(*args, **kwargs)
             global_cache.set(cache_key, rv, timeout=timeout)
             return rv
+        
         return decorated_function
     return decorator
 
+
 def cache_perfil_usuario(timeout=TIMEOUT):
-    """
-    Decorator personalizado para cache que considera autenticação
-    e parâmetros específicos do usuário
-    
-    Args:
-        timeout (int): Tempo de cache em segundos. Padrão: 300 = 5 minutos
-    """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -52,24 +47,20 @@ def cache_perfil_usuario(timeout=TIMEOUT):
             rv = f(*args, **kwargs)
             global_cache.set(cache_key, rv, timeout=timeout)
             return rv
+        
         return decorated_function
     return decorator
 
 
 def invalidar_cache_perfil_usuario(id_usuario):
-    """
-    Função para invalidar o cache do perfil de um usuário específico
-    
-    Args:
-        id_usuario (int): ID do usuário cujo cache será invalidado
-    """
     global_cache.delete('perfil_usuario_' + str(id_usuario))
+
 
 def invalidar_cache_home(id_usuario):
     global_cache.delete('home_current_user_' + str(id_usuario))
 
 
-def invalidar_cache_perfil():
+def invalidar_cache_perfil_geral():
     global_cache.delete_many('perfil_usuario_*')
 
 

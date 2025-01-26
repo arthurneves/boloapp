@@ -10,6 +10,7 @@ footer {
     margin-top: 10px;
     padding: 5px;
     text-align: center;
+    font-size: 0.7rem; 
 }
 
 pre {
@@ -127,6 +128,25 @@ pre {
     background-image: url(../icons/bolo-coracao.png);
 }
 
+.perfil-img-circulo {
+    margin: 0 auto;
+    max-width: 100%;
+    width: 200px;
+    height: 200px;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 50%;
+
+    border: 1px solid rgba(0, 0, 0, .125);
+    box-shadow: 2px 2px 5px 0px rgb(92, 92, 92);
+}
+
+.perfil-img-circulo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ou object-fit: contain */
+    display: block;
+}
 
 .perfil-saldo-bolo {
     display: flex;
@@ -148,11 +168,22 @@ pre {
     font-size: 24px;
 }
 
-.perfil-usuario-squad-img {
+.perfil-usuario-squad {
+    margin: 0 auto;
     min-width: 30px;
+    min-height: 30px;
     max-width: 60px;
-    height: auto;
+    max-height: 60px;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.perfil-usuario-squad img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .table-perfil-usuarios {

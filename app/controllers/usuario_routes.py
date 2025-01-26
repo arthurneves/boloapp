@@ -10,7 +10,7 @@ from app.models.log import Log
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.services.image_service import ImageService
 from app import db
-from app.services.cache_service import cache_perfil_usuario, invalidar_cache_perfil
+from app.services.cache_service import cache_perfil_usuario, invalidar_cache_home, invalidar_cache_perfil_geral
 
 
 
@@ -62,7 +62,7 @@ def novo_usuario():
         db.session.add(novo_usuario)
         db.session.commit()
 
-        invalidar_cache_perfil()
+        invalidar_cache_perfil_geral()
 
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar', novo_usuario.id_usuario)
 
@@ -117,7 +117,8 @@ def editar_usuario(id_usuario):
 
         db.session.commit()
 
-        invalidar_cache_perfil()
+        invalidar_cache_perfil_geral()
+        invalidar_cache_home(id_usuario)
 
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
 
@@ -225,8 +226,9 @@ def perfil_usuario(id_usuario):
     # Buscar outros usuários da mesma squad
     usuarios_squad = []
     if usuario.squad:
-        usuarios_squad = Usuario.query.filter(
-            Usuario.id_squad == usuario.squad.id_squad
+        usuarios_squad = Usuario.query.filter_by(
+            id_squad=usuario.squad.id_squad,
+            is_ativo=1
         ).all()
     
     return render_template('usuarios/perfil.html',

@@ -3,3 +3,5 @@
 venv
 .venv
 .env
+
+app/static/uploads/profile_photos/*
