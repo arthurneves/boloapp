@@ -85,7 +85,7 @@
                         </div>
 
                         <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
+                            {{ form.submit(class="btn btn-primary disabled") }}
                         </div>
 
                     </form>
@@ -94,5 +94,21 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+    const checkbox = document.getElementById('termos');
+    const button = document.getElementById('submit');
+
+    checkbox.addEventListener('change', () =>{
+        if (checkbox.checked) {
+            button.classList.remove('disabled');
+        } else {
+            button.classList.add('disabled');
+        }
+
+    });
+</script>
+{% endblock %}
 
 {% endblock %}
