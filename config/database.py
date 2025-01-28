@@ -139,6 +139,19 @@ def create_database():
         """)
         print("Tabela 'regra' criada com sucesso.")
 
+        # Criar tabela de seguidores
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS seguidor (
+            id_seguidor INT NOT NULL,
+            id_seguido INT NOT NULL,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id_seguidor, id_seguido),
+            FOREIGN KEY (id_seguidor) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_seguido) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'seguidor' criada com sucesso.")
+
         # Criar usuário administrador padrão
         admin_login = 'admin'
         admin_senha = generate_password_hash('admin007006')

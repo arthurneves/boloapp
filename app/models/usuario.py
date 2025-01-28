@@ -1,7 +1,15 @@
 from app import db
-from sqlalchemy import func
+from sqlalchemy import func, Table
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Tabela de associação para seguidores
+seguidores = Table('seguidor',
+    db.Model.metadata,
+    db.Column('id_seguidor', db.Integer, db.ForeignKey('usuario.id_usuario'), primary_key=True),
+    db.Column('id_seguido', db.Integer, db.ForeignKey('usuario.id_usuario'), primary_key=True),
+    db.Column('data_criacao', db.DateTime, default=func.now())
+)
 
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuario'
@@ -24,6 +32,16 @@ class Usuario(UserMixin, db.Model):
     promessas = db.relationship('Promessa', back_populates='usuario')
     logs_criados = db.relationship('Log', foreign_keys='Log.id_usuario_autor', back_populates='usuario_autor')
     logs_recebidos = db.relationship('Log', foreign_keys='Log.id_usuario_afetado', back_populates='usuario_afetado')
+    
+    # Relacionamentos de seguidores
+    seguindo = db.relationship(
+        'Usuario',
+        secondary=seguidores,
+        primaryjoin=(id_usuario == seguidores.c.id_seguidor),
+        secondaryjoin=(id_usuario == seguidores.c.id_seguido),
+        backref=db.backref('seguidores', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
 
 
@@ -35,6 +53,21 @@ class Usuario(UserMixin, db.Model):
 
     def get_id(self):
         return str(self.id_usuario)
+
+    def seguir(self, usuario):
+        if not self.esta_seguindo(usuario):
+            self.seguindo.append(usuario)
+            return True
+        return False
+
+    def deixar_seguir(self, usuario):
+        if self.esta_seguindo(usuario):
+            self.seguindo.remove(usuario)
+            return True
+        return False
+
+    def esta_seguindo(self, usuario):
+        return self.seguindo.filter(seguidores.c.id_seguido == usuario.id_usuario).count() > 0
 
     def to_dict(self):
         return {
