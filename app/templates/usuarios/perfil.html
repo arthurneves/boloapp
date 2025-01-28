@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<div id="mensagens"></div>
+
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-4">
@@ -15,15 +18,9 @@
 
                     
                     <div class="perfil-img-circulo mb-3">
-                        {% if current_user.is_administrador or current_user.id_usuario == usuario.id_usuario %}
-                            <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}">
-                        {% endif %}
-
+                        <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}">
                             <img src="{{ foto_usuario }}">
-                        
-                        {% if current_user.is_administrador or current_user.id_usuario == usuario.id_usuario %}
-                            </a>
-                        {% endif %}
+                        </a>
                     </div>
 
 
@@ -35,7 +32,10 @@
                     <p class="perfil-saldo-bolo">
                         <i class="icon icon-bolo"></i> <strong>{{ usuario.saldo_pontos_usuario }}</strong>
                     </p>
-                    
+
+
+                    <div id="seguir-container"></div>
+
                 </div>
             </div>
 
@@ -110,9 +110,47 @@
                     {% endif %}
                 </div>
             </div>
-            
-            
-            <div class="card">
+
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Seguindo</h3>
+                </div>
+                <div class="card-body">
+            {% if seguindo %}
+                <div class="table-responsive">
+                    <table class="table table-perfil-usuarios">
+                        {% for seguido in seguindo %}
+                            {% if seguido.foto_perfil %}
+                                {% set foto_seguido = url_for('static', filename='uploads/profile_photos/' ~ seguido.foto_perfil) %}
+                            {% else %}
+                                {% set foto_seguido = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                            {% endif %}
+
+                            {% set url = url_for('main.perfil_usuario', id_usuario=seguido.id_usuario) %}
+                            
+                            <tr onclick="window.location='{{ url }}';">
+                                <td>
+                                    <div class="perfil-usuario-squad">
+                                        <img src="{{ foto_seguido }}" class="rounded-circle perfil-usuario-squad-img">
+                                    </div>
+                                </td>
+                                <td>{{ seguido.nome_usuario }}</td>
+                                <td class="{{ 'text-success' if seguido.saldo_pontos_usuario > 0 else 'text-danger' }}">
+                                    {{ ('+' if seguido.saldo_pontos_usuario > 0 else '') ~ seguido.saldo_pontos_usuario }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">Não está seguindo nenhum usuário.</p>
+            {% endif %}
+                </div>
+            </div>
+
+
+            <div class="card mb-4">
                 <div class="card-header">
                     <h3>Squad - {{ usuario.squad.titulo_squad }}</h3>
                 </div>
@@ -156,7 +194,89 @@
                     {% endif %}
                 </div>
             </div>
+
+
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Verificar mensagens flash
+    fetch('/api/mensagens')
+        .then(response => response.json())
+        .then(data => {
+            const mensagensDiv = document.getElementById('mensagens');
+            mensagensDiv.innerHTML = ''; // Limpa mensagens anteriores
+
+            data.forEach(mensagem => {
+                const divAlerta = document.createElement('div');
+                divAlerta.className = "alert alert-danger alert-dismissible fade show";
+                divAlerta.setAttribute("role", "alert");
+                divAlerta.textContent = mensagem.mensagem;
+
+                const botaoFechar = document.createElement('button');
+                botaoFechar.type = "button";
+                botaoFechar.className = "btn-close";
+                botaoFechar.setAttribute("onclick", "fecharMensagem()");
+                divAlerta.appendChild(botaoFechar);
+
+                mensagensDiv.appendChild(divAlerta);
+            });
+        })
+        .catch(error => console.error('Erro ao verificar mensagens:', error));
+
+
+    const container = document.getElementById('seguir-container');
+    if (container) {
+        const userId = '{{ usuario.id_usuario }}';
+        const urlSeguir = '{{ url_for("main.seguir_usuario", id_usuario=usuario.id_usuario) }}';
+        const urlDeixarSeguir = '{{ url_for("main.deixar_seguir_usuario", id_usuario=usuario.id_usuario) }}';
+
+        // Função para criar o botão de seguir/deixar de seguir
+        function criarBotaoSeguir(csrfToken, estaSeguindo) {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.style.display = 'inline';
+            
+            if (estaSeguindo) {
+                form.action = urlDeixarSeguir;
+                form.innerHTML = `
+                    <input type="hidden" name="csrf_token" value="${csrfToken}">
+                    <button type="submit" class="btn btn-outline-primary">Deixar de Seguir</button>
+                `;
+            } else {
+                form.action = urlSeguir;
+                form.innerHTML = `
+                    <input type="hidden" name="csrf_token" value="${csrfToken}">
+                    <button type="submit" class="btn btn-primary">Seguir</button>
+                `;
+            }
+            
+            return form;
+        }
+
+        
+
+        Promise.all([
+            fetch('/api/csrf-token').then(response => response.json()),
+            fetch('/api/usuarios/' + userId + '/esta-seguindo').then(response => response.json())
+        ])
+            .then(([tokenData, followData]) => {
+                container.innerHTML = '';
+                container.appendChild(criarBotaoSeguir(tokenData.csrf_token, followData.esta_seguindo));
+            })
+            .catch(error => console.error('Erro ao carregar dados:', error));
+    }
+});
+
+// Função para fechar mensagem
+function fecharMensagem() {
+    document.getElementById('mensagens').innerHTML = '';
+}
+
+</script>
 {% endblock %}

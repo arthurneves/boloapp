@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash
+from flask import get_flashed_messages, render_template, redirect, request, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from wtforms.validators import ValidationError
 from . import main_bp
@@ -11,8 +11,6 @@ from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuari
 from app.services.image_service import ImageService
 from app import db
 from app.services.cache_service import cache_perfil_usuario, invalidar_cache_home, invalidar_cache_perfil_geral
-
-
 
 @main_bp.route('/usuarios', methods=['GET'])
 @login_required
@@ -74,8 +72,8 @@ def novo_usuario():
 @login_required
 def editar_usuario(id_usuario):
     if (not current_user.is_administrador) and (current_user.id_usuario != id_usuario):
-        flash('Acesso não autorizado', 'danger')
-        return redirect(url_for('main.home'))
+        flash('Acesso não autorizado para editar este usuário', 'danger')
+        return redirect(request.referrer)
     
     usuario = Usuario.query.get_or_404(id_usuario)
     form = EdicaoUsuarioForm(usuario_id=id_usuario)
@@ -205,6 +203,7 @@ def logout():
     flash('Logout realizado com sucesso!', 'success')
     return redirect(url_for('main.login'))
 
+
 @main_bp.route('/perfil/<int:id_usuario>', methods=['GET'])
 @login_required
 @cache_perfil_usuario()
@@ -235,4 +234,53 @@ def perfil_usuario(id_usuario):
                          usuario=usuario,
                          promessas=promessas,
                          transacoes=transacoes,
-                         usuarios_squad=usuarios_squad)
+                         usuarios_squad=usuarios_squad,
+                         seguindo=usuario.seguindo.all())
+
+
+@main_bp.route('/usuarios/seguir/<int:id_usuario>', methods=['POST'])
+@login_required
+def seguir_usuario(id_usuario):
+    usuario = Usuario.query.get_or_404(id_usuario)
+    
+    if usuario.id_usuario == current_user.id_usuario:
+        flash('Você não pode seguir a si mesmo', 'warning')
+        return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+    
+    if current_user.seguir(usuario):
+        db.session.commit()
+        invalidar_cache_perfil_geral()
+        invalidar_cache_home(current_user.id_usuario)
+        flash(f'Você agora está seguindo {usuario.nome_usuario}', 'success')
+    else:
+        flash('Você já está seguindo este usuário', 'info')
+    
+    return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+
+
+@main_bp.route('/usuarios/deixar-seguir/<int:id_usuario>', methods=['POST'])
+@login_required
+def deixar_seguir_usuario(id_usuario):
+    usuario = Usuario.query.get_or_404(id_usuario)
+    
+    if usuario.id_usuario == current_user.id_usuario:
+        flash('Você não pode deixar de seguir a si mesmo', 'warning')
+        return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+    
+    if current_user.deixar_seguir(usuario):
+        db.session.commit()
+        invalidar_cache_perfil_geral()
+        invalidar_cache_home(current_user.id_usuario)
+        flash(f'Você deixou de seguir {usuario.nome_usuario}', 'success')
+    else:
+        flash('Você não está seguindo este usuário', 'info')
+    
+    return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
+
+
+@main_bp.route('/api/usuarios/<int:id_usuario>/esta-seguindo', methods=['GET'])
+@login_required
+def verificar_seguindo(id_usuario):
+    usuario = Usuario.query.get_or_404(id_usuario)
+    return jsonify({'esta_seguindo': current_user.esta_seguindo(usuario)})
+
