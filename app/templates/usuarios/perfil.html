@@ -71,7 +71,7 @@
                                             <td data-label="Data">{{ transacao.data_criacao.strftime('%d/%m/%Y') }}</td>
                                             <td data-label="Categoria">{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
                                             <td data-label="Descrição">{{ transacao.descricao_transacao }}</td>
-                                            <td data-label="Pontos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
+                                            <td data-label="Bolos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
                                                 {{ ('+' if transacao.pontos_transacao > 0 else '') ~ transacao.pontos_transacao }}
                                             </td>
                                         </tr>
