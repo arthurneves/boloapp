@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
+from datetime import datetime, timedelta
 from app.models.log import Log
 from app.models.squad import Squad
 from app.models.convite import Convite
@@ -47,6 +48,16 @@ def criar_convite():
 @main_bp.route('/convites/<hash_convite>', methods=['GET', 'POST'])
 def cadastrar_usuario_convite(hash_convite):
     convite = Convite.query.filter_by(hash_convite=hash_convite, id_usuario_cadastrado=None, is_ativo=True).first_or_404()
+
+    data_expiracao = convite.data_criacao + timedelta(days=7)
+    if datetime.now() > data_expiracao:
+        convite.is_ativo = False
+        db.session.commit()
+
+        flash('Este convite expirou pois foi criado há mais de 7 dias.', 'danger')
+
+        return redirect(url_for('main.login'))
+        
     form = CadastrarUsuarioConviteForm()
 
     if form.validate_on_submit():

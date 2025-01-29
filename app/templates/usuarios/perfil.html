@@ -237,7 +237,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlDeixarSeguir = '{{ url_for("main.deixar_seguir_usuario", id_usuario=usuario.id_usuario) }}';
 
         // Função para criar o botão de seguir/deixar de seguir
-        function criarBotaoSeguir(csrfToken, estaSeguindo) {
+        function criarBotaoSeguir(csrfToken, estaSeguindo, mesmaSQuad) {
+            // Não exibir botão se usuários estão na mesma squad
+            if (mesmaSQuad) {
+                return null;
+            }
+
             const form = document.createElement('form');
             form.method = 'post';
             form.style.display = 'inline';
@@ -246,13 +251,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.action = urlDeixarSeguir;
                 form.innerHTML = `
                     <input type="hidden" name="csrf_token" value="${csrfToken}">
-                    <button type="submit" class="btn btn-outline-primary">Deixar de Seguir</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Deixar de Seguir</button>
                 `;
             } else {
                 form.action = urlSeguir;
                 form.innerHTML = `
                     <input type="hidden" name="csrf_token" value="${csrfToken}">
-                    <button type="submit" class="btn btn-primary">Seguir</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Seguir</button>
                 `;
             }
             
@@ -267,7 +272,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ])
             .then(([tokenData, followData]) => {
                 container.innerHTML = '';
-                container.appendChild(criarBotaoSeguir(tokenData.csrf_token, followData.esta_seguindo));
+                const botao = criarBotaoSeguir(tokenData.csrf_token, followData.esta_seguindo, followData.mesma_squad);
+                if (botao) {
+                    container.appendChild(botao);
+                }
             })
             .catch(error => console.error('Erro ao carregar dados:', error));
     }
