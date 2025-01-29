@@ -282,5 +282,8 @@ def deixar_seguir_usuario(id_usuario):
 @login_required
 def verificar_seguindo(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)
-    return jsonify({'esta_seguindo': current_user.esta_seguindo(usuario)})
-
+    mesma_squad = (current_user.id_squad == usuario.id_squad) if current_user.squad and usuario.squad else False
+    return jsonify({
+        'esta_seguindo': current_user.esta_seguindo(usuario),
+        'mesma_squad': mesma_squad
+    })
