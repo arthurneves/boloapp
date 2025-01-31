@@ -1,17 +1,75 @@
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_required
-from app import db
+from app import db, cache
+from datetime import datetime
 from app.models.transacao_pontos import TransacaoPontos
+from app.models.usuario import Usuario
 from app.models.log import Log
 from app.forms.transacao_pontos_forms import TransacaoPontosForm
-from app.services.cache_service import invalidar_cache_geral
+from app.services.cache_service import (
+    invalidar_cache_geral,
+    make_cache_key_transacoes
+)
 from . import main_bp
 
 @main_bp.route('/transacoes-pontos', methods=['GET'])
 @login_required
+@cache.cached(key_prefix=make_cache_key_transacoes)
 def listar_transacoes_pontos():
-    transacoes = TransacaoPontos.query.order_by(TransacaoPontos.id_transacao.desc()).all()
-    return render_template('transacoes_pontos/listar.html', transacoes=transacoes)
+    page = request.args.get('page', 1, type=int)
+    descricao = request.args.get('descricao', '')
+    status = request.args.get('status', '')
+    data_inicio = request.args.get('data_inicio', '')
+    data_fim = request.args.get('data_fim', '')
+    usuario = request.args.get('usuario', '')
+    categoria = request.args.get('categoria', type=int)
+
+    # Construir query base
+    query = TransacaoPontos.query
+
+    # Consultar categorias ativas para o template
+    from app.models.categoria import Categoria
+    categorias_ativas = Categoria.query.filter_by(is_ativo=True).all()
+
+    # Aplicar filtros
+    if descricao:
+        query = query.filter(TransacaoPontos.descricao_transacao.ilike(f'%{descricao}%'))
+    if status:
+        if status == 'ativo':
+            query = query.filter(TransacaoPontos.is_ativo == True)
+        elif status == 'inativo':
+            query = query.filter(TransacaoPontos.is_ativo == False)
+    if data_inicio and data_fim:
+        try:
+            data_inicio_dt = datetime.strptime(data_inicio, '%d/%m/%Y')
+            data_fim_dt = datetime.strptime(data_fim, '%d/%m/%Y')
+            query = query.filter(TransacaoPontos.data_criacao.between(data_inicio_dt, data_fim_dt))
+        except ValueError:
+            try:
+                data_inicio_dt = datetime.strptime(data_inicio, '%Y-%m-%d')
+                data_fim_dt = datetime.strptime(data_fim, '%Y-%m-%d')
+                query = query.filter(TransacaoPontos.data_criacao.between(data_inicio_dt, data_fim_dt))
+            except ValueError:
+                pass
+    if usuario:
+        query = query.join(Usuario).filter(Usuario.nome_usuario.ilike(f'%{usuario}%'))
+    if categoria:
+        query = query.filter(TransacaoPontos.id_categoria == categoria)
+
+    # Ordenar e paginar
+    paginated_transacoes = query.order_by(TransacaoPontos.id_transacao.desc()).paginate(
+        page=page, per_page=10, error_out=False
+    )
+
+    return render_template('transacoes_pontos/listar.html',
+                         transacoes=paginated_transacoes,
+                         descricao=descricao,
+                         status=status,
+                         data_inicio=data_inicio,
+                         data_fim=data_fim,
+                         usuario=usuario,
+                         categoria=categoria,
+                         categorias_ativas=categorias_ativas)
 
 @main_bp.route('/transacoes-pontos/nova', methods=['GET', 'POST'])
 @login_required

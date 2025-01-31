@@ -51,9 +51,10 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>Transações de Bolos</h3>
+                    <h3 class="botao-colapsavel" data-target="card-transacoes">Transações de Bolos <span class="seta"></span></h3>
                 </div>
-                <div class="card-body">
+
+                <div id="card-transacoes" class="card-body elemento-colapsavel colapsado">
                     {% if transacoes %}
                         <div class="table-responsive">
                             <table class="table table-hover table-mobile-friendly">
@@ -71,7 +72,7 @@
                                             <td data-label="Data">{{ transacao.data_criacao.strftime('%d/%m/%Y') }}</td>
                                             <td data-label="Categoria">{{ transacao.categoria.titulo_categoria if transacao.categoria else 'Sem Categoria' }}</td>
                                             <td data-label="Descrição">{{ transacao.descricao_transacao }}</td>
-                                            <td data-label="Pontos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
+                                            <td data-label="Bolos" class="{{ 'text-success' if transacao.pontos_transacao > 0 else 'text-danger' }}">
                                                 {{ ('+' if transacao.pontos_transacao > 0 else '') ~ transacao.pontos_transacao }}
                                             </td>
                                         </tr>
@@ -87,9 +88,10 @@
 
             <div class="card mb-4">    
                 <div class="card-header">
-                    <h3>Promessas</h3>
+                    <h3 class="botao-colapsavel" data-target="card-promessas">Promessas <span class="seta"></span></h3>
                 </div>
-                <div class="card-body">
+
+                <div id="card-promessas" class="card-body elemento-colapsavel colapsado">
                     {% if promessas %}
                         <div class="list-group">
                             {% for promessa in promessas %}
@@ -114,50 +116,50 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>Seguindo</h3>
+                    <h3 class="botao-colapsavel" data-target="card-seguindo">Seguindo <span class="seta"></span></h3>
                 </div>
-                <div class="card-body">
-            {% if seguindo %}
-                <div class="table-responsive">
-                    <table class="table table-perfil-usuarios">
-                        {% for seguido in seguindo %}
-                            {% if seguido.foto_perfil %}
-                                {% set foto_seguido = url_for('static', filename='uploads/profile_photos/' ~ seguido.foto_perfil) %}
-                            {% else %}
-                                {% set foto_seguido = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
-                            {% endif %}
 
-                            {% set url = url_for('main.perfil_usuario', id_usuario=seguido.id_usuario) %}
-                            
-                            <tr onclick="window.location='{{ url }}';">
-                                <td>
-                                    <div class="perfil-usuario-squad">
-                                        <img src="{{ foto_seguido }}" class="rounded-circle perfil-usuario-squad-img">
-                                    </div>
-                                </td>
-                                <td>{{ seguido.nome_usuario }}</td>
-                                <td class="{{ 'text-success' if seguido.saldo_pontos_usuario > 0 else 'text-danger' }}">
-                                    {{ ('+' if seguido.saldo_pontos_usuario > 0 else '') ~ seguido.saldo_pontos_usuario }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            {% else %}
-                <p class="text-muted">Não está seguindo nenhum usuário.</p>
-            {% endif %}
+                <div id="card-seguindo" class="card-body elemento-colapsavel colapsado">
+                    {% if seguindo %}
+                        <div class="table-responsive">
+                            <table class="table table-perfil-usuarios">
+                                {% for seguido in seguindo %}
+                                    {% if seguido.foto_perfil %}
+                                        {% set foto_seguido = url_for('static', filename='uploads/profile_photos/' ~ seguido.foto_perfil) %}
+                                    {% else %}
+                                        {% set foto_seguido = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                                    {% endif %}
+
+                                    {% set url = url_for('main.perfil_usuario', id_usuario=seguido.id_usuario) %}
+                                    
+                                    <tr onclick="window.location='{{ url }}';">
+                                        <td>
+                                            <div class="perfil-usuario-squad">
+                                                <img src="{{ foto_seguido }}" class="rounded-circle perfil-usuario-squad-img">
+                                            </div>
+                                        </td>
+                                        <td>{{ seguido.nome_usuario }}</td>
+                                        <td class="{{ 'text-success' if seguido.saldo_pontos_usuario > 0 else 'text-danger' }}">
+                                            {{ ('+' if seguido.saldo_pontos_usuario > 0 else '') ~ seguido.saldo_pontos_usuario }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Não está seguindo nenhum usuário.</p>
+                    {% endif %}
                 </div>
             </div>
 
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>Squad - {{ usuario.squad.titulo_squad }}</h3>
+                    <h3 class="botao-colapsavel" data-target="card-squad">Squad - {{ usuario.squad.titulo_squad }} <span class="seta"></span></h3>
                 </div>
-                <div class="card-body">
-                    
-                    {% if usuarios_squad %}
 
+                <div id="card-squad" class="card-body elemento-colapsavel colapsado">
+                    {% if usuarios_squad %}
                         <div class="table-responsive">
                             <table class="table table-perfil-usuarios">
 

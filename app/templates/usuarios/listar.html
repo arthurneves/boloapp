@@ -6,10 +6,64 @@
         <h1 class="h2 mb-0">Usuários</h1>
         <a href="{{ url_for('main.novo_usuario') }}" class="btn btn-primary">Novo Usuário</a>
     </div>
+
+    <div class="card mb-4">
+
+        <button class="btn btn-outline-secondary btn-sm botao-colapsavel" data-target="form-usuarios">
+            Filtrar Usuários
+            <span class="seta"></span>
+        </button>
+
+        <div id="form-usuarios" class="card-body elemento-colapsavel">
+
+            <form method="GET" action="{{ url_for('main.listar_usuarios') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="nome" name="nome" value="{{ nome }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Todos</option>
+                        <option value="ativo" {{ 'selected' if status == 'ativo' }}>Ativo</option>
+                        <option value="inativo" {{ 'selected' if status == 'inativo' }}>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="squad" class="form-label">Squad</label>
+                    <select class="form-select" id="squad" name="squad">
+                        <option value="">Todos</option>
+                        {% for s in squads %}
+                            <option value="{{ s.id_squad }}" {{ 'selected' if squad|string == s.id_squad|string }}>
+                                {{ s.titulo_squad }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="checkbox" id="is_administrador" name="is_administrador" value="true" {{ 'checked' if is_administrador }}>
+                        <label class="form-check-label" for="is_administrador">
+                            Administrador
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12 text-end filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Filtrar
+                    </button>
+                    <a href="{{ url_for('main.listar_usuarios') }}" class="btn btn-secondary">
+                        Limpar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
     
-    {% if usuarios %}
+    {% if usuarios.items %}
         <div class="list-container">
-            {% for usuario in usuarios %}
+            {% for usuario in usuarios.items %}
                 {% if usuario.foto_perfil %}
                     {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
                 {% else %}
@@ -73,6 +127,32 @@
         <div class="alert alert-info text-center">
             Nenhum usuário encontrado.
         </div>
+    {% endif %}
+
+    {% if usuarios.pages > 1 %}
+        <nav aria-label="Navegação de páginas" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {{ 'disabled' if not usuarios.has_prev }}">
+                    <a class="page-link" href="{{ url_for('main.listar_usuarios', page=usuarios.prev_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_prev else '#' }}">Anterior</a>
+                </li>
+                
+                {% for page_num in usuarios.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                    {% if page_num %}
+                        <li class="page-item {{ 'active' if page_num == usuarios.page }}">
+                            <a class="page-link" href="{{ url_for('main.listar_usuarios', page=page_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {{ 'disabled' if not usuarios.has_next }}">
+                    <a class="page-link" href="{{ url_for('main.listar_usuarios', page=usuarios.next_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_next else '#' }}">Próxima</a>
+                </li>
+            </ul>
+        </nav>
     {% endif %}
 
 {% endblock %}

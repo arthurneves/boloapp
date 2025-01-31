@@ -15,13 +15,45 @@ from app.services.cache_service import cache_perfil_usuario, invalidar_cache_hom
 @main_bp.route('/usuarios', methods=['GET'])
 @login_required
 def listar_usuarios():
-
     if not current_user.is_administrador:
         flash('Acesso não autorizado', 'danger')
         return redirect(url_for('main.home'))
 
-    usuarios = Usuario.query.all()
-    return render_template('usuarios/listar.html', usuarios=usuarios)
+    page = request.args.get('page', 1, type=int)
+    nome = request.args.get('nome', '')
+    status = request.args.get('status', '')
+    squad = request.args.get('squad', '')
+    is_administrador = request.args.get('is_administrador', '')
+
+    # Construir query base
+    query = Usuario.query
+
+    # Aplicar filtros
+    if nome:
+        query = query.filter(Usuario.nome_usuario.ilike(f'%{nome}%'))
+    if status:
+        is_ativo = True if status == 'ativo' else False
+        query = query.filter(Usuario.is_ativo == is_ativo)
+    if squad:
+        query = query.filter(Usuario.id_squad == int(squad))
+    if is_administrador:
+        query = query.filter(Usuario.is_administrador == True)
+
+    # Ordenar e paginar
+    paginated_usuarios = query.order_by(Usuario.id_usuario.desc()).paginate(
+        page=page, per_page=10, error_out=False
+    )
+
+    # Buscar squads para o filtro
+    squads = Squad.query.all()
+
+    return render_template('usuarios/listar.html',
+                         usuarios=paginated_usuarios,
+                         nome=nome,
+                         status=status,
+                         squad=squad,
+                         is_administrador=is_administrador,
+                         squads=squads)
 
 @main_bp.route('/usuarios/novo', methods=['GET', 'POST'])
 @login_required
