@@ -6,10 +6,66 @@
         <h1 class="h2 mb-0">Transações de Bolos</h1>
         <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary">Nova Transação</a>
     </div>
+
+    <!-- Formulário de Filtro -->
+    <div class="card mb-4 filter-form">
+        <button class="btn btn-outline-secondary btn-sm botao-colapsavel" data-target="form-pesquisa">
+            Filtrar Transações
+            <span class="seta"></span>
+        </button>
+
+        <div id="form-pesquisa" class="card-body elemento-colapsavel">
+            <form method="GET" action="{{ url_for('main.listar_transacoes_pontos') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="descricao" class="form-label">Descrição</label>
+                    <input type="text" class="form-control" id="descricao" name="descricao" value="{{ descricao }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="" {% if not status %}selected{% endif %}>Todos</option>
+                        <option value="ativo" {% if status == 'ativo' %}selected{% endif %}>Ativo</option>
+                        <option value="inativo" {% if status == 'inativo' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="usuario" class="form-label">Usuário</label>
+                    <input type="text" class="form-control" id="usuario" name="usuario" value="{{ usuario }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="categoria" class="form-label">Categoria</label>
+                    <select class="form-select" id="categoria" name="categoria">
+                        <option value="">Todas</option>
+                        {% for cat in categorias_ativas %}
+                        <option value="{{ cat.id_categoria }}" {% if categoria == cat.id_categoria %}selected{% endif %}>
+                            {{ cat.titulo_categoria }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="data_inicio" class="form-label">Data Início</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ data_inicio }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="data_fim" class="form-label">Data Fim</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ data_fim }}">
+                </div>
+                <div class="col-12 text-end filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Filtrar
+                    </button>
+                    <a href="{{ url_for('main.listar_transacoes_pontos') }}" class="btn btn-secondary">
+                        Limpar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
     
-    {% if transacoes %}
-        <div class="list-container">
-            {% for transacao in transacoes %}
+    <div class="list-container">
+        {% if transacoes.items %}
+            {% for transacao in transacoes.items %}
                 <div class="list-card {{ 'active' if transacao.is_ativo else 'inactive' }}">
                     <div class="list-card-header">
                         <div>
@@ -57,11 +113,38 @@
                     </div>
                 </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center">
-            Nenhuma transação encontrada.
-        </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                Nenhuma transação encontrada com os filtros selecionados.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Controles de Paginação -->
+    {% if transacoes.pages > 1 %}
+    <nav aria-label="Navegação de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if transacoes.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.listar_transacoes_pontos', page=transacoes.prev_num, descricao=descricao, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario, categoria=categoria) }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for page_num in range(1, transacoes.pages + 1) %}
+            <li class="page-item {% if page_num == transacoes.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('main.listar_transacoes_pontos', page=page_num, descricao=descricao, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario, categoria=categoria) }}">
+                    {{ page_num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if transacoes.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.listar_transacoes_pontos', page=transacoes.next_num, descricao=descricao, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario, categoria=categoria) }}">Próxima</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
     {% endif %}
 </div>
 {% endblock %}

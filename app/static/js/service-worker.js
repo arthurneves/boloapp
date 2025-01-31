@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boloapp-v9';
+const CACHE_NAME = 'boloapp-v10';
 const urlsToCache = [
   '/',
   '/static/css/bootstrap.min.css',

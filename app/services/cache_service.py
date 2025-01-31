@@ -6,6 +6,12 @@ import logging
 
 TIMEOUT = 36000
 
+def make_cache_key_transacoes():
+    args = request.args.to_dict()
+    # Ordenar os parâmetros para garantir consistência na chave do cache
+    key = "lista_transacoes_" + urlencode(sorted(args.items()))
+    return key
+
 def make_cache_key_promessas():
     args = request.args.to_dict()
     # Ordenar os parâmetros para garantir consistência na chave do cache
@@ -72,6 +78,7 @@ def invalidar_cache_home(id_usuario):
 
 def invalidar_cache_perfil_geral():
     global_cache.delete_many('perfil_usuario_*')
+
 
 def invalidar_cache_lista_promessa():
     try:
