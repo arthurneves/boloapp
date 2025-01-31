@@ -46,3 +46,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+const botoesColapsaveis = document.querySelectorAll('.botao-colapsavel');
+
+botoesColapsaveis.forEach(botao => {
+  botao.addEventListener('click', () => {
+    const targetId = botao.dataset.target;
+    const elementoColapsavel = document.getElementById(targetId);
+    elementoColapsavel.classList.toggle('colapsado');
+
+    // Adiciona/remove a classe 'ativo' no botão
+    botao.classList.toggle('ativo'); 
+  });
+});

@@ -6,9 +6,57 @@
         <h1 class="h2 mb-0">Promessas</h1>
         <a href="{{ url_for('main.criar_promessa') }}" class="btn btn-primary">Nova Promessa</a>
     </div>
-    
+
+    <!-- Formulário de Filtro -->
+    <div class="card mb-4 filter-form">
+
+        <button class="btn btn-outline-secondary btn-sm botao-colapsavel" data-target="form-pesquisa">
+            Filtrar Promessas
+            <span class="seta"></span>
+        </button>
+
+        <div id="form-pesquisa" class="card-body elemento-colapsavel">
+            
+            <form method="GET" action="{{ url_for('main.listar_promessas') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="titulo" class="form-label">Título</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo" value="{{ titulo }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="" {% if not status %}selected{% endif %}>Todos</option>
+                        <option value="ativo" {% if status == 'ativo' %}selected{% endif %}>Ativo</option>
+                        <option value="inativo" {% if status == 'inativo' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="data_inicio" class="form-label">Data Início</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ data_inicio }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="data_fim" class="form-label">Data Fim</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ data_fim }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="usuario" class="form-label">Usuário</label>
+                    <input type="text" class="form-control" id="usuario" name="usuario" value="{{ usuario }}">
+                </div>
+                <div class="col-12 text-end filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filtrar
+                    </button>
+                    <a href="{{ url_for('main.listar_promessas') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Limpar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="list-container">
-        {% for promessa in promessas %}
+        {% if promessas.items %}
+            {% for promessa in promessas.items %}
         <div class="list-card">
             <div class="list-card-header">
                 <div>
@@ -47,9 +95,41 @@
                     </a>
                 {% endif %}
             </div>
-        </div>
-        {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>Nenhuma promessa encontrada com os filtros selecionados.
+            </div>
+        {% endif %}
     </div>
+
+    <!-- Controles de Paginação -->
+    {% if promessas.pages > 1 %}
+    <nav aria-label="Navegação de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if promessas.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.listar_promessas', page=promessas.prev_num, titulo=titulo, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario) }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for page_num in range(1, promessas.pages + 1) %}
+            <li class="page-item {% if page_num == promessas.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('main.listar_promessas', page=page_num, titulo=titulo, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario) }}">
+                    {{ page_num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if promessas.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.listar_promessas', page=promessas.next_num, titulo=titulo, status=status, data_inicio=data_inicio, data_fim=data_fim, usuario=usuario) }}">Próxima</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}
 
