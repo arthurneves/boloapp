@@ -45,18 +45,27 @@ document.addEventListener('DOMContentLoaded', function() {
             navbarCollapse.classList.remove('show');
         }
     });
+
+
+
+
+    // Colapsar elementos
+    const botoesColapsaveis = document.querySelectorAll('.botao-colapsavel');
+
+    botoesColapsaveis.forEach(botao => {
+        botao.addEventListener('click', () => {
+            
+            const targetId = botao.dataset.target;
+            const elementoColapsavel = document.getElementById(targetId);
+            elementoColapsavel.classList.toggle('colapsado');
+            console.log(targetId);
+
+            // Adiciona/remove a classe 'ativo' no botão
+            botao.classList.toggle('ativo'); 
+        });
+    });
+
 });
 
 
-const botoesColapsaveis = document.querySelectorAll('.botao-colapsavel');
 
-botoesColapsaveis.forEach(botao => {
-  botao.addEventListener('click', () => {
-    const targetId = botao.dataset.target;
-    const elementoColapsavel = document.getElementById(targetId);
-    elementoColapsavel.classList.toggle('colapsado');
-
-    // Adiciona/remove a classe 'ativo' no botão
-    botao.classList.toggle('ativo'); 
-  });
-});
