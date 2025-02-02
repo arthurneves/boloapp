@@ -63,8 +63,13 @@
                     <h2 class="list-card-title">{{ promessa.titulo_promessa }}</h2>
                     <small class="text-muted">por {{ promessa.usuario.nome_usuario }}</small>
                 </div>
-                <span class="list-card-status {{ 'active' if promessa.is_ativo else 'inactive' }}">
-                    {{ 'Ativo' if promessa.is_ativo else 'Inativo' }}
+                <span class="list-card-status 
+                    {{ 'active' if promessa.status_promessa == 1 else 
+                       'inactive' if promessa.status_promessa == 2 else 
+                       'completed' if promessa.status_promessa == 3 else '' }}">
+                    {{ 'Ativo' if promessa.status_promessa == 1 else 
+                       'Inativo' if promessa.status_promessa == 2 else 
+                       'Cumprida' if promessa.status_promessa == 3 else 'Desconhecido' }}
                 </span>
             </div>
             
@@ -80,18 +85,30 @@
             </div>
             
             <div class="list-card-actions">
-                {% if promessa.is_ativo %}
+
+                
+
+
+                {% if promessa.is_ativo and promessa.status_promessa != 3  %}
                     <a href="{{ url_for('main.editar_promessa', id_promessa=promessa.id_promessa) }}" class="btn btn-warning">Editar</a>
                     <a href="{{ url_for('main.desativar_promessa', id_promessa=promessa.id_promessa) }}" 
                        class="btn btn-danger" 
                        onclick="return confirm('Tem certeza que deseja desativar esta promessa?')">
                         Desativar
                     </a>
-                {% else %}
+                {% elif not promessa.is_ativo and promessa.status_promessa != 3 %}
                     <a href="{{ url_for('main.reativar_promessa', id_promessa=promessa.id_promessa) }}" 
                        class="btn btn-primary" 
                        onclick="return confirm('Tem certeza que deseja reativar esta promessa?')">
                         Reativar
+                    </a>
+                {% endif %}
+
+                {% if promessa.is_ativo and promessa.status_promessa != 3 %}
+                    <a href="{{ url_for('main.cumprir_promessa', id_promessa=promessa.id_promessa) }}"
+                       class="btn btn-success"
+                       onclick="return confirm('Tem certeza que deseja marcar esta promessa como cumprida?')">
+                        Cumprir
                     </a>
                 {% endif %}
             </div>
@@ -132,4 +149,3 @@
     {% endif %}
 </div>
 {% endblock %}
-

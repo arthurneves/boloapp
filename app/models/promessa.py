@@ -1,6 +1,12 @@
 from app import db
-from sqlalchemy import func
+from sqlalchemy import func, Enum as SQLEnum
 from sqlalchemy.orm import validates
+import enum
+
+class StatusPromessa(enum.IntEnum):
+    ATIVA = 1
+    INATIVA = 2
+    CUMPRIDA = 3
 
 class Promessa(db.Model):
     __tablename__ = 'promessa'
@@ -10,6 +16,8 @@ class Promessa(db.Model):
     titulo_promessa = db.Column(db.String(255), nullable=False)
     descricao_promessa = db.Column(db.Text, nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
+    status_promessa = db.Column(db.Integer, default=StatusPromessa.ATIVA)
+    data_cumprimento = db.Column(db.DateTime, nullable=True)
     data_criacao = db.Column(db.DateTime, default=func.now())
     data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
     
@@ -51,8 +59,10 @@ class Promessa(db.Model):
             'titulo_promessa': self.titulo_promessa,
             'descricao_promessa': self.descricao_promessa,
             'is_ativo': self.is_ativo,
+            'status_promessa': self.status_promessa,
             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
             'data_edicao': self.data_edicao.isoformat() if self.data_edicao else None,
+            'data_cumprimento': self.data_cumprimento.isoformat() if self.data_cumprimento else None,
             'usuario': self.usuario.nome_usuario if self.usuario else None
         }
 
@@ -61,3 +71,14 @@ class Promessa(db.Model):
         Método para desativar a promessa
         """
         self.is_ativo = False
+        self.status_promessa = StatusPromessa.INATIVA
+
+    def cumprir(self):
+        """
+        Método para marcar a promessa como cumprida
+        """
+        if self.is_ativo and self.status_promessa != StatusPromessa.CUMPRIDA:
+            self.status_promessa = StatusPromessa.CUMPRIDA
+            self.data_cumprimento = func.now()
+            return True
+        return False

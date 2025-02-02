@@ -497,6 +497,11 @@ pre {
     color: #721c24;
 }
 
+.list-card-status.completed {
+    background-color: #cff4fc;
+    color: #055160;
+}
+
 .list-card-content {
     display: flex;
     flex-direction: column;
@@ -733,4 +738,3 @@ pre {
 h3 .seta {
     top: 65%;
 }
-
