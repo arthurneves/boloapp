@@ -730,3 +730,7 @@ pre {
     transform: translateY(-50%) rotate(-90deg);
 }
 
+h3 .seta {
+    top: 65%;
+}
+
