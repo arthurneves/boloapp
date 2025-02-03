@@ -81,41 +81,53 @@ def invalidar_cache_perfil_geral():
 
 def invalidar_cache_lista_promessa():
     try:
-        deleted_count = 0
-        keys_to_delete = []
-        
-        # Different cache backends store keys differently
-        # Try to get cached keys based on the backend type
-        if hasattr(global_cache.cache, '_cache'):
-            # Simple cache backend
-            source_keys = global_cache.cache._cache.keys()
-        elif hasattr(global_cache.cache, 'get_backend_keys'):
-            # Redis or other backend with get_backend_keys support
-            source_keys = global_cache.cache.get_backend_keys()
-        else:
-            # Fallback: delete using delete_many
-            current_app.logger.info('Using fallback cache invalidation method')
-            return global_cache.delete_many('lista_promessas_*')
-        
-        # First, collect all keys that need to be deleted
-        for key in source_keys:
-            # Convert bytes to str if necessary (for Redis)
-            if isinstance(key, bytes):
-                key = key.decode('utf-8')
+        # Primeiro tenta Redis (preferencial)
+        if hasattr(global_cache.cache, '_write_client'):
+            redis_client = global_cache.cache._write_client
+            pattern = '*lista_promessas_*'  # Mais flexível na busca
             
-            if isinstance(key, str) and key.startswith('lista_promessas_'):
-                keys_to_delete.append(key)
-        
-        # Then delete them in a separate loop
-        for key in keys_to_delete:
-            global_cache.delete(key)
-            deleted_count += 1
-            current_app.logger.info(f'Cache deleted for key: {key}')
-        
-        current_app.logger.info(f'Successfully invalidated {deleted_count} promise list cache entries')
-        return True
+            ## Debug para ver todas as chaves existentes
+            #all_keys = list(redis_client.scan_iter(match='*'))
+            #current_app.logger.info(f'Todas as chaves no Redis: {[k.decode("utf-8") if isinstance(k, bytes) else k for k in all_keys]}')
+            
+            # Busca específica por nossas chaves
+            matching_keys = list(redis_client.scan_iter(match=pattern))
+            
+            if matching_keys:
+                pipeline = redis_client.pipeline()
+                deleted_count = 0
+                
+                for key in matching_keys:
+                    key_str = key.decode('utf-8') if isinstance(key, bytes) else key
+                    current_app.logger.info(f'Deletando chave: {key_str}')
+                    pipeline.delete(key)
+                    deleted_count += 1
+                
+                pipeline.execute()
+                current_app.logger.info(f'Cache Redis invalidado: {deleted_count} chaves')
+                return True
+            
+            current_app.logger.info(f'Nenhuma chave encontrada para o padrão: {pattern}')
+            
+        # Fallback para SimpleCache se necessário
+        elif hasattr(global_cache.cache, '_cache'):
+            keys_to_delete = [
+                key for key in global_cache.cache._cache.keys()
+                if 'lista_promessas_' in key
+            ]
+            
+            for key in keys_to_delete:
+                global_cache.delete(key)
+                
+            current_app.logger.info(f'Cache SimpleCache invalidado: {len(keys_to_delete)} entradas')
+            return True
+            
+        else:
+            current_app.logger.error('Nenhum mecanismo de cache compatível encontrado')
+            return False
+            
     except Exception as e:
-        current_app.logger.error(f'Error invalidating promise list cache: {str(e)}')
+        current_app.logger.error(f'Erro ao invalidar cache: {str(e)}')
         return False
 
 def invalidar_cache_geral():
