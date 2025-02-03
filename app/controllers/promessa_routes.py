@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, current_app
+from datetime import datetime
 from flask_login import login_required
 from app import cache, db
 from datetime import datetime
@@ -169,4 +170,26 @@ def reativar_promessa(id_promessa):
     Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
     
     flash('Promessa reativada com sucesso!', 'success')
+    return redirect(url_for('main.listar_promessas'))
+
+@main_bp.route('/promessas/cumprir/<int:id_promessa>', methods=['GET'])
+@login_required
+def cumprir_promessa(id_promessa):
+    promessa = Promessa.query.get_or_404(id_promessa)
+    
+    if promessa.cumprir():
+        db.session.commit()
+
+        # Invalidar todos os caches relacionados a promessas
+        if not invalidar_cache_lista_promessa():
+            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
+        invalidar_cache_home(promessa.usuario.id_usuario)
+
+        Log.criar_log(id_promessa, 'promessa', 'cumprir', promessa.id_usuario)
+        
+        flash('Promessa marcada como cumprida com sucesso!', 'success')
+    else:
+        flash('Não foi possível marcar a promessa como cumprida. Verifique se ela está ativa.', 'error')
+    
     return redirect(url_for('main.listar_promessas'))

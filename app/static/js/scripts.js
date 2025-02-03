@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetId = botao.dataset.target;
             const elementoColapsavel = document.getElementById(targetId);
             elementoColapsavel.classList.toggle('colapsado');
-            console.log(targetId);
 
             // Adiciona/remove a classe 'ativo' no botão
             botao.classList.toggle('ativo'); 

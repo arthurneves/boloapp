@@ -89,8 +89,10 @@ def create_database():
             titulo_promessa VARCHAR(100) NOT NULL,
             descricao_promessa VARCHAR(255),
             is_ativo BOOLEAN DEFAULT TRUE,
+            status_promessa INT DEFAULT 1,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            data_cumprimento TIMESTAMP NULL,
             FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
         )
         """)

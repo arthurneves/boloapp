@@ -102,7 +102,14 @@
                                     </div>
                                     <p class="mb-1">{{ promessa.descricao_promessa }}</p>
                                     <small class="text-muted">
-                                        Status: {{ 'Ativo' if promessa.is_ativo else 'Inativo' }}
+                                        Status: 
+                                        {% if promessa.status_promessa == 3 %}
+                                            Cumprida ({{ promessa.data_cumprimento.strftime('%d/%m/%Y') }})
+                                        {% elif promessa.status_promessa == 2 %}
+                                            Inativa
+                                        {% else %}
+                                            Ativa
+                                        {% endif %}
                                     </small>
                                 </div>
                             {% endfor %}

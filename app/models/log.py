@@ -13,8 +13,8 @@ class Log(db.Model):
     acao_log = db.Column(db.String(50), nullable=False)
     data_criacao = db.Column(db.DateTime, default=func.now())
 
-    usuario_autor = db.relationship('Usuario', foreign_keys=[id_usuario_autor], backref='logs_autor')
-    usuario_afetado = db.relationship('Usuario', foreign_keys=[id_usuario_afetado], backref='logs_afetado')
+    usuario_autor = db.relationship('Usuario', foreign_keys=[id_usuario_autor], back_populates='logs_criados')
+    usuario_afetado = db.relationship('Usuario', foreign_keys=[id_usuario_afetado], back_populates='logs_recebidos')
 
     def __repr__(self):
         return f'<Log {self.id_log}: {self.acao_log} by {self.id_usuario_autor} on {self.data_criacao}>'
