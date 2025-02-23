@@ -115,11 +115,8 @@ def editar_transacao_pontos(id_transacao):
 
         transacao.aux_evento = 'edicao'
 
-        if form.pontos_transacao.data < transacao.pontos_transacao:
-            transacao.aux_saldo = form.pontos_transacao.data - transacao.pontos_transacao
-        else:
-            transacao.aux_saldo = transacao.pontos_transacao - form.pontos_transacao.data
- 
+        transacao.aux_saldo = form.pontos_transacao.data - transacao.pontos_transacao
+
         transacao.pontos_transacao = form.pontos_transacao.data
 
         transacao.id_usuario = form.id_usuario.data
