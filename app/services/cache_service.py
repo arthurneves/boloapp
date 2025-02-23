@@ -5,6 +5,10 @@ from app import cache as global_cache
 
 TIMEOUT = 36000
 
+###
+#   MONTAGEM DE KEYS DE CACHE
+###
+
 def make_cache_key_transacoes():
     args = request.args.to_dict()
     # Ordenar os parâmetros para garantir consistência na chave do cache
@@ -17,6 +21,17 @@ def make_cache_key_promessas():
     key = "lista_promessas_" + urlencode(sorted(args.items()))
     return key
 
+def make_cache_key_lista_usuarios():
+    args = request.args.to_dict()
+    # Ordenar os parâmetros para garantir consistência na chave do cache
+    key = "lista_usuarios_" + urlencode(sorted(args.items()))
+    return key
+
+def make_cache_key_lista_usuarios_visao_adm():
+    args = request.args.to_dict()
+    # Ordenar os parâmetros para garantir consistência na chave do cache
+    key = "lista_usuarios_visao_adm_" + urlencode(sorted(args.items()))
+    return key
 
 
 def cache_perfil_home(timeout=TIMEOUT):
@@ -67,6 +82,10 @@ def cache_perfil_usuario(timeout=TIMEOUT):
     return decorator
 
 
+###
+#   INVALIDACAO DE CACHE
+###
+
 def invalidar_cache_perfil_usuario(id_usuario):
     global_cache.delete('perfil_usuario_' + str(id_usuario))
 
@@ -75,16 +94,29 @@ def invalidar_cache_home(id_usuario):
     global_cache.delete('home_current_user_' + str(id_usuario))
 
 
-def invalidar_cache_perfil_geral():
-    global_cache.delete_many('perfil_usuario_*')
+def invalidar_cache_usuarios():
+    invalidar_cache('*lista_usuarios_*')
+    invalidar_cache('*lista_usuarios_visao_adm_*')
+    invalidar_cache('*perfil_usuario_*')
+
+
+def invalidar_cache_lista_usuarios():
+    invalidar_cache('*lista_usuarios_*')
+
+
+def invalidar_cache_lista_usuarios_visao_adm():
+    invalidar_cache('*lista_usuarios_visao_adm_*')
 
 
 def invalidar_cache_lista_promessa():
+    invalidar_cache('*lista_promessas_*')
+
+
+def invalidar_cache(pattern):
     try:
         # Primeiro tenta Redis (preferencial)
         if hasattr(global_cache.cache, '_write_client'):
             redis_client = global_cache.cache._write_client
-            pattern = '*lista_promessas_*'  # Mais flexível na busca
             
             ## Debug para ver todas as chaves existentes
             #all_keys = list(redis_client.scan_iter(match='*'))
@@ -111,9 +143,10 @@ def invalidar_cache_lista_promessa():
             
         # Fallback para SimpleCache se necessário
         elif hasattr(global_cache.cache, '_cache'):
+            pattern_x = pattern.replace("*", "")
             keys_to_delete = [
                 key for key in global_cache.cache._cache.keys()
-                if 'lista_promessas_' in key
+                if pattern_x in key
             ]
             
             for key in keys_to_delete:
@@ -129,6 +162,7 @@ def invalidar_cache_lista_promessa():
     except Exception as e:
         current_app.logger.error(f'Erro ao invalidar cache: {str(e)}')
         return False
+
 
 def invalidar_cache_geral():
     global_cache.clear()

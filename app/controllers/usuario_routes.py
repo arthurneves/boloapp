@@ -9,16 +9,29 @@ from app.models.transacao_pontos import TransacaoPontos
 from app.models.log import Log
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.services.image_service import ImageService
-from app import db
-from app.services.cache_service import cache_perfil_usuario, invalidar_cache_home, invalidar_cache_perfil_geral
+from app import cache, db
+from app.services.cache_service import (
+    cache_perfil_usuario, 
+    invalidar_cache_home, 
+    invalidar_cache_perfil_usuario,
+    invalidar_cache_usuarios,
+    make_cache_key_lista_usuarios, 
+    make_cache_key_lista_usuarios_visao_adm
+)
+
+@main_bp.route('/usuario', methods=['GET'])
+@login_required
+@cache.cached(key_prefix=make_cache_key_lista_usuarios)
+def listar_usuarios():
+    return __montar_listar_usuarios('usuarios/listar.html')
 
 @main_bp.route('/usuarios', methods=['GET'])
 @login_required
-def listar_usuarios():
-    if not current_user.is_administrador:
-        flash('Acesso não autorizado', 'danger')
-        return redirect(url_for('main.home'))
+@cache.cached(key_prefix=make_cache_key_lista_usuarios_visao_adm)
+def listar_usuarios_visao_adm():
+    return __montar_listar_usuarios('usuarios/listar-administrativo.html')
 
+def __montar_listar_usuarios(html_visao):
     page = request.args.get('page', 1, type=int)
     nome = request.args.get('nome', '')
     status = request.args.get('status', '')
@@ -47,13 +60,14 @@ def listar_usuarios():
     # Buscar squads para o filtro
     squads = Squad.query.all()
 
-    return render_template('usuarios/listar.html',
+    return render_template(html_visao,
                          usuarios=paginated_usuarios,
                          nome=nome,
                          status=status,
                          squad=squad,
                          is_administrador=is_administrador,
                          squads=squads)
+
 
 @main_bp.route('/usuarios/novo', methods=['GET', 'POST'])
 @login_required
@@ -92,12 +106,12 @@ def novo_usuario():
         db.session.add(novo_usuario)
         db.session.commit()
 
-        invalidar_cache_perfil_geral()
+        invalidar_cache_usuarios()
 
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar', novo_usuario.id_usuario)
 
         flash('Usuário criado com sucesso!', 'success')
-        return redirect(url_for('main.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios_visao_adm'))
     return render_template('usuarios/novo.html', form=form)
 
 @main_bp.route('/usuarios/editar/<int:id_usuario>', methods=['GET', 'POST'])
@@ -147,13 +161,13 @@ def editar_usuario(id_usuario):
 
         db.session.commit()
 
-        invalidar_cache_perfil_geral()
+        invalidar_cache_usuarios()
         invalidar_cache_home(id_usuario)
 
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
 
         flash('Usuário atualizado com sucesso!', 'success')
-        return redirect(url_for('main.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios_visao_adm'))
     
     if form.errors:
         return render_template('usuarios/editar.html', form=form, usuario=usuario)
@@ -179,15 +193,17 @@ def desativar_usuario(id_usuario):
     # Impede exclusão do próprio usuário
     if usuario.id_usuario == current_user.id_usuario:
         flash('Você não pode desativar seu próprio usuário', 'danger')
-        return redirect(url_for('main.listar_usuarios'))
+        return redirect(url_for('main.listar_usuarios_visao_adm'))
     
     usuario.is_ativo = False
     db.session.commit()
 
+    invalidar_cache_usuarios()
+
     Log.criar_log(id_usuario, 'usuario', 'desativar', id_usuario)
 
     flash('Usuário desativado com sucesso!', 'success')
-    return redirect(url_for('main.listar_usuarios'))
+    return redirect(url_for('main.listar_usuarios_visao_adm'))
 
 @main_bp.route('/usuarios/reativar/<int:id_usuario>', methods=['GET'])
 @login_required
@@ -202,10 +218,12 @@ def reativar_usuario(id_usuario):
     usuario.is_ativo = True
     db.session.commit()
 
+    invalidar_cache_usuarios()
+
     Log.criar_log(id_usuario, 'usuario', 'reativar', id_usuario)
     
     flash('Usuário reativado com sucesso!', 'success')
-    return redirect(url_for('main.listar_usuarios'))
+    return redirect(url_for('main.listar_usuarios_visao_adm'))
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -281,7 +299,7 @@ def seguir_usuario(id_usuario):
     
     if current_user.seguir(usuario):
         db.session.commit()
-        invalidar_cache_perfil_geral()
+        invalidar_cache_perfil_usuario(current_user.id_usuario)
         invalidar_cache_home(current_user.id_usuario)
         flash(f'Você agora está seguindo {usuario.nome_usuario}', 'success')
     else:
@@ -301,7 +319,7 @@ def deixar_seguir_usuario(id_usuario):
     
     if current_user.deixar_seguir(usuario):
         db.session.commit()
-        invalidar_cache_perfil_geral()
+        invalidar_cache_perfil_usuario(current_user.id_usuario)
         invalidar_cache_home(current_user.id_usuario)
         flash(f'Você deixou de seguir {usuario.nome_usuario}', 'success')
     else:
