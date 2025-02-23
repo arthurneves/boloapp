@@ -2,189 +2,211 @@ from flask import request, current_app, g
 from functools import wraps
 from urllib.parse import urlencode
 from app import cache as global_cache
+from flask_login import current_user
 
 TIMEOUT = 36000
 
 
-###
-#   MONTAGEM DE KEYS DE CACHE
-###
+# =============================================================================
+# Geracao de Cache Key
+# =============================================================================
 
-def make_cache_key_transacoes():
+def generate_cache_key(prefix: str) -> str:
+    """
+    Gera uma chave de cache usando um prefixo e os parâmetros de query ordenados.
+    
+    Args:
+        prefix (str): Prefixo que identifica o tipo de cache.
+
+    Returns:
+        str: Chave de cache formatada.
+    """
     args = request.args.to_dict()
-    # Ordenar os parâmetros para garantir consistência na chave do cache
-    key = "lista_transacoes_" + urlencode(sorted(args.items()))
-    return key
-
-def make_cache_key_promessas():
-    args = request.args.to_dict()
-    # Ordenar os parâmetros para garantir consistência na chave do cache
-    key = "lista_promessas_" + urlencode(sorted(args.items()))
-    return key
-
-def make_cache_key_lista_usuarios():
-    args = request.args.to_dict()
-    # Ordenar os parâmetros para garantir consistência na chave do cache
-    key = "lista_usuarios_" + urlencode(sorted(args.items()))
-    return key
-
-def make_cache_key_lista_usuarios_visao_adm():
-    args = request.args.to_dict()
-    # Ordenar os parâmetros para garantir consistência na chave do cache
-    key = "lista_usuarios_visao_adm_" + urlencode(sorted(args.items()))
-    return key
-
-def make_cache_key_logs():
-    args = request.args.to_dict()
-    # Ordenar os parâmetros para garantir consistência na chave do cache
-    key = "lista_logs_" + urlencode(sorted(args.items()))
-    return key
+    sorted_params = urlencode(sorted(args.items()))
+    return f"{prefix}_{sorted_params}"
 
 
+def make_cache_key_transacoes() -> str:
+    return generate_cache_key("lista_transacoes")
 
-def cache_perfil_home(timeout=TIMEOUT):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
 
-            from flask_login import current_user
-            cache_key = f'home_current_user_{current_user.id_usuario}'
+def make_cache_key_promessas() -> str:
+    return generate_cache_key("lista_promessas")
 
-            # Tentar obter do cache
-            rv = global_cache.get(cache_key)
-            if rv is not None:
-                return rv
-            
-            # Se não estiver no cache, executar a função e armazenar
-            rv = f(*args, **kwargs)
-            global_cache.set(cache_key, rv, timeout=timeout)
-            return rv
-        
-        return decorated_function
+
+def make_cache_key_lista_usuarios() -> str:
+    return generate_cache_key("lista_usuarios")
+
+
+def make_cache_key_lista_usuarios_visao_adm() -> str:
+    return generate_cache_key("lista_usuarios_visao_adm")
+
+
+def make_cache_key_logs() -> str:
+    return generate_cache_key("lista_logs")
+
+
+# =============================================================================
+# Cache Decorators
+# =============================================================================
+
+def cache_perfil_home(timeout: int = TIMEOUT):
+    """
+    Decorator que utiliza o cache para a página inicial do perfil do usuário.
+    
+    A chave é gerada a partir do ID do usuário logado.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            cache_key = f"home_current_user_{current_user.id_usuario}"
+            cached_result = global_cache.get(cache_key)
+            if cached_result is not None:
+                return cached_result
+
+            result = func(*args, **kwargs)
+            global_cache.set(cache_key, result, timeout=timeout)
+            return result
+        return wrapper
     return decorator
 
 
-def cache_perfil_usuario(timeout=TIMEOUT):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-
+def cache_perfil_usuario(timeout: int = TIMEOUT):
+    """
+    Decorator que utiliza o cache para o perfil de um usuário específico.
+    
+    A chave é gerada a partir do nome da função e do ID do usuário (passado via kwargs).
+    Se o ID do usuário não for fornecido, a função é executada normalmente.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
             id_usuario = kwargs.get("id_usuario")
             if id_usuario is None:
-                return f(*args, **kwargs)
+                return func(*args, **kwargs)
 
-            # Gerar uma chave única que inclui o ID do usuário e o nome da função        
-            cache_key = f'{f.__name__}_{id_usuario}'
-            
-            # Tentar obter do cache
-            rv = global_cache.get(cache_key)
-            if rv is not None:
-                return rv
-            
-            # Se não estiver no cache, executar a função e armazenar
-            rv = f(*args, **kwargs)
-            global_cache.set(cache_key, rv, timeout=timeout)
-            return rv
-        
-        return decorated_function
+            cache_key = f"{func.__name__}_{id_usuario}"
+            cached_result = global_cache.get(cache_key)
+            if cached_result is not None:
+                return cached_result
+
+            result = func(*args, **kwargs)
+            global_cache.set(cache_key, result, timeout=timeout)
+            return result
+        return wrapper
     return decorator
 
 
-###
-#   INVALIDACAO DE CACHE
-###
+# =============================================================================
+# Funcoes de Invalidacao de Cache
+# =============================================================================
 
-# Legal de fazer mas não será utilizado pois a lógica mais simples é definir um timeout de 5 minutos
-def invalidar_cache_lista_logs(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # Se ainda não invalidamos o cache nesta requisição, invalidamos agora
-        if not getattr(g, 'log_limpo', False):
-            invalidar_cache('*lista_logs_*')
-            g.log_limpo = True  # Marca que o cache foi invalidado para esta requisição
+def invalidar_cache(pattern: str) -> bool:
+    """
+    Invalida entradas de cache que correspondam ao padrão informado.
+    
+    Primeiro, tenta utilizar o Redis (se disponível). Caso contrário, utiliza o SimpleCache.
+    
+    Args:
+        pattern (str): Padrão para as chaves a serem invalidada (ex.: '*lista_logs_*').
 
-        return func(*args, **kwargs)  # Executa a função original
+    Returns:
+        bool: True se a invalidação ocorrer com sucesso, False caso contrário.
+    """
+    try:
+        # Preferência para o Redis
+        if hasattr(global_cache.cache, '_write_client'):
+            redis_client = global_cache.cache._write_client
+            matching_keys = list(redis_client.scan_iter(match=pattern))
+            if matching_keys:
+                pipeline = redis_client.pipeline()
+                for key in matching_keys:
+                    key_str = key.decode('utf-8') if isinstance(key, bytes) else key
+                    current_app.logger.info(f"Deletando chave: {key_str}")
+                    pipeline.delete(key)
+                deleted_count = len(matching_keys)
+                pipeline.execute()
+                current_app.logger.info(f"Cache Redis invalidado: {deleted_count} chaves deletadas.")
+                return True
+            current_app.logger.info(f"Nenhuma chave encontrada para o padrão: {pattern}")
 
-    return wrapper
+        # Fallback para SimpleCache
+        elif hasattr(global_cache.cache, '_cache'):
+            pattern_x = pattern.replace("*", "")
+            keys_to_delete = [key for key in global_cache.cache._cache.keys() if pattern_x in key]
+            for key in keys_to_delete:
+                global_cache.delete(key)
+            current_app.logger.info(f"Cache SimpleCache invalidado: {len(keys_to_delete)} entradas deletadas.")
+            return True
+        else:
+            current_app.logger.error("Nenhum mecanismo de cache compatível encontrado.")
+            return False
+    except Exception as e:
+        current_app.logger.error(f"Erro ao invalidar cache: {str(e)}")
+        return False
+
+# Foi legal de fazer e tem usos interessantes com o Flask g, porem a solucao mais simples e o timeout do cache para 5 minutos
+# def invalidar_cache_lista_logs(func):
+#     """
+#     Decorator para invalidar o cache dos logs antes da execução da função.
+    
+#     Garante que a invalidação ocorra apenas uma vez por requisição.
+#     """
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         if not getattr(g, 'log_limpo', False):
+#             invalidar_cache('*lista_logs_*')
+#             g.log_limpo = True
+#         return func(*args, **kwargs)
+#     return wrapper
 
 
 def invalidar_cache_perfil_usuario(id_usuario):
-    global_cache.delete('perfil_usuario_' + str(id_usuario))
+    """
+    Invalida o cache do perfil de um usuário específico.
+    """
+    global_cache.delete(f"perfil_usuario_{id_usuario}")
 
 
 def invalidar_cache_home(id_usuario):
-    global_cache.delete('home_current_user_' + str(id_usuario))
+    """
+    Invalida o cache da home do usuário.
+    """
+    global_cache.delete(f"home_current_user_{id_usuario}")
 
 
 def invalidar_cache_usuarios():
+    """
+    Invalida caches relacionados aos usuários, tanto a lista quanto os perfis.
+    """
     invalidar_cache('*lista_usuarios_*')
     invalidar_cache('*lista_usuarios_visao_adm_*')
     invalidar_cache('*perfil_usuario_*')
 
 
 def invalidar_cache_lista_usuarios():
+    """
+    Invalida o cache da lista de usuários.
+    """
     invalidar_cache('*lista_usuarios_*')
 
 
 def invalidar_cache_lista_usuarios_visao_adm():
+    """
+    Invalida o cache da lista de usuários para visão administrativa.
+    """
     invalidar_cache('*lista_usuarios_visao_adm_*')
 
 
 def invalidar_cache_lista_promessa():
+    """
+    Invalida o cache da lista de promessas.
+    """
     invalidar_cache('*lista_promessas_*')
 
 
-def invalidar_cache(pattern):
-    try:
-        # Primeiro tenta Redis (preferencial)
-        if hasattr(global_cache.cache, '_write_client'):
-            redis_client = global_cache.cache._write_client
-            
-            ## Debug para ver todas as chaves existentes
-            #all_keys = list(redis_client.scan_iter(match='*'))
-            #current_app.logger.info(f'Todas as chaves no Redis: {[k.decode("utf-8") if isinstance(k, bytes) else k for k in all_keys]}')
-            
-            # Busca específica por nossas chaves
-            matching_keys = list(redis_client.scan_iter(match=pattern))
-            
-            if matching_keys:
-                pipeline = redis_client.pipeline()
-                deleted_count = 0
-                
-                for key in matching_keys:
-                    key_str = key.decode('utf-8') if isinstance(key, bytes) else key
-                    current_app.logger.info(f'Deletando chave: {key_str}')
-                    pipeline.delete(key)
-                    deleted_count += 1
-                
-                pipeline.execute()
-                current_app.logger.info(f'Cache Redis invalidado: {deleted_count} chaves')
-                return True
-            
-            current_app.logger.info(f'Nenhuma chave encontrada para o padrão: {pattern}')
-            
-        # Fallback para SimpleCache se necessário
-        elif hasattr(global_cache.cache, '_cache'):
-            pattern_x = pattern.replace("*", "")
-            keys_to_delete = [
-                key for key in global_cache.cache._cache.keys()
-                if pattern_x in key
-            ]
-            
-            for key in keys_to_delete:
-                global_cache.delete(key)
-                
-            current_app.logger.info(f'Cache SimpleCache invalidado: {len(keys_to_delete)} entradas')
-            return True
-            
-        else:
-            current_app.logger.error('Nenhum mecanismo de cache compatível encontrado')
-            return False
-            
-    except Exception as e:
-        current_app.logger.error(f'Erro ao invalidar cache: {str(e)}')
-        return False
-
-
 def invalidar_cache_geral():
+    """
+    Limpa todas as entradas do cache.
+    """
     global_cache.clear()
