@@ -4,7 +4,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2 mb-0">Transações de Bolos</h1>
-        <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary">Nova Transação</a>
+        <div>
+            <a href="{{ url_for('main.transferencia_bolos') }}" class="btn btn-success me-2">
+                Transferência de Bolos
+            </a>
+            <a href="{{ url_for('main.criar_transacao_pontos') }}" class="btn btn-primary">
+                Nova Transação
+            </a>
+        </div>
     </div>
 
     <!-- Formulário de Filtro -->

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col">
+            <h2>Transferência de Bolos</h2>
+            <form method="POST" class="mt-4">
+                {{ form.csrf_token }}
+                <div class="form-group mb-3">
+                    {{ form.usuario_origem.label(class="form-label") }}
+                    {{ form.usuario_origem(class="form-select") }}
+                    {% if form.usuario_origem.errors %}
+                        {% for error in form.usuario_origem.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.usuario_destino.label(class="form-label") }}
+                    {{ form.usuario_destino(class="form-select") }}
+                    {% if form.usuario_destino.errors %}
+                        {% for error in form.usuario_destino.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.valor_transferencia.label(class="form-label") }}
+                    {{ form.valor_transferencia(class="form-control", type="number", min="1") }}
+                    {% if form.valor_transferencia.errors %}
+                        {% for error in form.valor_transferencia.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.descricao.label(class="form-label") }}
+                    {{ form.descricao(class="form-control", rows="3") }}
+                    {% if form.descricao.errors %}
+                        {% for error in form.descricao.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('main.listar_transacoes_pontos') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
