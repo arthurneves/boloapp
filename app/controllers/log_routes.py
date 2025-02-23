@@ -1,15 +1,17 @@
-from flask import Blueprint, render_template, request
+from flask import render_template, request
 from flask_login import login_required
+
 from . import main_bp
-from app import db
+from app import cache
 from app.models.log import Log
-from app.models.usuario import Usuario
 from app.forms.log_forms import LogFiltroForm
+from app.services.cache_service import make_cache_key_logs
 from sqlalchemy import desc
 
 
 @main_bp.route('/logs', methods=['GET'])
 @login_required
+@cache.cached(key_prefix=make_cache_key_logs, timeout=600) # 10 minutos
 def listar_logs():
     form = LogFiltroForm()
     

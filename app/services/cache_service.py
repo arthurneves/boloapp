@@ -1,9 +1,10 @@
+from flask import request, current_app, g
 from functools import wraps
-from flask import request, current_app
 from urllib.parse import urlencode
 from app import cache as global_cache
 
 TIMEOUT = 36000
+
 
 ###
 #   MONTAGEM DE KEYS DE CACHE
@@ -32,6 +33,13 @@ def make_cache_key_lista_usuarios_visao_adm():
     # Ordenar os parâmetros para garantir consistência na chave do cache
     key = "lista_usuarios_visao_adm_" + urlencode(sorted(args.items()))
     return key
+
+def make_cache_key_logs():
+    args = request.args.to_dict()
+    # Ordenar os parâmetros para garantir consistência na chave do cache
+    key = "lista_logs_" + urlencode(sorted(args.items()))
+    return key
+
 
 
 def cache_perfil_home(timeout=TIMEOUT):
@@ -85,6 +93,20 @@ def cache_perfil_usuario(timeout=TIMEOUT):
 ###
 #   INVALIDACAO DE CACHE
 ###
+
+# Legal de fazer mas não será utilizado pois a lógica mais simples é definir um timeout de 5 minutos
+def invalidar_cache_lista_logs(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Se ainda não invalidamos o cache nesta requisição, invalidamos agora
+        if not getattr(g, 'log_limpo', False):
+            invalidar_cache('*lista_logs_*')
+            g.log_limpo = True  # Marca que o cache foi invalidado para esta requisição
+
+        return func(*args, **kwargs)  # Executa a função original
+
+    return wrapper
+
 
 def invalidar_cache_perfil_usuario(id_usuario):
     global_cache.delete('perfil_usuario_' + str(id_usuario))
