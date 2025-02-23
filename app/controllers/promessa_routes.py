@@ -18,6 +18,7 @@ from app.services.cache_service import (
 from app import db
 
 @main_bp.route('/promessas', methods=['GET'])
+@login_required
 @cache.cached(key_prefix=make_cache_key_promessas)
 def listar_promessas():
     page = request.args.get('page', 1, type=int)

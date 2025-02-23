@@ -16,7 +16,7 @@
 
         <div id="form-usuarios" class="card-body elemento-colapsavel">
 
-            <form method="GET" action="{{ url_for('main.listar_usuarios') }}" class="row g-3">
+            <form method="GET" action="{{ url_for('main.listar_usuarios_visao_adm') }}" class="row g-3">
                 <div class="col-md-3">
                     <label for="nome" class="form-label">Nome</label>
                     <input type="text" class="form-control" id="nome" name="nome" value="{{ nome }}">
@@ -53,7 +53,7 @@
                     <button type="submit" class="btn btn-primary">
                         Filtrar
                     </button>
-                    <a href="{{ url_for('main.listar_usuarios') }}" class="btn btn-secondary">
+                    <a href="{{ url_for('main.listar_usuarios_visao_adm') }}" class="btn btn-secondary">
                         Limpar
                     </a>
                 </div>
@@ -103,6 +103,23 @@
                             </div>
                         </div>
                     </div>
+       
+                    <div class="list-card-actions">
+                        {% if usuario.is_ativo %}
+                            <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-warning">Editar</a>
+                            <a href="{{ url_for('main.desativar_usuario', id_usuario=usuario.id_usuario) }}" 
+                            class="btn btn-danger" 
+                            onclick="return confirm('Tem certeza que deseja desativar este usuário?')">
+                                Desativar
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('main.reativar_usuario', id_usuario=usuario.id_usuario) }}" 
+                            class="btn btn-primary" 
+                            onclick="return confirm('Tem certeza que deseja reativar esse usuário?')">
+                                Reativar
+                            </a>
+                        {% endif %}
+                    </div>
 
                 </div>
             {% endfor %}
@@ -117,13 +134,13 @@
         <nav aria-label="Navegação de páginas" class="mt-4">
             <ul class="pagination justify-content-center">
                 <li class="page-item {{ 'disabled' if not usuarios.has_prev }}">
-                    <a class="page-link" href="{{ url_for('main.listar_usuarios', page=usuarios.prev_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_prev else '#' }}">Anterior</a>
+                    <a class="page-link" href="{{ url_for('main.listar_usuarios_visao_adm', page=usuarios.prev_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_prev else '#' }}">Anterior</a>
                 </li>
                 
                 {% for page_num in usuarios.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
                     {% if page_num %}
                         <li class="page-item {{ 'active' if page_num == usuarios.page }}">
-                            <a class="page-link" href="{{ url_for('main.listar_usuarios', page=page_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) }}">{{ page_num }}</a>
+                            <a class="page-link" href="{{ url_for('main.listar_usuarios_visao_adm', page=page_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) }}">{{ page_num }}</a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
@@ -133,7 +150,7 @@
                 {% endfor %}
                 
                 <li class="page-item {{ 'disabled' if not usuarios.has_next }}">
-                    <a class="page-link" href="{{ url_for('main.listar_usuarios', page=usuarios.next_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_next else '#' }}">Próxima</a>
+                    <a class="page-link" href="{{ url_for('main.listar_usuarios_visao_adm', page=usuarios.next_num, nome=nome, status=status, squad=squad, is_administrador=is_administrador) if usuarios.has_next else '#' }}">Próxima</a>
                 </li>
             </ul>
         </nav>

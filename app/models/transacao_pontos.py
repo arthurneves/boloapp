@@ -13,6 +13,7 @@ class TransacaoPontos(db.Model):
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     aux_saldo = None
     aux_evento = None
+    _saldo_ja_atualizado = False
     
     # Relacionamentos
     usuario = db.relationship('Usuario', back_populates='transacoes_pontos')
@@ -33,19 +34,22 @@ class TransacaoPontos(db.Model):
 
 def update_usuario_pontos(mapper, connection, target):
     """
-    Atualiza o saldo de pontos do usuário
+    Atualiza o saldo de pontos do usuário de forma idempotente,
+    evitando atualizações duplicadas do saldo
     """
     from app.models.usuario import Usuario
 
+    # Se não estamos em uma operação de edição e já aplicamos o saldo, não faz nada
+    if not (target.aux_evento and target.aux_evento == 'edicao') \
+       and getattr(target, '_saldo_ja_atualizado', False):
+        return
+
     if target.aux_evento and target.aux_evento == 'edicao':
         pontos = target.aux_saldo
-
     elif target.is_ativo is False: #desativacao
         pontos = target.pontos_transacao * (-1)
-
     else:
         pontos = target.pontos_transacao
-
 
     # Obtém o usuário usando a connection fornecida
     usuario_table = Usuario.__table__
@@ -56,6 +60,9 @@ def update_usuario_pontos(mapper, connection, target):
         )
     connection.execute(stmt)
 
+    # Marca o saldo como já atualizado para operações que não sejam de edição
+    if not (target.aux_evento and target.aux_evento == 'edicao'):
+        target._saldo_ja_atualizado = True
 
 # Registra os eventos
 event.listen(TransacaoPontos, 'after_insert', update_usuario_pontos)

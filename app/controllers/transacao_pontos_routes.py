@@ -5,7 +5,9 @@ from datetime import datetime
 from app.models.transacao_pontos import TransacaoPontos
 from app.models.usuario import Usuario
 from app.models.log import Log
+from app.models.transferencia_bolos import TransferenciaBolos
 from app.forms.transacao_pontos_forms import TransacaoPontosForm
+from app.forms.transferencia_bolos_forms import TransferenciaBolosForm
 from app.services.cache_service import (
     invalidar_cache_geral,
     make_cache_key_transacoes
@@ -113,11 +115,8 @@ def editar_transacao_pontos(id_transacao):
 
         transacao.aux_evento = 'edicao'
 
-        if form.pontos_transacao.data < transacao.pontos_transacao:
-            transacao.aux_saldo = form.pontos_transacao.data - transacao.pontos_transacao
-        else:
-            transacao.aux_saldo = transacao.pontos_transacao - form.pontos_transacao.data
- 
+        transacao.aux_saldo = form.pontos_transacao.data - transacao.pontos_transacao
+
         transacao.pontos_transacao = form.pontos_transacao.data
 
         transacao.id_usuario = form.id_usuario.data
@@ -158,6 +157,32 @@ def desativar_transacao_pontos(id_transacao):
     
     flash('Transação de bolos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
+
+@main_bp.route('/transacoes-pontos/transferencia', methods=['GET', 'POST'])
+@login_required
+def transferencia_bolos():
+    form = TransferenciaBolosForm()
+
+    if form.validate_on_submit():
+        try:
+            transferencia, _, _ = TransferenciaBolos.registrar_transferencia(
+                usuario_origem_id=form.usuario_origem.data,
+                usuario_destino_id=form.usuario_destino.data,
+                valor=form.valor_transferencia.data,
+                descricao=form.descricao.data
+            )
+            
+            invalidar_cache_geral()
+            
+            flash('Transferência de bolos realizada com sucesso!', 'success')
+            return redirect(url_for('main.listar_transacoes_pontos'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao realizar transferência: {str(e)}', 'danger')
+            return redirect(url_for('main.transferencia_bolos'))
+    
+    return render_template('transacoes_pontos/transferencia.html', form=form)
 
 @main_bp.route('/transacoes-pontos/reativar/<int:id_transacao>', methods=['GET'])
 @login_required

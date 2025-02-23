@@ -141,6 +141,21 @@ def create_database():
         """)
         print("Tabela 'regra' criada com sucesso.")
 
+        # Criar tabela de transferencia_bolos
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS transferencia_bolos (
+            id_transferencia INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_origem_id INT NOT NULL,
+            usuario_destino_id INT NOT NULL,
+            valor INT NOT NULL,
+            descricao TEXT,
+            data_transferencia TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (usuario_origem_id) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (usuario_destino_id) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'transferencia_bolos' criada com sucesso.")
+
         # Criar tabela de seguidores
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS seguidor (
