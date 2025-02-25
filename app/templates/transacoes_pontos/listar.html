@@ -90,7 +90,12 @@
                                 <span>
                                     <strong>Bolos:</strong> {{ transacao.pontos_transacao }}
                                 </span>
-                                <small class="text-muted">ID: {{ transacao.id_transacao }}</small>
+                                <div>
+                                    <small class="text-muted">ID: {{ transacao.id_transacao }}</small>
+                                    {% if transacao.id_transferencia %}
+                                        <small class="text-muted"> - ID Transf: {{ transacao.id_transferencia }}</small>
+                                    {% endif %}
+                                </div>
                             </div>
                             <div>
                                 <strong>Descrição:</strong> 

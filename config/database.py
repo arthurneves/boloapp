@@ -75,8 +75,10 @@ def create_database():
             descricao_transacao VARCHAR(255) NOT NULL,
             is_ativo BOOLEAN DEFAULT TRUE,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id_transferencia INT,
             FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-            FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
+            FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria),
+            FOREIGN KEY (id_transferencia) REFERENCES transferencia_bolos(id_transferencia)
         )
         """)
         print("Tabela 'transacao_pontos' criada com sucesso.")

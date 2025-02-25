@@ -158,6 +158,24 @@ def desativar_transacao_pontos(id_transacao):
     flash('Transação de bolos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
 
+@main_bp.route('/transacoes-pontos/reativar/<int:id_transacao>', methods=['GET'])
+@login_required
+def reativar_transacao_pontos(id_transacao):
+    transacao = TransacaoPontos.query.get_or_404(id_transacao)
+
+    transacao.aux_evento = 'reativacao'
+    
+    transacao.is_ativo = True
+    db.session.commit()
+
+    invalidar_cache_geral()
+
+    Log.criar_log(id_transacao, 'transacao_bolos', 'reativar', transacao.id_usuario)
+    
+    flash('Transação de bolos reativada com sucesso!', 'success')
+    return redirect(url_for('main.listar_transacoes_pontos'))
+
+
 @main_bp.route('/transacoes-pontos/transferencia', methods=['GET', 'POST'])
 @login_required
 def transferencia_bolos():
@@ -183,20 +201,3 @@ def transferencia_bolos():
             return redirect(url_for('main.transferencia_bolos'))
     
     return render_template('transacoes_pontos/transferencia.html', form=form)
-
-@main_bp.route('/transacoes-pontos/reativar/<int:id_transacao>', methods=['GET'])
-@login_required
-def reativar_transacao_pontos(id_transacao):
-    transacao = TransacaoPontos.query.get_or_404(id_transacao)
-
-    transacao.aux_evento = 'reativacao'
-    
-    transacao.is_ativo = True
-    db.session.commit()
-
-    invalidar_cache_geral()
-
-    Log.criar_log(id_transacao, 'transacao_bolos', 'reativar', transacao.id_usuario)
-    
-    flash('Transação de bolos reativada com sucesso!', 'success')
-    return redirect(url_for('main.listar_transacoes_pontos'))
