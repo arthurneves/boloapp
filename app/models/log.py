@@ -30,5 +30,4 @@ class Log(db.Model):
             acao_log = acao
         )
         db.session.add(novo_log)
-        db.session.commit()
         return novo_log

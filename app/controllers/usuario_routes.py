@@ -104,11 +104,12 @@ def novo_usuario():
         novo_usuario.set_senha(form.senha.data)
         
         db.session.add(novo_usuario)
-        db.session.commit()
+        db.session.flush()
 
         invalidar_cache_usuarios()
 
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar', novo_usuario.id_usuario)
+        db.session.commit()
 
         flash('Usuário criado com sucesso!', 'success')
         return redirect(url_for('main.listar_usuarios_visao_adm'))
@@ -159,12 +160,12 @@ def editar_usuario(id_usuario):
         if form.senha.data:
             usuario.set_senha(form.senha.data)
 
-        db.session.commit()
 
         invalidar_cache_usuarios()
         invalidar_cache_home(id_usuario)
 
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
+        db.session.commit()
 
         flash('Usuário atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_usuarios_visao_adm'))
@@ -196,11 +197,11 @@ def desativar_usuario(id_usuario):
         return redirect(url_for('main.listar_usuarios_visao_adm'))
     
     usuario.is_ativo = False
-    db.session.commit()
 
     invalidar_cache_usuarios()
 
     Log.criar_log(id_usuario, 'usuario', 'desativar', id_usuario)
+    db.session.commit()
 
     flash('Usuário desativado com sucesso!', 'success')
     return redirect(url_for('main.listar_usuarios_visao_adm'))
@@ -216,11 +217,11 @@ def reativar_usuario(id_usuario):
     usuario = Usuario.query.get_or_404(id_usuario)
     
     usuario.is_ativo = True
-    db.session.commit()
 
     invalidar_cache_usuarios()
 
     Log.criar_log(id_usuario, 'usuario', 'reativar', id_usuario)
+    db.session.commit()
     
     flash('Usuário reativado com sucesso!', 'success')
     return redirect(url_for('main.listar_usuarios_visao_adm'))

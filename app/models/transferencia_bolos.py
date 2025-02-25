@@ -77,10 +77,11 @@ class TransferenciaBolos(db.Model):
         
         db.session.add(debito)
         db.session.add(credito)
-        db.session.commit()
         
         # Registrar log da transferência
         Log.criar_log(transferencia.id_transferencia, 'transferencia_bolos', 'transferir', usuario_origem_id)
         Log.criar_log(transferencia.id_transferencia, 'transferencia_bolos', 'transferir', usuario_destino_id)
+        
+        db.session.commit()
         
         return transferencia, debito, credito

@@ -34,9 +34,11 @@ def criar_categoria():
         )
         
         db.session.add(nova_categoria)
-        db.session.commit()
-
+        db.session.flush()
+        
         Log.criar_log(nova_categoria.id_categoria, 'categoria', 'criar')
+
+        db.session.commit()
         
         flash('Categoria criada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
@@ -59,9 +61,8 @@ def editar_categoria(id_categoria):
         categoria.descricao_categoria = form.descricao_categoria.data
         categoria.is_ativo = form.is_ativo.data
         
-        db.session.commit()
-
         Log.criar_log(id_categoria, 'categoria', 'editar')
+        db.session.commit()
         
         flash('Categoria atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_categorias'))
@@ -87,9 +88,9 @@ def desativar_categoria(id_categoria):
     categoria = Categoria.query.get_or_404(id_categoria)
     
     categoria.is_ativo = False
-    db.session.commit()
 
     Log.criar_log(id_categoria, 'categoria', 'desativar')
+    db.session.commit()
     
     flash('Categoria desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_categorias'))

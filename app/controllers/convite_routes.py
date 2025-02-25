@@ -33,13 +33,14 @@ def criar_convite():
 
         convite = Convite(hash_convite=hash_conv, id_usuario_responsavel=current_user.id_usuario)
         db.session.add(convite)
-        db.session.commit()
+        db.session.flush()
 
         convite_url = url_for('main.cadastrar_usuario_convite', hash_convite=hash_conv, _external=True)
 
         qr_code_base64 = QRcodeService.gerar_qrcode(convite_url)
 
         Log.criar_log(convite.id_convite, 'convite', 'criar')
+        db.session.commit()
 
         return render_template('convites/mostrar_convite.html', convite_url=convite_url, qr_code_base64=qr_code_base64)
 
@@ -78,11 +79,11 @@ def cadastrar_usuario_convite(hash_convite):
         convite.data_usuario_cadastrado = db.func.now()
         
         db.session.add(convite)
-        db.session.commit()
 
         id_autor = current_user.id_usuario if current_user.is_authenticated else novo_usuario.id_usuario
 
         Log.criar_log(novo_usuario.id_usuario, 'usuario', 'criar-via-convite', novo_usuario.id_usuario, id_autor)
+        db.session.commit()
 
         flash('Cadastro realizado com sucesso!', 'success')
         return redirect(url_for('main.login'))
