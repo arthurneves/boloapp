@@ -23,10 +23,11 @@ def editar_regras():
         if regra_ativa:
             regra_ativa.is_ativo = False
         nova_regra.is_ativo = True
-        
-        db.session.commit()
 
+        db.session.flush()
+        
         Log.criar_log(nova_regra.id_regra, 'regras', 'criar')
+        db.session.commit()
 
         flash('Regra atualizada com sucesso!', 'success')
         return redirect(url_for('main.visualizar_regras'))
@@ -56,9 +57,8 @@ def ativar_regra(id):
 
     regra.is_ativo = True
 
-    db.session.commit()
-
     Log.criar_log(regra.id_regra, 'regras', 'ativar')
+    db.session.commit()
 
     flash('Regra ativada com sucesso!', 'success')
     return redirect(url_for('main.visualizar_regras'))

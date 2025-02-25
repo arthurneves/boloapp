@@ -84,7 +84,7 @@ def criar_promessa():
         )
         
         db.session.add(nova_promessa)
-        db.session.commit()
+        db.session.flush()
 
         # Invalidar todos os caches relacionados a promessas
         if not invalidar_cache_lista_promessa():
@@ -93,6 +93,7 @@ def criar_promessa():
         invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar', nova_promessa.id_usuario)
+        db.session.commit()
         
         flash('Promessa criada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -114,8 +115,6 @@ def editar_promessa(id_promessa):
         promessa.descricao_promessa = form.descricao_promessa.data
         promessa.is_ativo = True
         promessa.id_usuario = usuario.id_usuario
-        
-        db.session.commit()
 
         # Invalidar todos os caches relacionados a promessas
         if not invalidar_cache_lista_promessa():
@@ -124,6 +123,7 @@ def editar_promessa(id_promessa):
         invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(id_promessa, 'promessa', 'editar', promessa.id_usuario)
+        db.session.commit()
         
         flash('Promessa atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -141,7 +141,6 @@ def desativar_promessa(id_promessa):
     promessa = Promessa.query.get_or_404(id_promessa)
     
     promessa.is_ativo = False
-    db.session.commit()
 
     # Invalidar todos os caches relacionados a promessas
     if not invalidar_cache_lista_promessa():
@@ -150,6 +149,7 @@ def desativar_promessa(id_promessa):
     invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'desativar', promessa.id_usuario)
+    db.session.commit()
     
     flash('Promessa desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -160,7 +160,6 @@ def reativar_promessa(id_promessa):
     promessa = Promessa.query.get_or_404(id_promessa)
 
     promessa.is_ativo = True
-    db.session.commit()
 
     # Invalidar todos os caches relacionados a promessas
     if not invalidar_cache_lista_promessa():
@@ -169,6 +168,7 @@ def reativar_promessa(id_promessa):
     invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
+    db.session.commit()
     
     flash('Promessa reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -179,8 +179,6 @@ def cumprir_promessa(id_promessa):
     promessa = Promessa.query.get_or_404(id_promessa)
     
     if promessa.cumprir():
-        db.session.commit()
-
         # Invalidar todos os caches relacionados a promessas
         if not invalidar_cache_lista_promessa():
             current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
@@ -188,6 +186,7 @@ def cumprir_promessa(id_promessa):
         invalidar_cache_home(promessa.usuario.id_usuario)
 
         Log.criar_log(id_promessa, 'promessa', 'cumprir', promessa.id_usuario)
+        db.session.commit()
         
         flash('Promessa marcada como cumprida com sucesso!', 'success')
     else:

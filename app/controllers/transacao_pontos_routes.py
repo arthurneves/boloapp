@@ -90,11 +90,12 @@ def criar_transacao_pontos():
         )
         
         db.session.add(nova_transacao)
-        db.session.commit()
+        db.session.flush()
 
         invalidar_cache_geral()
 
         Log.criar_log(nova_transacao.id_transacao, 'transacao_bolos', 'criar', nova_transacao.id_usuario)
+        db.session.commit()
 
         if id_usuario:
             return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
@@ -124,11 +125,10 @@ def editar_transacao_pontos(id_transacao):
         transacao.descricao_transacao = form.descricao_transacao.data
         transacao.is_ativo = True  
      
-        db.session.commit()
-
         invalidar_cache_geral()
 
         Log.criar_log(id_transacao, 'transacao_bolos', 'editar', transacao.id_usuario)
+        db.session.commit()
         
         flash('Transação de bolos atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_transacoes_pontos'))
@@ -147,13 +147,12 @@ def desativar_transacao_pontos(id_transacao):
     transacao = TransacaoPontos.query.get_or_404(id_transacao)
 
     transacao.aux_evento = 'desativacao'
-    
     transacao.is_ativo = False
-    db.session.commit()
 
     invalidar_cache_geral()
 
     Log.criar_log(id_transacao, 'transacao_bolos', 'desativar', transacao.id_usuario)
+    db.session.commit()
     
     flash('Transação de bolos desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
@@ -164,13 +163,12 @@ def reativar_transacao_pontos(id_transacao):
     transacao = TransacaoPontos.query.get_or_404(id_transacao)
 
     transacao.aux_evento = 'reativacao'
-    
     transacao.is_ativo = True
-    db.session.commit()
 
     invalidar_cache_geral()
 
     Log.criar_log(id_transacao, 'transacao_bolos', 'reativar', transacao.id_usuario)
+    db.session.commit()
     
     flash('Transação de bolos reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_transacoes_pontos'))
@@ -183,7 +181,7 @@ def transferencia_bolos():
 
     if form.validate_on_submit():
         try:
-            transferencia, _, _ = TransferenciaBolos.registrar_transferencia(
+            TransferenciaBolos.registrar_transferencia(
                 usuario_origem_id=form.usuario_origem.data,
                 usuario_destino_id=form.usuario_destino.data,
                 valor=form.valor_transferencia.data,

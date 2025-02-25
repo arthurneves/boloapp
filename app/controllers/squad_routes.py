@@ -31,9 +31,10 @@ def criar_squad():
         )
         
         db.session.add(nova_squad)
-        db.session.commit()
+        db.session.flush()
 
         Log.criar_log(nova_squad.id_squad, 'squad', 'criar')
+        db.session.commit()
         
         flash('Squad criado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
@@ -54,9 +55,8 @@ def editar_squad(id_squad):
         squad.titulo_squad = form.titulo_squad.data
         squad.is_ativo = form.is_ativo.data
         
-        db.session.commit()
-
         Log.criar_log(id_squad, 'squad', 'editar')
+        db.session.commit()
         
         flash('Squad atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_squads'))
@@ -80,9 +80,9 @@ def desativar_squad(id_squad):
     squad = Squad.query.get_or_404(id_squad)
     
     squad.is_ativo = False
-    db.session.commit()
 
     Log.criar_log(id_squad, 'squad', 'desativar')
+    db.session.commit()
     
     flash('Squad desativado com sucesso!', 'success')
     return redirect(url_for('main.listar_squads'))
