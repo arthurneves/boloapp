@@ -56,26 +56,31 @@ class TransferenciaBolos(db.Model):
         bolo_str = "bolo" if valor == 1 else "bolos"
 
         # Criar registros de transação de pontos
+        db.session.add(transferencia)
+        db.session.flush()  # Força o banco a gerar o id_transferencia
+
         debito = TransacaoPontos(
             id_usuario=transferencia.usuario_origem_id,
             id_categoria=1,  # TODO: Definir categoria padrão para transferências
             pontos_transacao=-valor,  # Valor negativo para débito
-            descricao_transacao=f"{descricao_base}Transferência de {valor} {bolo_str} para {usuario_destino.nome_usuario}"
+            descricao_transacao=f"{descricao_base}Transferência de {valor} {bolo_str} para {usuario_destino.nome_usuario}",
+            id_transferencia=transferencia.id_transferencia
         )
         
         credito = TransacaoPontos(
             id_usuario=transferencia.usuario_destino_id,
             id_categoria=1,  # TODO: Definir categoria padrão para transferências
             pontos_transacao=valor,  # Valor positivo para crédito
-            descricao_transacao=f"{descricao_base}Recebimento de {valor} {bolo_str} de {usuario_origem.nome_usuario}"
+            descricao_transacao=f"{descricao_base}Recebimento de {valor} {bolo_str} de {usuario_origem.nome_usuario}",
+            id_transferencia=transferencia.id_transferencia
         )
         
-        db.session.add(transferencia)
         db.session.add(debito)
         db.session.add(credito)
         db.session.commit()
         
         # Registrar log da transferência
         Log.criar_log(transferencia.id_transferencia, 'transferencia_bolos', 'transferir', usuario_origem_id)
+        Log.criar_log(transferencia.id_transferencia, 'transferencia_bolos', 'transferir', usuario_destino_id)
         
         return transferencia, debito, credito

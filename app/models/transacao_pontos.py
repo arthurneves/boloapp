@@ -11,6 +11,7 @@ class TransacaoPontos(db.Model):
     descricao_transacao = db.Column(db.Text, nullable=True)
     is_ativo = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
+    id_transferencia = db.Column(db.Integer, db.ForeignKey('transferencia_bolos.id_transferencia'), nullable=True)
     aux_saldo = None
     aux_evento = None
     _saldo_ja_atualizado = False
@@ -18,6 +19,7 @@ class TransacaoPontos(db.Model):
     # Relacionamentos
     usuario = db.relationship('Usuario', back_populates='transacoes_pontos')
     categoria = db.relationship('Categoria')
+    transferencia = db.relationship('TransferenciaBolos', foreign_keys=[id_transferencia])
 
     def to_dict(self):
         return {
