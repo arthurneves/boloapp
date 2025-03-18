@@ -361,7 +361,7 @@ class NotificationService:
             # Criar notificação para cada destinatário
             for destinatario in destinatarios:
                 # Verificar limite diário
-                if NotificacaoEnviada.get_notificacoes_enviadas_hoje(destinatario.id_usuario) < 3:
+                if NotificacaoEnviada.get_notificacoes_enviadas_hoje(destinatario.id_usuario) < 300:
                     NotificationService.criar_notificacao(
                         titulo=titulo,
                         corpo=corpo,
