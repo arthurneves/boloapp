@@ -67,6 +67,64 @@ async function requestNotificationPermission() {
     return false;
 }
 
+// Classe para gerenciar o cache de notificações
+class NotificationCache {
+    static CACHE_KEY = 'notification_subscription_cache';
+    static CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+
+    static async get() {
+        try {
+            const cached = localStorage.getItem(this.CACHE_KEY);
+            if (!cached) return null;
+            
+            const parsedCache = JSON.parse(cached);
+            if (!parsedCache || !parsedCache.timestamp || !parsedCache.subscription) {
+                return null;
+            }
+            
+            return parsedCache;
+        } catch (error) {
+            console.error('Erro ao ler cache:', error);
+            return null;
+        }
+    }
+
+    static async set(subscription) {
+        try {
+            const cacheData = {
+                timestamp: Date.now(),
+                subscription: subscription.toJSON()
+            };
+            localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
+            return true;
+        } catch (error) {
+            console.error('Erro ao salvar cache:', error);
+            return false;
+        }
+    }
+
+    static async hasValidCache() {
+        const cache = await this.get();
+        if (!cache) return false;
+        return !this.isExpired(cache);
+    }
+
+    static isExpired(cache) {
+        const now = Date.now();
+        return (now - cache.timestamp) > this.CACHE_DURATION;
+    }
+
+    static async clear() {
+        try {
+            localStorage.removeItem(this.CACHE_KEY);
+            return true;
+        } catch (error) {
+            console.error('Erro ao limpar cache:', error);
+            return false;
+        }
+    }
+}
+
 // Cache da chave VAPID
 let vapidKeyCache = null;
 
@@ -99,9 +157,32 @@ async function getVapidPublicKey() {
     }
 }
 
+// Função para comparar subscriptions
+function areSubscriptionsEqual(sub1, sub2) {
+    if (!sub1 || !sub2) return false;
+    
+    const sub1JSON = typeof sub1.toJSON === 'function' ? sub1.toJSON() : sub1;
+    const sub2JSON = typeof sub2.toJSON === 'function' ? sub2.toJSON() : sub2;
+    
+    return sub1JSON.endpoint === sub2JSON.endpoint &&
+           JSON.stringify(sub1JSON.keys) === JSON.stringify(sub2JSON.keys);
+}
+
 // Função para registrar o dispositivo para receber notificações push
 async function subscribeToPushNotifications(swRegistration) {
     try {
+        // Verificar cache primeiro
+        const cache = await NotificationCache.get();
+        if (cache && !NotificationCache.isExpired(cache)) {
+            console.log('Usando subscription em cache');
+            const existingSubscription = await swRegistration.pushManager.getSubscription();
+            
+            if (existingSubscription && areSubscriptionsEqual(existingSubscription, cache.subscription)) {
+                console.log('Subscription atual igual ao cache, pulando registro');
+                return existingSubscription;
+            }
+        }
+
         // Verificar se o navegador suporta notificações push
         if (!('PushManager' in window)) {
             console.warn('Push notifications não são suportadas neste navegador');
@@ -113,9 +194,16 @@ async function subscribeToPushNotifications(swRegistration) {
         const existingSubscription = await swRegistration.pushManager.getSubscription();
         console.log('Verificando subscription existente:', existingSubscription);
 
-        // Se já existe uma subscription válida, atualiza o registro no servidor
+        // Se já existe uma subscription válida, verifica se precisa atualizar
         if (existingSubscription) {
             console.log('Subscription existente encontrada');
+            const cache = await NotificationCache.get();
+            
+            if (cache && areSubscriptionsEqual(existingSubscription, cache.subscription)) {
+                console.log('Usando subscription em cache');
+                return existingSubscription;
+            }
+
             updateNotificationStatus('Atualizando registro existente...');
             const result = await sendSubscriptionToServer(existingSubscription);
             if (!result) {
@@ -190,6 +278,7 @@ async function sendSubscriptionToServer(subscription) {
         if (!response.ok) {
             if (response.status === 401) {
                 sessionStorage.setItem('notification_auth_failed', 'true');
+                await NotificationCache.clear(); // Limpar cache em caso de erro de autenticação
                 updateNotificationStatus('Autenticação necessária', true);
                 return null;
             }
@@ -198,6 +287,7 @@ async function sendSubscriptionToServer(subscription) {
         }
 
         sessionStorage.removeItem('notification_auth_failed');
+        await NotificationCache.set(subscription);
         
         // Mostrar confirmação visual
         const button = document.getElementById('notification-prompt');
@@ -309,11 +399,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     if (sessionStorage.getItem('notification_auth_failed')) {
         console.log('Falha de autenticação anterior detectada, aguardando nova autenticação');
+        await NotificationCache.clear();
         return;
     }
     
     if (hasInitialized) {
         console.log('Sistema de notificações já foi inicializado');
+        return;
+    }
+
+    // Verificar cache antes de inicializar
+    const hasValidCache = await NotificationCache.hasValidCache();
+    if (hasValidCache && Notification.permission === 'granted') {
+        console.log('Cache válido encontrado, pulando inicialização');
         return;
     }
     
