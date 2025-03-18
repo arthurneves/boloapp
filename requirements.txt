@@ -25,3 +25,4 @@ WTForms==3.2.1
 qrcode
 flask-caching
 redis
+pywebpush

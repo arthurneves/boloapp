@@ -1,77 +1,153 @@
-const CACHE_NAME = 'boloapp-v13';
+const CACHE_NAME = 'boloapp-v18';
 const urlsToCache = [
-  '/',
   '/static/css/bootstrap.min.css',
   '/static/css/style-v2.css',
   '/static/css/navbar.css',
   '/static/js/scripts.js',
   '/static/js/chart.js',
-  '/static/icons/bolo-coracao.png'
+  '/static/icons/bolo-coracao.png',
+  '/static/favicon/favicon-32x32.png'
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Ativar imediatamente
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
 });
 
+self.addEventListener('activate', event => {
+  console.log('[Service Worker] Ativado');
+  
+  // Tomar controle imediatamente
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      // Limpar caches antigos
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames
+            .filter(cacheName => cacheName !== CACHE_NAME)
+            .map(cacheName => caches.delete(cacheName))
+        );
+      })
+    ])
+  );
+});
+
+// Evento para receber notificações push
+self.addEventListener('push', event => {
+  console.log('[Service Worker] Push recebido');
+  
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      console.error('Erro ao processar dados da notificação:', e);
+      data = {
+        title: 'Nova notificação',
+        body: event.data.text()
+      };
+    }
+  }
+  
+  const title = data.title || 'BoloApp';
+  const options = {
+    body: data.body || 'Você recebeu uma nova notificação',
+    icon: '/static/icons/bolo-coracao.png',
+    badge: '/static/favicon/favicon-32x32.png',
+    data: data.url || '/',
+    vibrate: [100, 50, 100],
+    actions: [
+      {
+        action: 'explore',
+        title: 'Ver detalhes'
+      },
+      {
+        action: 'close',
+        title: 'Fechar'
+      }
+    ]
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Evento para lidar com cliques nas notificações
+self.addEventListener('notificationclick', event => {
+  console.log('[Service Worker] Clique na notificação', event);
+  
+  event.notification.close();
+  
+  if (event.action === 'explore') {
+    event.waitUntil(
+      clients.openWindow(event.notification.data)
+    );
+  } else if (event.action === 'close') {
+    return;
+  } else {
+    event.waitUntil(
+      clients.openWindow(event.notification.data)
+    );
+  }
+});
+
+// Interceptar requisições de rede
 self.addEventListener('fetch', event => {
-  console.log('Interceptando requisição para:', event.request.url);
+  // Não interceptar requisições de outros domínios
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Ignorar requisições de API e autenticação
+  if (
+    event.request.url.includes('/api/') ||
+    event.request.url.includes('/login') ||
+    event.request.url === self.location.origin + '/'
+  ) {
+    return;
+  }
+
+  // Apenas interceptar recursos estáticos
+  if (
+    !event.request.url.includes('/static/') &&
+    !event.request.url.includes('/favicon/')
+  ) {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Primeiro tenta o cache
-        if (response) {
-          // Check if the cached version matches the current cache name
-          if (response.headers.get('cache-name') !== CACHE_NAME) {
+    caches.match(event.request).then(response => {
+      // Cache-first strategy
+      if (response) {
+        return response;
+      }
 
-            // Faz uma busca em background para atualizar
-            fetch(event.request).then(networkResponse => {
-              if (networkResponse.status === 200) {
-                caches.open(CACHE_NAME).then(cache => {
-                  cache.put(event.request, networkResponse.clone());
-                });
-              }
-            });
-            return response;
-
-          }
+      // Buscar na rede se não estiver no cache
+      return fetch(event.request).then(networkResponse => {
+        // Não fazer cache de erros
+        if (!networkResponse || networkResponse.status !== 200) {
+          return networkResponse;
         }
-        
-        // Se não estiver no cache, busca na rede
-        return fetch(event.request).then(response => {
-          // Só faz cache de respostas bem-sucedidas
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
 
-          const responseToCache = response.clone();
+        // Clonar e armazenar no cache apenas se for uma resposta básica
+        if (networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME)
             .then(cache => {
               cache.put(event.request, responseToCache);
             });
+        }
 
-          return response;
-        });
-      })
-  );
-});
-
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim(); // Garante que o novo Service Worker tome controle imediatamente
+        return networkResponse;
+      }).catch(error => {
+        console.error('[Service Worker] Erro na requisição:', error);
+        throw error;
+      });
     })
   );
 });

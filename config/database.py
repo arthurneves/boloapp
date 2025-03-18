@@ -170,6 +170,59 @@ def create_database():
         )
         """)
         print("Tabela 'seguidor' criada com sucesso.")
+        
+        # Criar tabela de notificações
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notificacao (
+            id_notificacao INT AUTO_INCREMENT PRIMARY KEY,
+            titulo_notificacao VARCHAR(100) NOT NULL,
+            corpo_notificacao TEXT NOT NULL,
+            publico_alvo VARCHAR(50) NOT NULL,
+            agendamento DATETIME NULL,
+            id_usuario_criador INT NOT NULL,
+            id_usuario_destino INT NULL,
+            id_squad_destino INT NULL,
+            data_envio DATETIME NULL,
+            status_envio VARCHAR(20) DEFAULT 'pendente',
+            is_ativo BOOLEAN DEFAULT TRUE,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_usuario_criador) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_usuario_destino) REFERENCES usuario(id_usuario),
+            FOREIGN KEY (id_squad_destino) REFERENCES squad(id_squad)
+        )
+        """)
+        print("Tabela 'notificacao' criada com sucesso.")
+        
+        # Criar tabela de notificações enviadas
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notificacao_enviada (
+            id_notificacao INT NOT NULL,
+            id_usuario INT NOT NULL,
+            data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id_notificacao, id_usuario),
+            FOREIGN KEY (id_notificacao) REFERENCES notificacao(id_notificacao),
+            FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+        )
+        """)
+        print("Tabela 'notificacao_enviada' criada com sucesso.")
+        
+        # Criar tabela para push subscriptions
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_usuario INT NOT NULL,
+            endpoint VARCHAR(500) NOT NULL,
+            p256dh TEXT NOT NULL,
+            auth TEXT NOT NULL,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            is_ativo BOOLEAN DEFAULT TRUE,
+            FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+            UNIQUE INDEX idx_endpoint (endpoint)
+        )
+        """)
+        print("Tabela 'push_subscriptions' criada com sucesso.")
 
         # Criar usuário administrador padrão
         admin_login = 'admin'

@@ -1,4 +1,4 @@
-from flask import get_flashed_messages, render_template, redirect, request, url_for, flash, jsonify
+from flask import get_flashed_messages, render_template, redirect, request, url_for, flash, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from wtforms.validators import ValidationError
 from . import main_bp
@@ -7,6 +7,7 @@ from app.models.squad import Squad
 from app.models.promessa import Promessa
 from app.models.transacao_pontos import TransacaoPontos
 from app.models.log import Log
+from app.services.notification_service import NotificationService
 from app.forms.usuario_forms import RegistroUsuarioForm, LoginForm, EdicaoUsuarioForm
 from app.services.image_service import ImageService
 from app import cache, db
@@ -155,6 +156,10 @@ def editar_usuario(id_usuario):
         usuario.login_usuario = form.login_usuario.data
         usuario.is_ativo = form.is_ativo.data
         usuario.is_administrador = form.is_administrador.data
+        # Verificar se o squad foi alterado
+        squad_alterado = usuario.id_squad != (squad.id_squad if squad else None)
+        squad_anterior = usuario.id_squad
+        
         usuario.squad = squad
 
         if form.senha.data:
@@ -166,6 +171,13 @@ def editar_usuario(id_usuario):
 
         Log.criar_log(id_usuario, 'usuario', 'editar', id_usuario)
         db.session.commit()
+        
+        # Enviar notificação se o usuário foi adicionado a um squad
+        if squad_alterado and squad and squad.id_squad != squad_anterior:
+            try:
+                NotificationService.notificar_usuario_adicionado_squad(id_usuario, squad.id_squad)
+            except Exception as e:
+                current_app.logger.error(f"Erro ao enviar notificação de usuário adicionado ao squad: {str(e)}")
 
         flash('Usuário atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_usuarios_visao_adm'))

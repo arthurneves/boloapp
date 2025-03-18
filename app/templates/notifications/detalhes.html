@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ titulo }}</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('main.listar_notificacoes') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para a lista
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Informações da Notificação</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">ID:</dt>
+                        <dd class="col-sm-8">{{ notificacao.id_notificacao }}</dd>
+                        
+                        <dt class="col-sm-4">Título:</dt>
+                        <dd class="col-sm-8">{{ notificacao.titulo_notificacao }}</dd>
+                        
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            {% if notificacao.status_envio == 'pendente' %}
+                                <span class="badge bg-warning">Pendente</span>
+                            {% elif notificacao.status_envio == 'enviado' %}
+                                <span class="badge bg-success">Enviado</span>
+                            {% elif notificacao.status_envio == 'falha' %}
+                                <span class="badge bg-danger">Falha</span>
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-4">Ativo:</dt>
+                        <dd class="col-sm-8">
+                            {% if notificacao.is_ativo %}
+                                <span class="badge bg-success">Sim</span>
+                            {% else %}
+                                <span class="badge bg-danger">Não</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+                
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Criado por:</dt>
+                        <dd class="col-sm-8">{{ notificacao.usuario_criador.nome_usuario }}</dd>
+                        
+                        <dt class="col-sm-4">Data de criação:</dt>
+                        <dd class="col-sm-8">{{ notificacao.data_criacao.strftime('%d/%m/%Y %H:%M') }}</dd>
+                        
+                        <dt class="col-sm-4">Agendamento:</dt>
+                        <dd class="col-sm-8">
+                            {% if notificacao.agendamento %}
+                                {{ notificacao.agendamento.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Imediato</span>
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-4">Data de envio:</dt>
+                        <dd class="col-sm-8">
+                            {% if notificacao.data_envio %}
+                                {{ notificacao.data_envio.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Não enviado</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <h5>Público-alvo</h5>
+                    <p>
+                        {% if notificacao.publico_alvo == 'todos' %}
+                            Todos os usuários
+                        {% elif notificacao.publico_alvo == 'usuario_especifico' %}
+                            Usuário específico: {{ notificacao.usuario_destino.nome_usuario if notificacao.usuario_destino else 'N/A' }}
+                        {% elif notificacao.publico_alvo == 'squad' %}
+                            Squad: {{ notificacao.squad_destino.titulo_squad if notificacao.squad_destino else 'N/A' }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <h5>Conteúdo da Notificação</h5>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>{{ notificacao.titulo_notificacao }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ notificacao.corpo_notificacao }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if notificacao.status_envio == 'pendente' %}
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="d-flex">
+                            <a href="{{ url_for('main.editar_notificacao', id_notificacao=notificacao.id_notificacao) }}" class="btn btn-primary me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            
+                            <form method="POST" action="{{ url_for('main.enviar_notificacao', id_notificacao=notificacao.id_notificacao) }}" class="me-2">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-paper-plane"></i> Enviar Agora
+                                </button>
+                            </form>
+                            
+                            <form method="POST" action="{{ url_for('main.cancelar_notificacao', id_notificacao=notificacao.id_notificacao) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja cancelar esta notificação?')">
+                                    <i class="fas fa-times"></i> Cancelar Notificação
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if notificacao.status_envio == 'enviado' %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Destinatários</h5>
+            </div>
+            <div class="card-body">
+                {% if destinatarios %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Data de Envio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for destinatario in destinatarios %}
+                                    <tr>
+                                        <td>{{ destinatario.usuario.nome_usuario }}</td>
+                                        <td>{{ destinatario.data_envio.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Nenhum destinatário encontrado para esta notificação.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

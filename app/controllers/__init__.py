@@ -12,3 +12,4 @@ from . import log_routes
 from . import convite_routes
 from . import regra_routes
 from . import analytics_routes
+from . import notification_routes
