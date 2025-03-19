@@ -56,6 +56,16 @@ class PushSubscription(db.Model):
             db.session.rollback()
             
             try:
+                # Inativar outras subscrições do mesmo usuário (exceto para o endpoint atual)
+                PushSubscription.query.filter(
+                    PushSubscription.id_usuario == id_usuario,
+                    PushSubscription.endpoint != data['endpoint'],
+                    PushSubscription.is_ativo == True
+                ).update({'is_ativo': False}, synchronize_session=False)
+
+                # Forçar o flush para garantir que a inativação seja processada
+                db.session.flush()
+
                 # Buscar subscription existente usando SELECT ... FOR UPDATE para evitar race conditions
                 subscription = PushSubscription.query.filter_by(
                     endpoint=data['endpoint']
