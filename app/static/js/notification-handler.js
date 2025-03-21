@@ -10,9 +10,24 @@ async function registerServiceWorker() {
             }
 
             // Tentar registrar o novo service worker
+            // Remover registros antigos
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let reg of registrations) {
+                await reg.unregister();
+            }
+            console.log('Registros antigos removidos');
+
+            // Registrar o novo service worker
+            console.log('Registrando service worker...');
             const registration = await navigator.serviceWorker.register('/service-worker.js', {
                 scope: '/'
             });
+            console.log('Service worker registrado:', registration);
+
+            // Forçar ativação
+            if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
             
             // Aguardar até que tenhamos um service worker ativo
             if (!registration.active) {
@@ -215,8 +230,9 @@ async function subscribeToPushNotifications(swRegistration) {
         // Se não existe subscription, cria uma nova
         console.log('Obtendo chave VAPID do servidor...');
         const vapidPublicKey = await getVapidPublicKey();
-        console.log('Chave VAPID obtida com sucesso');
+        console.log('Chave VAPID obtida:', vapidPublicKey);
         const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+        console.log('Chave VAPID convertida (primeiros 10 bytes):', convertedVapidKey.slice(0, 10));
 
         updateNotificationStatus('Registrando dispositivo...');
         const subscription = await swRegistration.pushManager.subscribe({
@@ -255,17 +271,11 @@ async function sendSubscriptionToServer(subscription) {
 
         console.log('Payload a ser enviado:', JSON.stringify(requestBody, null, 2));
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-        if (!csrfToken) {
-            throw new Error('CSRF token não encontrado');
-        }
-
         const response = await fetch('/api/notificacoes/registrar-dispositivo', {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
         });
@@ -278,8 +288,8 @@ async function sendSubscriptionToServer(subscription) {
         if (!response.ok) {
             if (response.status === 401) {
                 sessionStorage.setItem('notification_auth_failed', 'true');
-                await NotificationCache.clear(); // Limpar cache em caso de erro de autenticação
-                updateNotificationStatus('Autenticação necessária', true);
+                await NotificationCache.clear();
+                window.location.href = '/login';
                 return null;
             }
             const data = await response.json();

@@ -10,7 +10,9 @@ class PublicoAlvo(enum.Enum):
 
 class StatusEnvio(enum.Enum):
     PENDENTE = "pendente"
+    PROCESSANDO = "processando"
     ENVIADO = "enviado"
+    ENVIADO_PARCIAL = "enviado_parcial"
     FALHA = "falha"
 
 class Notification(db.Model):
@@ -27,6 +29,8 @@ class Notification(db.Model):
     is_ativo = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, default=func.now())
     data_edicao = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
+    total_enviados = db.Column(db.Integer, default=0)
+    total_falhas = db.Column(db.Integer, default=0)
     
     # Campos adicionais para público-alvo específico
     id_usuario_destino = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
@@ -92,7 +96,9 @@ class Notification(db.Model):
             'id_squad_destino': self.id_squad_destino,
             'usuario_criador': self.usuario_criador.nome_usuario if self.usuario_criador else None,
             'usuario_destino': self.usuario_destino.nome_usuario if self.usuario_destino else None,
-            'squad_destino': self.squad_destino.titulo_squad if self.squad_destino else None
+            'squad_destino': self.squad_destino.titulo_squad if self.squad_destino else None,
+            'total_enviados': self.total_enviados,
+            'total_falhas': self.total_falhas
         }
 
 class NotificacaoEnviada(db.Model):

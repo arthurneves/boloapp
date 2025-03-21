@@ -31,13 +31,30 @@
                         <dd class="col-sm-8">
                             {% if notificacao.status_envio == 'pendente' %}
                                 <span class="badge bg-warning">Pendente</span>
+                            {% elif notificacao.status_envio == 'processando' %}
+                                <span class="badge bg-info">Processando</span>
                             {% elif notificacao.status_envio == 'enviado' %}
                                 <span class="badge bg-success">Enviado</span>
+                            {% elif notificacao.status_envio == 'enviado_parcial' %}
+                                <span class="badge bg-warning">Enviado Parcialmente</span>
                             {% elif notificacao.status_envio == 'falha' %}
                                 <span class="badge bg-danger">Falha</span>
                             {% endif %}
                         </dd>
                         
+                        <dt class="col-sm-4">Status de Envio:</dt>
+                        <dd class="col-sm-8">
+                            {% if notificacao.status_envio in ['enviado', 'enviado_parcial', 'falha'] %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Enviados com sucesso: </small>
+                                    <span class="badge bg-success">{{ notificacao.total_enviados }}</span>
+                                    <br>
+                                    <small class="text-muted">Falhas no envio: </small>
+                                    <span class="badge bg-danger">{{ notificacao.total_falhas }}</span>
+                                </div>
+                            {% endif %}
+                        </dd>
+
                         <dt class="col-sm-4">Ativo:</dt>
                         <dd class="col-sm-8">
                             {% if notificacao.is_ativo %}
@@ -135,7 +152,7 @@
         </div>
     </div>
     
-    {% if notificacao.status_envio == 'enviado' %}
+    {% if notificacao.status_envio in ['enviado', 'enviado_parcial'] %}
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Destinatários</h5>

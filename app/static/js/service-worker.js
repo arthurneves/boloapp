@@ -38,18 +38,25 @@ self.addEventListener('activate', event => {
 // Evento para receber notificações push
 self.addEventListener('push', event => {
   console.log('[Service Worker] Push recebido');
+  console.log('[Service Worker] Dados brutos:', event.data ? event.data.text() : 'Sem dados');
   
   let data = {};
   if (event.data) {
     try {
-      data = event.data.json();
+      const rawData = event.data.text();
+      console.log('[Service Worker] Dados brutos:', rawData);
+      data = JSON.parse(rawData);
+      console.log('[Service Worker] Dados processados:', data);
     } catch (e) {
-      console.error('Erro ao processar dados da notificação:', e);
+      console.error('[Service Worker] Erro ao processar JSON:', e);
+      console.log('[Service Worker] Tentando usar texto bruto');
       data = {
         title: 'Nova notificação',
         body: event.data.text()
       };
     }
+  } else {
+    console.error('[Service Worker] Nenhum dado recebido no evento push');
   }
   
   const title = data.title || 'BoloApp';
@@ -73,6 +80,12 @@ self.addEventListener('push', event => {
   
   event.waitUntil(
     self.registration.showNotification(title, options)
+      .then(() => {
+        console.log('[Service Worker] Notificação exibida com sucesso');
+      })
+      .catch(error => {
+        console.error('[Service Worker] Erro ao exibir notificação:', error);
+      })
   );
 });
 

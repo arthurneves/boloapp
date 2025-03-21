@@ -184,6 +184,8 @@ def create_database():
             id_squad_destino INT NULL,
             data_envio DATETIME NULL,
             status_envio VARCHAR(20) DEFAULT 'pendente',
+            total_enviados INT DEFAULT 0,
+            total_falhas INT DEFAULT 0,
             is_ativo BOOLEAN DEFAULT TRUE,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             data_edicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

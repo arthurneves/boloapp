@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify, abort
+from flask import current_app, render_template, redirect, url_for, flash, request, jsonify, abort
 from flask_login import login_required, current_user
 from app import db
 from app.controllers import main_bp
@@ -149,22 +149,41 @@ def enviar_notificacao(id_notificacao):
     """
     Envia uma notificação manualmente
     """
-    if not current_user.is_administrador:
-        flash('Acesso negado. Você não tem permissão para acessar esta página.', 'danger')
-        return redirect(url_for('main.index'))
-    
-    notificacao = Notification.query.get_or_404(id_notificacao)
+    logger = current_app.logger
     
     try:
+        if not current_user.is_administrador:
+            logger.warning(f"Tentativa de envio de notificação por usuário não administrador: {current_user.id_usuario}")
+            flash('Acesso negado. Você não tem permissão para acessar esta página.', 'danger')
+            return redirect(url_for('main.index'))
+        
+        # Verificar se a notificação existe
+        notificacao = Notification.query.get_or_404(id_notificacao)
+        logger.info(f"Iniciando envio manual da notificação {id_notificacao} por {current_user.id_usuario}")
+        
+        # Verificar estado da notificação
+        if not notificacao.is_ativo:
+            logger.warning(f"Tentativa de envio de notificação inativa: {id_notificacao}")
+            flash('Não é possível enviar uma notificação inativa.', 'warning')
+            return redirect(url_for('main.listar_notificacoes'))
+        
+        if notificacao.status_envio == StatusEnvio.ENVIADO.value:
+            logger.warning(f"Tentativa de reenvio de notificação já enviada: {id_notificacao}")
+            flash('Esta notificação já foi enviada.', 'warning')
+            return redirect(url_for('main.listar_notificacoes'))
+        
         # Enviar a notificação
         resultado = NotificationService.enviar_notificacao(id_notificacao)
         
         if resultado:
+            logger.info(f"Notificação {id_notificacao} enviada com sucesso")
             flash('Notificação enviada com sucesso!', 'success')
         else:
+            logger.warning(f"Não foi possível enviar a notificação {id_notificacao}")
             flash('Não foi possível enviar a notificação. Verifique o status e agendamento.', 'warning')
     
     except Exception as e:
+        logger.error(f"Erro ao enviar notificação {id_notificacao}: {str(e)}", exc_info=True)
         flash(f'Erro ao enviar notificação: {str(e)}', 'danger')
     
     return redirect(url_for('main.listar_notificacoes'))
@@ -253,6 +272,7 @@ def ensure_json_response(f):
             return jsonify({'error': str(e)}), 500
     return decorated_function
 
+from app import csrf
 from flask_wtf.csrf import CSRFError
 
 @main_bp.errorhandler(CSRFError)
@@ -263,6 +283,7 @@ def handle_csrf_error(e):
     }), 400
 
 @main_bp.route('/api/notificacoes/registrar-dispositivo', methods=['POST'])
+@csrf.exempt
 @ensure_json_response
 def registrar_dispositivo():
     """

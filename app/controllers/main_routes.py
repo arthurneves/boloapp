@@ -23,9 +23,11 @@ def get_csrf_token():
 @main_bp.route('/service-worker.js')
 def service_worker():
     response = send_from_directory('static/js', 'service-worker.js', mimetype='application/javascript')
-    # Importante: Não fazer cache do service worker
+    # Configurações importantes para o service worker
     response.headers['Service-Worker-Allowed'] = '/'
-    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 @main_bp.route("/api/mensagens")
