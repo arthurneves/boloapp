@@ -1,4 +1,5 @@
-const CACHE_NAME = 'boloapp-v19';
+const CACHE_NAME = 'boloapp-v21';
+
 const urlsToCache = [
   '/static/css/bootstrap.min.css',
   '/static/css/style-v3.css',
@@ -110,12 +111,13 @@ self.addEventListener('notificationclick', event => {
 
 // Interceptar requisições de rede
 self.addEventListener('fetch', event => {
+
   // Não interceptar requisições de outros domínios
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
-  // Ignorar requisições de API e autenticação
+  // Ignorar requisições de API e autenticação, pois estes devem sempre vir da rede
   if (
     event.request.url.includes('/api/') ||
     event.request.url.includes('/login') ||
@@ -124,42 +126,63 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Apenas interceptar recursos estáticos
-  if (
-    !event.request.url.includes('/static/') &&
-    !event.request.url.includes('/favicon/')
-  ) {
-    return;
+  const url = new URL(event.request.url);
+  const isProfilePhotoUrl = event.request.url.includes('/static/uploads/profile_photos/');
+  const isCachableUrl = urlsToCache.includes(url.pathname); // Keep for other static assets
+
+  if (isProfilePhotoUrl) {
+    console.log('[Service Worker] Fetching profile photo:', event.request.url);
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          const networkFetch = fetch(event.request);
+          networkFetch.then(networkResponse => {
+            // Update the cache with the new response in the background
+            cache.put(event.request, networkResponse.clone());
+          });
+          // Serve cached response if available, otherwise wait for network
+          return cachedResponse || networkFetch;
+        });
+      })
+    );
+    return; // Stop further processing for profile photos
   }
 
-  event.respondWith(
-    caches.match(event.request).then(response => {
+
+  if (isCachableUrl) {
+    console.log('[Service Worker] Fetching cachable:', event.request.url);
+    event.respondWith(
+      caches.match(event.request).then(response => {
       // Cache-first strategy
       if (response) {
+        console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
         return response;
-      }
+      } else {
+        console.log(`[Service Worker] Cache miss for: ${event.request.url}`);
+        console.log(`[Service Worker] Fetching from network due to cache miss: ${event.request.url}`);
+        return fetch(event.request).then(networkResponse => {
+          // Não fazer cache de erros
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
+          }
 
-      // Buscar na rede se não estiver no cache
-      return fetch(event.request).then(networkResponse => {
-        // Não fazer cache de erros
-        if (!networkResponse || networkResponse.status !== 200) {
-          return networkResponse;
-        }
-
-        // Clonar e armazenar no cache apenas se for uma resposta básica
-        if (networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
+          // Clonar e armazenar no cache apenas se for uma resposta básica
+          if (networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache);
             });
-        }
-
-        return networkResponse;
-      }).catch(error => {
-        console.error('[Service Worker] Erro na requisição:', error);
-        throw error;
-      });
+          }
+          return networkResponse;
+        });
+      }
+    }).catch(error => {
+      console.error('[Service Worker] Erro ao buscar no cache:', error);
+      return fetch(event.request); // Fallback para a rede em caso de erro no cache
     })
-  );
+    );
+  } else {
+    console.log(`[Service Worker] Not intercepting fetch event for non-cachable: ${event.request.url}`);
+    return fetch(event.request); // Pass-through for non-static requests
+  }
 });
