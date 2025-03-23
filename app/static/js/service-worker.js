@@ -1,12 +1,14 @@
-const CACHE_NAME = 'boloapp-v21';
+const CACHE_NAME = 'boloapp-v24';
 
 const urlsToCache = [
   '/static/css/bootstrap.min.css',
-  '/static/css/style-v3.css',
-  '/static/js/scripts.js',
+  '/static/css/style-v3.min.css',
+  '/static/js/scripts.min.js',
   '/static/js/chart.js',
   '/static/icons/bolo-coracao.png',
-  '/static/favicon/favicon-32x32.png'
+  '/static/favicon/favicon.ico',
+  '/static/favicon/apple-touch-icon.png',
+  '/static/manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -64,7 +66,6 @@ self.addEventListener('push', event => {
   const options = {
     body: data.body || 'Você recebeu uma nova notificação',
     icon: '/static/icons/bolo-coracao.png',
-    badge: '/static/favicon/favicon-32x32.png',
     data: data.url || '/',
     vibrate: [100, 50, 100],
     actions: [
@@ -150,38 +151,45 @@ self.addEventListener('fetch', event => {
 
 
   if (isCachableUrl) {
-    console.log('[Service Worker] Fetching cachable:', event.request.url);
+    // Cache-first strategy for URLs in urlsToCache
     event.respondWith(
       caches.match(event.request).then(response => {
-      // Cache-first strategy
-      if (response) {
-        console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
-        return response;
-      } else {
-        console.log(`[Service Worker] Cache miss for: ${event.request.url}`);
-        console.log(`[Service Worker] Fetching from network due to cache miss: ${event.request.url}`);
+        if (response) {
+          //console.log(`[Service Worker] Serving ${event.request.url} from cache`);
+          return response; // Serve from cache if available
+        }
+        //console.log(`[Service Worker] Fetching ${event.request.url} from network due to cache miss`);
         return fetch(event.request).then(networkResponse => {
-          // Não fazer cache de erros
+          // Check for valid response
           if (!networkResponse || networkResponse.status !== 200) {
             return networkResponse;
           }
-
-          // Clonar e armazenar no cache apenas se for uma resposta básica
-          if (networkResponse.type === 'basic') {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          }
+          // Cache the new response
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
           return networkResponse;
         });
-      }
-    }).catch(error => {
-      console.error('[Service Worker] Erro ao buscar no cache:', error);
-      return fetch(event.request); // Fallback para a rede em caso de erro no cache
-    })
+      })
     );
-  } else {
+  } else if (url.pathname === '/static/js/pwa-install-prompt.min.js') {
+    // Stale-while-revalidate strategy for pwa-install-prompt.js
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          const networkFetch = fetch(event.request);
+          networkFetch.then(networkResponse => {
+            // Update the cache with the new response in the background
+            cache.put(event.request, networkResponse.clone());
+          });
+          // Serve cached response if available, otherwise wait for network
+          return cachedResponse || networkFetch;
+        });
+      })
+    );
+  }
+   else {
     console.log(`[Service Worker] Not intercepting fetch event for non-cachable: ${event.request.url}`);
     return fetch(event.request); // Pass-through for non-static requests
   }

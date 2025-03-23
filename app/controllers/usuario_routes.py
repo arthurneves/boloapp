@@ -89,7 +89,6 @@ def novo_usuario():
                 foto_upload = ImageService.save_profile_photo(form.foto_perfil.data)
                 if foto_upload:
                     foto_perfil = foto_upload['original']
-                    #foto_perfil_thumbnail = foto_upload['thumbnail']
             except ValueError as e:
                 flash(str(e), 'danger')
                 return render_template('usuarios/novo.html', form=form)
@@ -147,7 +146,6 @@ def editar_usuario(id_usuario):
                 # Salva
                 foto_upload = ImageService.save_profile_photo(form.foto_perfil.data)
                 usuario.foto_perfil = foto_upload['original']
-                #usuario.foto_perfil_thumbnail = foto_upload['thumbnail']
             except ValueError as e:
                 flash(str(e), 'danger')
                 return render_template('usuarios/editar.html', form=form, usuario=usuario)
