@@ -13,7 +13,7 @@
                     {% if usuario.foto_perfil %}
                         {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
                     {% else %}
-                        {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                        {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_04.jpg') %}
                     {% endif %}
 
                     
@@ -134,7 +134,7 @@
                                     {% if seguido.foto_perfil %}
                                         {% set foto_seguido = url_for('static', filename='uploads/profile_photos/' ~ seguido.foto_perfil) %}
                                     {% else %}
-                                        {% set foto_seguido = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                                        {% set foto_seguido = url_for('static', filename='uploads/profile_photos/picareta_04.jpg') %}
                                     {% endif %}
 
                                     {% set url = url_for('main.perfil_usuario', id_usuario=seguido.id_usuario) %}
@@ -175,7 +175,7 @@
                                     {% if outro_usuario.foto_perfil %}
                                         {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/' ~ outro_usuario.foto_perfil) %}
                                     {% else %}
-                                        {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                                        {% set foto_user_squad = url_for('static', filename='uploads/profile_photos/picareta_04.jpg') %}
                                     {% endif %}
 
                                     {% set url = url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) %}

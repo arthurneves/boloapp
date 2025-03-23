@@ -565,10 +565,6 @@ pre {
     }
 }
 
-.badge{
-    color: #333 !important;
-}
-
 .user-list {
     display: grid;
     gap: 10px;
