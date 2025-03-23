@@ -180,7 +180,7 @@
 
                                     {% set url = url_for('main.perfil_usuario', id_usuario=outro_usuario.id_usuario) %}
 
-                                    <tr onclick="window.location='{{ url }}';">
+                                    <tr onclick="redirecionarParaPerfil('{{ url }}');">
                                         <td>
                                             <div class="perfil-usuario-squad"><img src="{{ foto_user_squad }}" class="rounded-circle perfil-usuario-squad-img" ></div>
                                         </td>
@@ -293,6 +293,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // Função para fechar mensagem
 function fecharMensagem() {
     document.getElementById('mensagens').innerHTML = '';
+}
+
+let redirecionamentoAtivado = false;
+
+function redirecionarParaPerfil(url) {
+    if (!redirecionamentoAtivado) {
+        redirecionamentoAtivado = true;
+        window.location.href = url;
+    }
 }
 
 </script>

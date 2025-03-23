@@ -172,6 +172,6 @@ self.addEventListener('fetch', event => {
     );
   } else {
     console.log(`[Service Worker] Not intercepting fetch event for non-cachable: ${event.request.url}`);
-    return fetch(event.request); // Pass-through for non-static requests
+    return; // Prevent pass-through fetch for non-static requests
   }
 });
