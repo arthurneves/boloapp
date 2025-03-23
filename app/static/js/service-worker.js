@@ -1,10 +1,10 @@
-const CACHE_NAME = 'boloapp-v24';
+const CACHE_NAME = 'boloapp-v30';
 
 const urlsToCache = [
   '/static/css/bootstrap.min.css',
-  '/static/css/style-v3.min.css',
-  '/static/js/scripts.min.js',
-  '/static/js/chart.js',
+  '/static/css/style-v3-min.css',
+  '/static/css/font-awesome.css',
+  '/static/js/scripts-min.js',
   '/static/icons/bolo-coracao.png',
   '/static/favicon/favicon.ico',
   '/static/favicon/apple-touch-icon.png',
@@ -132,39 +132,36 @@ self.addEventListener('fetch', event => {
   const isCachableUrl = urlsToCache.includes(url.pathname); // Keep for other static assets
 
   if (isProfilePhotoUrl) {
-    console.log('[Service Worker] Fetching profile photo:', event.request.url);
-    event.respondWith(
-      caches.open(CACHE_NAME).then(cache => {
-        return cache.match(event.request).then(cachedResponse => {
-          const networkFetch = fetch(event.request);
-          networkFetch.then(networkResponse => {
-            // Update the cache with the new response in the background
-            cache.put(event.request, networkResponse.clone());
-          });
-          // Serve cached response if available, otherwise wait for network
-          return cachedResponse || networkFetch;
-        });
-      })
-    );
-    return; // Stop further processing for profile photos
-  }
-
-
-  if (isCachableUrl) {
-    // Cache-first strategy for URLs in urlsToCache
+    // Cache-first strategy for profile photos
     event.respondWith(
       caches.match(event.request).then(response => {
         if (response) {
-          //console.log(`[Service Worker] Serving ${event.request.url} from cache`);
+          console.log('[Service Worker] Serving profile photo from cache:', event.request.url);
           return response; // Serve from cache if available
         }
-        //console.log(`[Service Worker] Fetching ${event.request.url} from network due to cache miss`);
+        console.log('[Service Worker] Profile photo não encontrada no cache, buscando da rede:', event.request.url);
         return fetch(event.request).then(networkResponse => {
-          // Check for valid response
           if (!networkResponse || networkResponse.status !== 200) {
             return networkResponse;
           }
-          // Cache the new response
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          return networkResponse;
+        }); // Fetch from network if not in cache and cache it
+      })
+    );
+    return;
+  }
+   if (isCachableUrl) {
+    //console.log(`[Service Worker] Using Cache-first strategy for: ${event.request.url}`);
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        return response || fetch(event.request).then(networkResponse => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
+          }
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then(cache => {
             cache.put(event.request, responseToCache);
@@ -173,23 +170,7 @@ self.addEventListener('fetch', event => {
         });
       })
     );
-  } else if (url.pathname === '/static/js/pwa-install-prompt.min.js') {
-    // Stale-while-revalidate strategy for pwa-install-prompt.js
-    event.respondWith(
-      caches.open(CACHE_NAME).then(cache => {
-        return cache.match(event.request).then(cachedResponse => {
-          const networkFetch = fetch(event.request);
-          networkFetch.then(networkResponse => {
-            // Update the cache with the new response in the background
-            cache.put(event.request, networkResponse.clone());
-          });
-          // Serve cached response if available, otherwise wait for network
-          return cachedResponse || networkFetch;
-        });
-      })
-    );
-  }
-   else {
+  } else {
     console.log(`[Service Worker] Not intercepting fetch event for non-cachable: ${event.request.url}`);
     return fetch(event.request); // Pass-through for non-static requests
   }

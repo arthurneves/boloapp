@@ -299,7 +299,7 @@ def registrar_dispositivo():
             }), 401
 
         # Log dos dados da requisição
-        print("Headers:", dict(request.headers))
+        #print("Headers:", dict(request.headers))
         data = request.get_json()
         if not data:
             print("Erro: Nenhum dado recebido no corpo da requisição")
@@ -311,7 +311,7 @@ def registrar_dispositivo():
             return jsonify({'error': 'Dados de subscription são obrigatórios'}), 400
 
         subscription_data = data.get('subscription')
-        print("Dados recebidos de subscription:", json.dumps(subscription_data, indent=2))
+        #print("Dados recebidos de subscription:", json.dumps(subscription_data, indent=2))
 
         # Validar estrutura dos dados
         if not isinstance(subscription_data, dict):
