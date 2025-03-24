@@ -67,7 +67,7 @@
                 {% if usuario.foto_perfil %}
                     {% set foto_usuario = url_for('static', filename='uploads/profile_photos/' ~ usuario.foto_perfil) %}
                 {% else %}
-                    {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_03.jpg') %}
+                    {% set foto_usuario = url_for('static', filename='uploads/profile_photos/picareta_04.jpg') %}
                 {% endif %}
 
                 <div class="list-card {{ 'active' if usuario.is_ativo else 'inactive' }}">

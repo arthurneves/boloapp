@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ titulo }}</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('main.listar_notificacoes') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para a lista
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Criar Nova Notificação</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.nova_notificacao') }}">
+                {{ form.csrf_token }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            {{ form.titulo_notificacao.label(class="form-label") }}
+                            {{ form.titulo_notificacao(class="form-control") }}
+                            {% if form.titulo_notificacao.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.titulo_notificacao.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            {{ form.corpo_notificacao.label(class="form-label") }}
+                            {{ form.corpo_notificacao(class="form-control", rows=4) }}
+                            {% if form.corpo_notificacao.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.corpo_notificacao.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.publico_alvo.label(class="form-label") }}
+                            {{ form.publico_alvo(class="form-select", onchange="toggleDestinatario()") }}
+                            {% if form.publico_alvo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.publico_alvo.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6" id="usuario_destino_div" style="display: none;">
+                        <div class="form-group">
+                            {{ form.id_usuario_destino.label(class="form-label") }}
+                            {{ form.id_usuario_destino(class="form-select") }}
+                            {% if form.id_usuario_destino.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.id_usuario_destino.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6" id="squad_destino_div" style="display: none;">
+                        <div class="form-group">
+                            {{ form.id_squad_destino.label(class="form-label") }}
+                            {{ form.id_squad_destino(class="form-select") }}
+                            {% if form.id_squad_destino.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.id_squad_destino.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.agendamento.label(class="form-label") }}
+                            {{ form.agendamento(class="form-control", type="datetime-local") }}
+                            {% if form.agendamento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.agendamento.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Deixe em branco para envio imediato</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-check mt-4">
+                            {{ form.is_ativo(class="form-check-input") }}
+                            {{ form.is_ativo.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Notificação
+                        </button>
+                        <a href="{{ url_for('main.listar_notificacoes') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleDestinatario() {
+        const publicoAlvo = document.getElementById('publico_alvo').value;
+        const usuarioDestinoDiv = document.getElementById('usuario_destino_div');
+        const squadDestinoDiv = document.getElementById('squad_destino_div');
+        
+        // Esconder ambos inicialmente
+        usuarioDestinoDiv.style.display = 'none';
+        squadDestinoDiv.style.display = 'none';
+        
+        // Mostrar o campo apropriado com base na seleção
+        if (publicoAlvo === 'usuario_especifico') {
+            usuarioDestinoDiv.style.display = 'block';
+        } else if (publicoAlvo === 'squad') {
+            squadDestinoDiv.style.display = 'block';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar o estado dos campos de destinatário
+        toggleDestinatario();
+    });
+</script>
+{% endblock %}

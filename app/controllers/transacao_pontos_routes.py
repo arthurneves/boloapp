@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, current_app
 from flask_login import login_required
 from app import db, cache
 from datetime import datetime
@@ -6,6 +6,7 @@ from app.models.transacao_pontos import TransacaoPontos
 from app.models.usuario import Usuario
 from app.models.log import Log
 from app.models.transferencia_bolos import TransferenciaBolos
+from app.services.notification_service import NotificationService
 from app.forms.transacao_pontos_forms import TransacaoPontosForm
 from app.forms.transferencia_bolos_forms import TransferenciaBolosForm
 from app.services.cache_service import (
@@ -96,6 +97,12 @@ def criar_transacao_pontos():
 
         Log.criar_log(nova_transacao.id_transacao, 'transacao_bolos', 'criar', nova_transacao.id_usuario)
         db.session.commit()
+        
+        # Enviar notificação sobre a nova transação
+        try:
+            NotificationService.notificar_nova_transacao(nova_transacao)
+        except Exception as e:
+            current_app.logger.error(f"Erro ao enviar notificação de nova transação: {str(e)}")
 
         if id_usuario:
             return redirect(url_for('main.perfil_usuario', id_usuario=id_usuario))
@@ -181,7 +188,7 @@ def transferencia_bolos():
 
     if form.validate_on_submit():
         try:
-            TransferenciaBolos.registrar_transferencia(
+            transferencia, debito, credito = TransferenciaBolos.registrar_transferencia(
                 usuario_origem_id=form.usuario_origem.data,
                 usuario_destino_id=form.usuario_destino.data,
                 valor=form.valor_transferencia.data,
@@ -189,6 +196,12 @@ def transferencia_bolos():
             )
             
             invalidar_cache_geral()
+            
+            # Enviar notificação sobre a transferência
+            # try:
+            #     NotificationService.notificar_transferencia_pontos(transferencia)
+            # except Exception as e:
+            #     current_app.logger.error(f"Erro ao enviar notificação de transferência: {str(e)}")
             
             flash('Transferência de bolos realizada com sucesso!', 'success')
             return redirect(url_for('main.listar_transacoes_pontos'))

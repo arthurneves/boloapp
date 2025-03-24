@@ -9,6 +9,7 @@ from app.models.log import Log
 from app.models.promessa import Promessa
 from app.models.usuario import Usuario
 from app.forms.promessa_forms import PromessaForm
+from app.services.notification_service import NotificationService
 from app.services.cache_service import (
     make_cache_key_promessas,
     invalidar_cache_lista_promessa,
@@ -87,13 +88,18 @@ def criar_promessa():
         db.session.flush()
 
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(usuario.id_usuario)
         invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(nova_promessa.id_promessa, 'promessa', 'criar', nova_promessa.id_usuario)
         db.session.commit()
+        
+        # Enviar notificação sobre a nova promessa
+        # try:
+        #     NotificationService.notificar_nova_promessa(nova_promessa)
+        # except Exception as e:
+        #     current_app.logger.error(f"Erro ao enviar notificação de nova promessa: {str(e)}")
         
         flash('Promessa criada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -117,13 +123,18 @@ def editar_promessa(id_promessa):
         promessa.id_usuario = usuario.id_usuario
 
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(usuario.id_usuario)
         invalidar_cache_home(usuario.id_usuario)
 
         Log.criar_log(id_promessa, 'promessa', 'editar', promessa.id_usuario)
         db.session.commit()
+        
+        # Enviar notificação sobre a promessa editada
+        # try:
+        #     NotificationService.notificar_promessa_alterada(promessa, 'editada')
+        # except Exception as e:
+        #     current_app.logger.error(f"Erro ao enviar notificação de promessa editada: {str(e)}")
         
         flash('Promessa atualizada com sucesso!', 'success')
         return redirect(url_for('main.listar_promessas'))
@@ -143,13 +154,18 @@ def desativar_promessa(id_promessa):
     promessa.is_ativo = False
 
     # Invalidar todos os caches relacionados a promessas
-    if not invalidar_cache_lista_promessa():
-        current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+    invalidar_cache_lista_promessa()
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
     invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'desativar', promessa.id_usuario)
     db.session.commit()
+    
+    # Enviar notificação sobre a promessa desativada
+    # try:
+    #     NotificationService.notificar_promessa_alterada(promessa, 'desativada')
+    # except Exception as e:
+    #     current_app.logger.error(f"Erro ao enviar notificação de promessa desativada: {str(e)}")
     
     flash('Promessa desativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -162,13 +178,18 @@ def reativar_promessa(id_promessa):
     promessa.is_ativo = True
 
     # Invalidar todos os caches relacionados a promessas
-    if not invalidar_cache_lista_promessa():
-        current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+    invalidar_cache_lista_promessa()
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
     invalidar_cache_home(promessa.usuario.id_usuario)
 
     Log.criar_log(id_promessa, 'promessa', 'reativar', promessa.id_usuario)
     db.session.commit()
+    
+    # Enviar notificação sobre a promessa reativada
+    # try:
+    #     NotificationService.notificar_promessa_alterada(promessa, 'reativada')
+    # except Exception as e:
+    #     current_app.logger.error(f"Erro ao enviar notificação de promessa reativada: {str(e)}")
     
     flash('Promessa reativada com sucesso!', 'success')
     return redirect(url_for('main.listar_promessas'))
@@ -180,13 +201,18 @@ def cumprir_promessa(id_promessa):
     
     if promessa.cumprir():
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
         invalidar_cache_home(promessa.usuario.id_usuario)
 
         Log.criar_log(id_promessa, 'promessa', 'cumprir', promessa.id_usuario)
         db.session.commit()
+        
+        # Enviar notificação sobre a promessa cumprida
+        # try:
+        #     NotificationService.notificar_promessa_alterada(promessa, 'cumprida')
+        # except Exception as e:
+        #     current_app.logger.error(f"Erro ao enviar notificação de promessa cumprida: {str(e)}")
         
         flash('Promessa marcada como cumprida com sucesso!', 'success')
     else:

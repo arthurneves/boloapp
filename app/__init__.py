@@ -32,7 +32,11 @@ def create_app(config_class=Config):
 
     # Import and register blueprints
     from .controllers import main_bp
+    from .services.notification_service import NotificationService
 
     app.register_blueprint(main_bp)
+    
+    # Initialize notification service
+    NotificationService.init_app(app)
 
     return app

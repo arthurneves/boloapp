@@ -8,7 +8,6 @@ class ImageService:
     UPLOAD_FOLDER = 'static/uploads/profile_photos'
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
-    THUMBNAIL_SIZE = (200, 200)
 
     @classmethod
     def allowed_file(cls, filename):
@@ -33,28 +32,45 @@ class ImageService:
             unique_filename = f"{custom_name}.{file_extension}"
         else:
             unique_filename = f"{uuid.uuid4()}.{file_extension}"
-            
+
         filepath = os.path.join(upload_path, unique_filename)
 
         # Save original image
         file.save(filepath)
 
-        # Create thumbnail
-        with Image.open(filepath) as img:
-            img.thumbnail(cls.THUMBNAIL_SIZE)
-            thumbnail_filename = f"thumb_{unique_filename}"
-            thumbnail_path = os.path.join(upload_path, thumbnail_filename)
-            img.save(thumbnail_path)
+        # Compress image if it's not a GIF
+        if file_extension.lower() != 'gif':
+            try:
+                img = Image.open(filepath)
+
+                # Resize image to max 200px width or height while maintaining aspect ratio
+                max_size = 250
+                current_width, current_height = img.size
+                if current_width > max_size or current_height > max_size:
+                    if current_width > current_height:
+                        new_width = max_size
+                        new_height = int(current_height * (max_size / current_width))
+                    else:
+                        new_height = max_size
+                        new_width = int(current_width * (max_size / current_height))
+                    img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+
+                if file_extension.lower() in ('jpg', 'jpeg'):
+                    img.save(filepath, optimize=True, quality=80)
+                elif file_extension.lower() == 'png':
+                    img.save(filepath, optimize=True)
+            except Exception as e:
+                print(f"Erro ao comprimir imagem: {e}")
 
         return {
-            'original': unique_filename,
-            'thumbnail': thumbnail_filename
+            'original': unique_filename
         }
 
     @classmethod
     def delete_profile_photo(cls, photo_path):
         """
-        Delete existing profile photo and its thumbnail
+        Delete existing profile photo
         """
         if not photo_path:
             return
@@ -62,13 +78,10 @@ class ImageService:
         # Construct full paths
         base_path = current_app.root_path
         full_photo_path = os.path.join(base_path, ImageService.UPLOAD_FOLDER, photo_path)
-        thumbnail_path = os.path.join(base_path, ImageService.UPLOAD_FOLDER, 'thumb_' + photo_path)
 
         # Remove files if they exist
         try:
             if os.path.exists(full_photo_path):
                 os.remove(full_photo_path)
-            if os.path.exists(thumbnail_path):
-                os.remove(thumbnail_path)
         except Exception as e:
             print(f"Erro ao excluir foto: {e}")

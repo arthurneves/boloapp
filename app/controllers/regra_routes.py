@@ -1,9 +1,10 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, current_app
 
 from app.models.log import Log
 from . import main_bp
 from app.models.regra import Regra
 from app.forms.regra_forms import RegraForm
+from app.services.notification_service import NotificationService
 from app import db
 
 
@@ -28,6 +29,12 @@ def editar_regras():
         
         Log.criar_log(nova_regra.id_regra, 'regras', 'criar')
         db.session.commit()
+        
+        # Enviar notificação sobre a nova versão de regra
+        # try:
+        #     NotificationService.notificar_nova_regra(nova_regra)
+        # except Exception as e:
+        #     current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
 
         flash('Regra atualizada com sucesso!', 'success')
         return redirect(url_for('main.visualizar_regras'))
@@ -59,6 +66,12 @@ def ativar_regra(id):
 
     Log.criar_log(regra.id_regra, 'regras', 'ativar')
     db.session.commit()
+    
+    # Enviar notificação sobre a nova versão de regra ativada
+    # try:
+    #     NotificationService.notificar_nova_regra(regra)
+    # except Exception as e:
+    #     current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
 
     flash('Regra ativada com sucesso!', 'success')
     return redirect(url_for('main.visualizar_regras'))
