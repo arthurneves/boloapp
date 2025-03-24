@@ -382,6 +382,7 @@ class NotificationService:
     @staticmethod
     def _obter_destinatarios(session, notificacao) -> List[int]:
         """Obtém a lista de IDs dos usuários destinatários"""
+        logger.info(f"_obter_destinatarios chamado para notificação {notificacao.id_notificacao}")
         if notificacao.publico_alvo == PublicoAlvo.TODOS.value:
             return [
                 id for (id,) in 
@@ -420,3 +421,140 @@ class NotificationService:
         if cls._executor:
             cls._executor.shutdown(wait=True)
         logger.info("NotificationService executors encerrados com sucesso")
+
+    @classmethod
+    def send_push_notification(cls, notification_type, entity, action):
+        """
+        Envia uma notificação push para os usuários relevantes com base no tipo de notificação, entidade e ação.
+        """
+
+        logger.info(f"Enviando notificação push para tipo: {notification_type}, entidade: {entity}, ação: {action}")
+
+        if notification_type == 'promessa':
+            if action in ['criada', 'editada', 'reativada', 'desativada', 'cumprida']:
+                titulo = f"Promessa {action.capitalize()}!"
+                corpo = f"{entity.usuario.nome_usuario} teve uma promessa {action}."
+                destinatarios_ids = set()
+                # Adicionar usuários da squad
+                if entity.usuario.id_squad:
+                    destinatarios_ids.update(cls._obter_destinatarios_squad(entity.usuario.id_squad))
+                # Adicionar seguidores (a implementar se necessário e modelo de seguidor existir)
+                destinatarios_ids.update(cls._obter_seguidores_usuario(entity.usuario.id_usuario))
+                destinatarios_ids.discard(entity.usuario.id_usuario) # Remover o próprio usuário que fez a ação
+                cls._enviar_notificacao_para_usuarios(titulo, corpo, list(destinatarios_ids))
+
+        elif notification_type == 'squad':
+            if action == 'usuario_adicionado':
+                titulo = "Novo membro na Squad!"
+                corpo = f"{entity.nome_usuario} chegou devendo..."
+                destinatarios_ids = cls._obter_destinatarios_squad(entity.id_squad)
+                destinatarios_ids.discard(entity.id_usuario) # Remover o próprio usuário que foi adicionado
+                cls._enviar_notificacao_para_usuarios(titulo, corpo, list(destinatarios_ids))
+
+        elif notification_type == 'transacao_pontos':
+            if action == 'criada' or action == 'transferencia':
+                titulo = "Nova Transação de Pontos"
+                corpo = f"Uma nova transação de pontos foi criada/transferida para o usuário '{entity.usuario.nome_usuario}'."
+                destinatarios_ids = cls._obter_destinatarios_squad(entity.usuario.id_squad)
+                destinatarios_ids.update(cls._obter_seguidores_usuario(entity.usuario.id_usuario))
+                destinatarios_ids.discard(entity.usuario.id_usuario) # Remover o próprio usuário que fez a ação
+                cls._enviar_notificacao_para_usuarios(titulo, corpo, list(destinatarios_ids))
+
+        elif notification_type == 'regra':
+            if action == 'nova_versao_ativada':
+                titulo = "Nova Versão de Regra Ativada"
+                corpo = "Uma nova versão da regra de pontos foi ativada. Verifique as mudanças."
+                destinatarios_ids = cls._obter_destinatarios_todos() # Notificar todos os usuários
+                cls._enviar_notificacao_para_usuarios(titulo, corpo, list(destinatarios_ids))
+        else:
+            logger.warning(f"Tipo de notificação desconhecido: {notification_type}")
+
+
+    @classmethod
+    def _obter_destinatarios_squad(cls, id_squad) -> List[int]:
+        """Obtém a lista de IDs dos usuários destinatários de uma squad"""
+        with get_scoped_session() as session:
+            return [
+                id for (id,) in
+                session.query(Usuario.id_usuario).filter_by(
+                    id_squad=id_squad,
+                    is_ativo=True
+                ).all()
+            ]
+
+    @classmethod
+    def _obter_destinatarios_todos(cls) -> List[int]:
+        """Obtém a lista de IDs de todos os usuários ativos"""
+        with get_scoped_session() as session:
+            return [
+                id for (id,) in
+                session.query(Usuario.id_usuario).filter_by(is_ativo=True).all()
+            ]
+
+    @classmethod
+    def _obter_seguidores_usuario(cls, id_usuario) -> List[int]:
+        """Obtém a lista de IDs dos usuários seguidores de um usuário."""
+        # Implemente a lógica para obter seguidores aqui
+        # Este é um exemplo, você precisará adaptar para o seu modelo de dados
+        with get_scoped_session() as session:
+            usuario = session.query(Usuario).get(id_usuario)
+            if not usuario:
+                return []
+            # Assumindo que existe um relacionamento 'seguidores' no modelo Usuario
+            seguidores_ids = [seguidor.id_usuario for seguidor in usuario.seguidores] # Adapte conforme seu modelo
+            return seguidores_ids
+
+
+    @classmethod
+    def _enviar_notificacao_para_usuarios(cls, titulo, corpo, destinatarios_ids: List[int], entity=None):
+        """Cria e envia notificação para uma lista de usuários"""
+        if not destinatarios_ids:
+            logger.info("Sem destinatários para enviar notificação push.")
+            return
+
+        logger.info(f"Criando notificação push '{titulo}' para {len(destinatarios_ids)} usuários.")
+        
+        id_squad_destino = None
+        if entity and hasattr(entity, 'usuario') and entity.usuario and entity.usuario.id_squad:
+            id_squad_destino = entity.usuario.id_squad
+
+        publico_alvo_value = PublicoAlvo.SQUAD.value if id_squad_destino else PublicoAlvo.TODOS.value # Define publico_alvo dinamicamente
+        notificacao = NotificationService.criar_notificacao(
+            titulo=titulo,
+            corpo=corpo,
+            publico_alvo=publico_alvo_value,
+            id_usuario_criador=1, #TODO: Ajustar usuario criador system?
+            id_squad_destino=id_squad_destino
+        )
+        for id_usuario in destinatarios_ids:
+             NotificationService.enviar_notificacao(notificacao.id_notificacao)
+
+    @classmethod
+    def notificar_nova_promessa(cls, promessa):
+        """Envia notificação push para nova promessa."""
+        cls.send_push_notification('promessa', promessa, 'criada')
+
+    @classmethod
+    def notificar_promessa_alterada(cls, promessa, action):
+        """Envia notificação push para promessa alterada (editada, desativada, reativada, cumprida)."""
+        cls.send_push_notification('promessa', promessa, action)
+
+    @classmethod
+    def notificar_usuario_adicionado_squad(cls, usuario):
+        """Envia notificação push para usuário adicionado a squad."""
+        cls.send_push_notification('squad', usuario, 'usuario_adicionado')
+
+    @classmethod
+    def notificar_nova_transacao_pontos(cls, transacao_pontos):
+        """Envia notificação push para nova transação de pontos."""
+        cls.send_push_notification('transacao_pontos', transacao_pontos, 'criada')
+
+    @classmethod
+    def notificar_transferencia_pontos(cls, transacao_pontos):
+        """Envia notificação push para transferência de pontos."""
+        cls.send_push_notification('transacao_pontos', transacao_pontos, 'transferencia')
+
+    @classmethod
+    def notificar_nova_versao_regra(cls):
+        """Envia notificação push para nova versão de regra ativada."""
+        cls.send_push_notification('regra', None, 'nova_versao_ativada')
