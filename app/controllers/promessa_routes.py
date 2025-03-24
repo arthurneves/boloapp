@@ -88,8 +88,7 @@ def criar_promessa():
         db.session.flush()
 
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(usuario.id_usuario)
         invalidar_cache_home(usuario.id_usuario)
 
@@ -124,8 +123,7 @@ def editar_promessa(id_promessa):
         promessa.id_usuario = usuario.id_usuario
 
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(usuario.id_usuario)
         invalidar_cache_home(usuario.id_usuario)
 
@@ -156,8 +154,7 @@ def desativar_promessa(id_promessa):
     promessa.is_ativo = False
 
     # Invalidar todos os caches relacionados a promessas
-    if not invalidar_cache_lista_promessa():
-        current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+    invalidar_cache_lista_promessa()
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
     invalidar_cache_home(promessa.usuario.id_usuario)
 
@@ -181,8 +178,7 @@ def reativar_promessa(id_promessa):
     promessa.is_ativo = True
 
     # Invalidar todos os caches relacionados a promessas
-    if not invalidar_cache_lista_promessa():
-        current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+    invalidar_cache_lista_promessa()
     invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
     invalidar_cache_home(promessa.usuario.id_usuario)
 
@@ -205,8 +201,7 @@ def cumprir_promessa(id_promessa):
     
     if promessa.cumprir():
         # Invalidar todos os caches relacionados a promessas
-        if not invalidar_cache_lista_promessa():
-            current_app.logger.warning("Falha ao invalidar cache de lista de promessas")
+        invalidar_cache_lista_promessa()
         invalidar_cache_perfil_usuario(promessa.usuario.id_usuario)
         invalidar_cache_home(promessa.usuario.id_usuario)
 
