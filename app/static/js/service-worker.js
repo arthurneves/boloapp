@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boloapp-v32';
+const CACHE_NAME = 'boloapp-v33';
 
 const urlsToCache = [
   '/static/css/bootstrap.min.css',
@@ -8,7 +8,9 @@ const urlsToCache = [
   '/static/icons/bolo-coracao.png',
   '/static/favicon/favicon.ico',
   '/static/favicon/apple-touch-icon.png',
-  '/static/manifest.json'
+  '/static/manifest.json',
+  '/static/js/pwa-install-prompt-min.js',
+  '/static/js/notification-handler-min.js'
 ];
 
 self.addEventListener('install', event => {
