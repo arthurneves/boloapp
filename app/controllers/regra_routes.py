@@ -31,10 +31,10 @@ def editar_regras():
         db.session.commit()
         
         # Enviar notificação sobre a nova versão de regra
-        try:
-            NotificationService.notificar_nova_regra(nova_regra)
-        except Exception as e:
-            current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
+        # try:
+        #     NotificationService.notificar_nova_regra(nova_regra)
+        # except Exception as e:
+        #     current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
 
         flash('Regra atualizada com sucesso!', 'success')
         return redirect(url_for('main.visualizar_regras'))
@@ -68,10 +68,10 @@ def ativar_regra(id):
     db.session.commit()
     
     # Enviar notificação sobre a nova versão de regra ativada
-    try:
-        NotificationService.notificar_nova_regra(regra)
-    except Exception as e:
-        current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
+    # try:
+    #     NotificationService.notificar_nova_regra(regra)
+    # except Exception as e:
+    #     current_app.logger.error(f"Erro ao enviar notificação de nova regra: {str(e)}")
 
     flash('Regra ativada com sucesso!', 'success')
     return redirect(url_for('main.visualizar_regras'))

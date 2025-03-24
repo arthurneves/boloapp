@@ -198,10 +198,10 @@ def transferencia_bolos():
             invalidar_cache_geral()
             
             # Enviar notificação sobre a transferência
-            try:
-                NotificationService.notificar_transferencia_pontos(transferencia)
-            except Exception as e:
-                current_app.logger.error(f"Erro ao enviar notificação de transferência: {str(e)}")
+            # try:
+            #     NotificationService.notificar_transferencia_pontos(transferencia)
+            # except Exception as e:
+            #     current_app.logger.error(f"Erro ao enviar notificação de transferência: {str(e)}")
             
             flash('Transferência de bolos realizada com sucesso!', 'success')
             return redirect(url_for('main.listar_transacoes_pontos'))

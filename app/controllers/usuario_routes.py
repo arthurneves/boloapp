@@ -171,11 +171,11 @@ def editar_usuario(id_usuario):
         db.session.commit()
         
         # Enviar notificação se o usuário foi adicionado a um squad
-        if squad_alterado and squad and squad.id_squad != squad_anterior:
-            try:
-                NotificationService.notificar_usuario_adicionado_squad(id_usuario, squad.id_squad)
-            except Exception as e:
-                current_app.logger.error(f"Erro ao enviar notificação de usuário adicionado ao squad: {str(e)}")
+        # if squad_alterado and squad and squad.id_squad != squad_anterior:
+        #     try:
+        #         NotificationService.notificar_usuario_adicionado_squad(id_usuario, squad.id_squad)
+        #     except Exception as e:
+        #         current_app.logger.error(f"Erro ao enviar notificação de usuário adicionado ao squad: {str(e)}")
 
         flash('Usuário atualizado com sucesso!', 'success')
         return redirect(url_for('main.listar_usuarios_visao_adm'))
