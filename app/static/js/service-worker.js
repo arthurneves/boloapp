@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boloapp-v31';
+const CACHE_NAME = 'boloapp-v32';
 
 const urlsToCache = [
   '/static/css/bootstrap.min.css',
@@ -65,7 +65,7 @@ self.addEventListener('push', event => {
   const title = data.title || 'BoloApp';
   const options = {
     body: data.body || 'Você recebeu uma nova notificação',
-    icon: '/static/icons/bolo-coracao.png',
+    icon: '/static/icons/apple-touch-icon.png',
     data: data.url || '/',
     vibrate: [100, 50, 100],
     actions: [
