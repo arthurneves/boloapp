@@ -164,9 +164,9 @@ class NotificationService:
                 future.add_done_callback(lambda f: logger.info(
                     f"Envio assíncrono da notificação {notificacao.id_notificacao} concluído com status: {'Sucesso' if not f.exception() else 'Falha'}"
                 ))
-            
+
             return notificacao
-            
+
         except Exception as e:
             db.session.rollback()
             logger.error(f"Erro ao criar notificação: {str(e)}")
@@ -180,19 +180,19 @@ class NotificationService:
 
         try:
             logger.info(f"Iniciando envio da notificação {id_notificacao}")
-            
+
             with get_scoped_session() as session:
                 notificacao = session.query(Notification).get(id_notificacao)
                 if not notificacao:
                     logger.error(f"Notificação {id_notificacao} não encontrada")
                     return False
-                
+
                 if not notificacao.is_ativo or notificacao.status_envio == StatusEnvio.ENVIADO.value:
                     return False
-                
+
                 notificacao.status_envio = StatusEnvio.PROCESSANDO.value
                 session.commit()
-            
+
             # Executar envio em thread com novo contexto
             future = cls._executor.submit(
                 execute_with_app_context,
@@ -200,7 +200,7 @@ class NotificationService:
                 cls._enviar_notificacao_impl,
                 id_notificacao
             )
-            
+
             # Aguardar resultado com timeout
             result = future.result(timeout=60)  # Aumentado para 60 segundos
             logger.info(f"Resultado do envio da notificação {id_notificacao}: {'Sucesso' if result else 'Falha'}")
@@ -221,28 +221,28 @@ class NotificationService:
         thread_id = threading.get_ident()
         start_time = time.time()
         logger.info(f"Thread {thread_id}: Iniciando envio da notificação {id_notificacao}")
-        
+
         with get_scoped_session() as session:
             try:
                 notificacao = session.query(Notification).get(id_notificacao)
                 if not notificacao or not notificacao.is_ativo:
                     return False
-                
+
                 # Obter IDs dos destinatários
                 destinatarios_ids = cls._obter_destinatarios(session, notificacao)
                 destinatarios_filtrados = [
                     id_usuario for id_usuario in destinatarios_ids
                     if NotificacaoEnviada.get_notificacoes_enviadas_hoje(id_usuario) < 300
                 ]
-                
+
                 logger.info(
                     f"Thread {thread_id}: Processando {len(destinatarios_filtrados)} destinatários "
                     f"de um total de {len(destinatarios_ids)} encontrados"
                 )
-                
+
                 envios_bem_sucedidos = 0
                 envios_com_erro = 0
-                
+
                 # Enviar para cada destinatário
                 for id_usuario in destinatarios_filtrados:
                     try:
@@ -259,7 +259,7 @@ class NotificationService:
                     except Exception as e:
                         logger.error(f"Thread {thread_id}: Erro ao enviar para usuário {id_usuario}: {str(e)}")
                         envios_com_erro += 1
-                
+
                 # Atualizar status final
                 with get_scoped_session() as final_session:
                     notificacao = final_session.query(Notification).get(id_notificacao)
@@ -269,22 +269,22 @@ class NotificationService:
                                 else StatusEnvio.ENVIADO_PARCIAL.value
                         else:
                             notificacao.status_envio = StatusEnvio.FALHA.value
-                        
+
                         notificacao.data_envio = datetime.now()
                         notificacao.total_enviados = envios_bem_sucedidos
                         notificacao.total_falhas = envios_com_erro
                         final_session.commit()
-                
+
                 execution_time = time.time() - start_time
                 logger.info(
                     f"Thread {thread_id}: Notificação {id_notificacao} processada em {execution_time:.2f}s "
                     f"(Sucesso: {envios_bem_sucedidos}, Falhas: {envios_com_erro})"
                 )
                 return envios_bem_sucedidos > 0
-                
+
             except Exception as e:
                 logger.error(
-                    f"Thread {thread_id}: Erro ao processar notificação {id_notificacao}: {str(e)}", 
+                    f"Thread {thread_id}: Erro ao processar notificação {id_notificacao}: {str(e)}",
                     exc_info=True
                 )
                 with get_scoped_session() as error_session:
