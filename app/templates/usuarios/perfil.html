@@ -17,10 +17,9 @@
                     {% endif %}
 
                     
-                    <div class="perfil-img-circulo mb-3">
+                    <div class="perfil-img-circulo mb-3" style="background-image: url('{{ foto_usuario }}');">
                         <a href="{{ url_for('main.editar_usuario', id_usuario=usuario.id_usuario) }}">
-                            <img src="{{ foto_usuario }}">
-                        </a>
+                            <img></a>
                     </div>
 
 
@@ -141,8 +140,8 @@
                                     
                                     <tr onclick="window.location='{{ url }}';">
                                         <td>
-                                            <div class="perfil-usuario-squad">
-                                                <img src="{{ foto_seguido }}" class="rounded-circle perfil-usuario-squad-img">
+                                            <div class="perfil-usuario-squad"  style="background-image: url('{{ foto_seguido }}');">
+                                                <img>
                                             </div>
                                         </td>
                                         <td>{{ seguido.nome_usuario }}</td>
@@ -182,7 +181,9 @@
 
                                     <tr onclick="redirecionarParaPerfil('{{ url }}');">
                                         <td>
-                                            <div class="perfil-usuario-squad"><img src="{{ foto_user_squad }}" class="rounded-circle perfil-usuario-squad-img" ></div>
+                                            <div class="perfil-usuario-squad"  style="background-image: url('{{ foto_user_squad }}');">
+                                                <img>
+                                            </div>
                                         </td>
                                         <td>
                                             {{ outro_usuario.nome_usuario }}
